@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AgriLink ML Recommendation Engine Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8fafc; margin: 20px; color: #1e293b; }
+        .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 20px; border-radius: 10px; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
+        .card-value { font-size: 28px; font-weight: bold; color: #10B981; margin-top: 5px; }
+        .section { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AgriLink LightFM Hybrid Recommendation Engine</h1>
+        <p>Predicting P(Customer purchases Seller Listing) with Multi-Factor Business Boosts</p>
+    </div>
+    
+    <div class="card-grid">
+        <div class="card">
+            <div>Precision@10</div>
+            <div class="card-value">0.25</div>
+        </div>
+        <div class="card">
+            <div>Recall@10</div>
+            <div class="card-value">0.55</div>
+        </div>
+        <div class="card">
+            <div>MAP@10</div>
+            <div class="card-value">0.4678</div>
+        </div>
+        <div class="card">
+            <div>NDCG@10</div>
+            <div class="card-value">0.5419</div>
+        </div>
+        <div class="card">
+            <div>Catalog Coverage</div>
+            <div class="card-value">0.5714</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Model Architecture</h3>
+        <ul>
+            <li><b>Algorithm:</b> LightFM Hybrid Matrix Factorization</li>
+            <li><b>Loss Function:</b> Weighted Approximate-Rank Pairwise (WARP)</li>
+            <li><b>Target:</b> Seller Listing (Crop + Seller + Batch + Location)</li>
+            <li><b>Business Filters:</b> Stock availability, Expiry, Active status, Haversine distance limit</li>
+        </ul>
+    </div>
+</body>
+</html>

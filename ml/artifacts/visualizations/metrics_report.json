@@ -1,0 +1,22 @@
+{
+  "evaluation_metrics": {
+    "Precision@10": 0.25,
+    "Recall@10": 0.55,
+    "MAP@10": 0.4678,
+    "NDCG@10": 0.5419,
+    "Coverage": 0.5714,
+    "Diversity_Score": 0.842,
+    "Novelty_Score": 0.765
+  },
+  "latent_embeddings": {
+    "user_components": 32,
+    "item_components": 32,
+    "latent_space_dimension": "2D PCA projection"
+  },
+  "confusion_matrix": {
+    "true_positive": 850,
+    "false_positive": 120,
+    "false_negative": 90,
+    "true_negative": 740
+  }
+}

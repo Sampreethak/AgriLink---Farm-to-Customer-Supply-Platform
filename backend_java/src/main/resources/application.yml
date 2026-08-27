@@ -1,0 +1,35 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: agrilink-backend
+
+  # JPA Configurations (Common)
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: public
+        jdbc:
+          time_zone: UTC
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Custom Application settings
+app:
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration-ms: 86400000 # 24 hours
+    refresh-expiration-ms: 2592000000 # 30 days
+  mail:
+    from: noreply@agrilink.com
+  cloudinary:
+    cloud-name: placeholder-cloud-name
+    api-key: placeholder-api-key
+    api-secret: placeholder-api-secret
+  firebase:
+    config-path: classpath:firebase-service-account.json

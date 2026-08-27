@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriLink - Database Explorer & SQL Playground</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Premium Color System & Base */
+    :root {
+      --bg-main: #090D1A;
+      --bg-panel: #111827;
+      --bg-panel-hover: #1F2937;
+      --bg-header: rgba(17, 24, 39, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      
+      /* Neon Accents */
+      --accent-primary: #10B981; /* Emerald */
+      --accent-primary-glow: rgba(16, 185, 129, 0.25);
+      --accent-secondary: #06B6D4; /* Cyan */
+      --accent-secondary-glow: rgba(6, 182, 212, 0.25);
+      --accent-accent: #8B5CF6; /* Violet */
+      --accent-danger: #EF4444; /* Rose Red */
+      --accent-warning: #F59E0B; /* Amber */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-primary);
+    }
+
+    /* Header styling */
+    header {
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-glow {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--bg-main);
+      box-shadow: 0 0 15px var(--accent-primary-glow);
+      font-size: 1.2rem;
+    }
+
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #FFFFFF, #9CA3AF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--accent-primary);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-badge span.indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-primary);
+      box-shadow: 0 0 8px var(--accent-primary);
+      display: inline-block;
+    }
+
+    /* Layout structure */
+    .app-container {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 65px);
+      overflow: hidden;
+    }
+
+    /* Sidebar containing modules */
+    .sidebar {
+      width: 320px;
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .sidebar-search {
+      padding: 1.2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .module-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .module-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      padding-left: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .table-list {
+      list-style: none;
+    }
+
+    .table-item {
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+      margin-bottom: 0.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #D1D5DB;
+    }
+
+    .table-item:hover {
+      background-color: var(--bg-panel-hover);
+      color: var(--text-main);
+    }
+
+    .table-item.active {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%);
+      border-left: 3px solid var(--accent-primary);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .row-count-badge {
+      background: rgba(255,255,255,0.06);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      color: var(--text-muted);
+      font-family: sans-serif;
+    }
+
+    /* Main view area */
+    main {
+      flex: 1;
+      background-color: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Nav Tabs */
+    .tabs-header {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      padding: 0 2rem;
+    }
+
+    .tab-button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .tab-button:hover {
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    /* Tab Content panels */
+    .tab-content {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Table Explorer view */
+    .explorer-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 1.5rem;
+      overflow: hidden;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title .table-tag {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-primary);
+      background: rgba(16, 185, 129, 0.08);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .explorer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 1.5rem;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .glass-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Schema Table UI */
+    .schema-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .schema-col {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .schema-col:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .col-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .col-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-pk {
+      font-size: 0.65rem;
+      font-family: sans-serif;
+      background-color: var(--accent-warning);
+      color: #000;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-weight: 800;
+    }
+
+    .badge-fk {
+      font-size: 0.65rem;
+      font-family: sans-serif;
+      background-color: var(--accent-secondary);
+      color: #000;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-weight: 800;
+    }
+
+    .col-type {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .col-constraints {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .constraint-pill {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    /* Data Table Styling */
+    .data-table-container {
+      width: 100%;
+      overflow: auto;
+      height: 100%;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .custom-table th {
+      position: sticky;
+      top: 0;
+      background: #1F2937;
+      padding: 0.75rem 1rem;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border-color);
+      z-index: 5;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-secondary);
+      white-space: nowrap;
+    }
+
+    .custom-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: #D1D5DB;
+      white-space: nowrap;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .custom-table tbody tr:hover {
+      background-color: rgba(255,255,255,0.03);
+    }
+
+    /* SQL Playground layout */
+    .sql-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 1.5rem;
+    }
+
+    .sql-editor-container {
+      display: flex;
+      flex-direction: column;
+      background: #0D1117;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .editor-header {
+      padding: 0.75rem 1.5rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .editor-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-run {
+      background: linear-gradient(135deg, var(--accent-primary), #059669);
+      color: #000;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-primary-glow);
+      transition: all 0.2s;
+    }
+
+    .btn-run:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .sql-textarea {
+      width: 100%;
+      height: 160px;
+      background: transparent;
+      border: none;
+      color: #E6EDF0;
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      resize: none;
+      line-height: 1.5;
+    }
+
+    .sql-textarea:focus {
+      outline: none;
+    }
+
+    .playground-shortcuts {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0 1.5rem 1rem;
+      flex-wrap: wrap;
+    }
+
+    .shortcut-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+    }
+
+    .shortcut-btn:hover {
+      background: var(--bg-panel-hover);
+      color: var(--text-main);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* Diagram view */
+    .diagram-view {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .diagram-panel {
+      padding: 2rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .schema-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .stat-card .val {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-card .lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Diagram flow chart simulator */
+    .diagram-graph {
+      width: 100%;
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 2rem;
+      background: rgba(0,0,0,0.2);
+      overflow-x: auto;
+    }
+
+    .diagram-modules-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      min-width: 1000px;
+    }
+
+    .diagram-box {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .diagram-box-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .diagram-table-tag {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.5rem;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+
+    .diagram-table-tag:hover {
+      border-color: var(--accent-primary);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .placeholder-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .loader {
+      border: 3px solid rgba(255,255,255,0.05);
+      border-top: 3px solid var(--accent-primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="logo-glow">AL</div>
+      <div>
+        <h1 class="brand-title">AgriLink Enterprise</h1>
+        <p class="brand-subtitle">Visual Database Console v2.0</p>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-badge">
+        <span class="indicator"></span>
+        <span id="header-db-status">Status: Connecting...</span>
+      </div>
+      <div class="stat-badge">
+        <span>Tables:</span>
+        <strong id="header-db-tables" style="color: var(--accent-secondary);">0</strong>
+      </div>
+      <div class="stat-badge">
+        <span>Engine:</span>
+        <strong style="color: var(--accent-accent);">SQLite 3</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Layout -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="table-search" class="search-input" placeholder="Search 47 tables...">
+      </div>
+      <div class="sidebar-content" id="sidebar-tables-list">
+        <!-- JS populated Table list grouped by Module -->
+        <div class="placeholder-message">
+          <div class="loader"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+      <div class="tabs-header">
+        <button class="tab-button active" onclick="switchTab('explorer')">Database Explorer</button>
+        <button class="tab-button" onclick="switchTab('playground')">SQL Playground</button>
+        <button class="tab-button" onclick="switchTab('diagram')">Entity Summary</button>
+      </div>
+
+      <!-- Tab 1: Database Explorer -->
+      <div class="tab-content active" id="tab-explorer">
+        <div class="explorer-layout">
+          <div class="section-title">
+            <span>Viewing Table:</span>
+            <span class="table-tag" id="current-table-name">Select a table</span>
+          </div>
+
+          <div class="explorer-grid">
+            <!-- Table Columns / Schema -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span>Schema definition</span>
+                <span style="font-size: 0.75rem; color: var(--accent-secondary); font-family: monospace;" id="schema-column-count">0 Columns</span>
+              </div>
+              <div class="card-content" style="padding: 1rem;">
+                <div class="schema-list" id="explorer-schema-list">
+                  <div style="color: var(--text-muted); text-align: center; padding: 2rem;">
+                    Select a table from the sidebar to inspect its fields.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table Seed Data -->
+            <div class="glass-card">
+              <div class="card-header">
+                <span>Seeded Records</span>
+                <span class="row-count-badge" id="data-row-count">0 rows</span>
+              </div>
+              <div class="card-content" style="padding: 0; overflow: hidden;">
+                <div class="data-table-container" id="explorer-data-container">
+                  <div style="color: var(--text-muted); text-align: center; padding: 5rem;">
+                    No table selected.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: SQL Playground -->
+      <div class="tab-content" id="tab-playground">
+        <div class="sql-layout">
+          <div class="sql-editor-container">
+            <div class="editor-header">
+              <div class="editor-title">
+                <span>SQL query terminal</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(Only SELECT queries allowed)</span>
+              </div>
+              <button class="btn-run" onclick="executePlaygroundQuery()">Execute Run</button>
+            </div>
+            <textarea id="sql-query-input" class="sql-textarea" placeholder="SELECT * FROM users JOIN role ON users.role_id = role.role_id LIMIT 5;"></textarea>
+            
+            <div class="playground-shortcuts">
+              <button class="shortcut-btn" onclick="setQuery('SELECT * FROM users LIMIT 5;')">Browse Users</button>
+              <button class="shortcut-btn" onclick="setQuery('SELECT * FROM crop LIMIT 5;')">Browse Crops</button>
+              <button class="shortcut-btn" onclick="setQuery('SELECT farm_name, farmer_code, bio FROM farm JOIN farmer ON farm.farmer_id = farmer.farmer_id;')">Farms & Farmers</button>
+              <button class="shortcut-btn" onclick="setQuery('SELECT crop_name, old_price, new_price, source FROM price_history JOIN crop ON price_history.crop_id = crop.crop_id;')">Price Histories</button>
+              <button class="shortcut-btn" onclick="setQuery('SELECT * FROM orders LIMIT 5;')">Browse Orders</button>
+              <button class="shortcut-btn" onclick="setQuery('SELECT warehouse_name, total_capacity_kg, occupied_capacity_kg FROM warehouse;')">Warehouses</button>
+            </div>
+          </div>
+
+          <!-- Query Results Grid -->
+          <div class="glass-card" style="flex: 1;">
+            <div class="card-header">
+              <span>Playground Results</span>
+              <span class="row-count-badge" id="query-results-count">0 rows</span>
+            </div>
+            <div class="card-content" style="padding: 0; overflow: hidden;" id="playground-result-container">
+              <div style="color: var(--text-muted); text-align: center; padding: 5rem;">
+                Run a SELECT query above to view results.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Entity Summary -->
+      <div class="tab-content" id="tab-diagram">
+        <div class="diagram-view">
+          <div class="schema-stats-grid">
+            <div class="stat-card" style="border-top: 3px solid var(--accent-primary);">
+              <span class="val">47</span>
+              <span class="lbl">Total Tables</span>
+            </div>
+            <div class="stat-card" style="border-top: 3px solid var(--accent-secondary);">
+              <span class="val" id="total-relations-count">80+</span>
+              <span class="lbl">Relationships</span>
+            </div>
+            <div class="stat-card" style="border-top: 3px solid var(--accent-accent);">
+              <span class="val" id="total-rows-count">--</span>
+              <span class="lbl">Seeded Records</span>
+            </div>
+            <div class="stat-card" style="border-top: 3px solid var(--accent-warning);">
+              <span class="val">10+</span>
+              <span class="lbl">Bridge Modules</span>
+            </div>
+          </div>
+
+          <div class="diagram-panel">
+            <h2 style="font-size: 1.2rem; font-weight: 700; width: 100%;">ER Diagram Layout (Visual Structure Groups)</h2>
+            <div class="diagram-graph">
+              <div class="diagram-modules-row">
+                <!-- Group A -->
+                <div class="diagram-box" style="border-top: 3px solid #10B981;">
+                  <div class="diagram-box-title" style="color: #10B981;">A. Core & Users</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('role')">role</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('users')">users</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('party')">party</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('customer')">customer</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('customer_address')">customer_address</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('location')">location</div>
+                </div>
+
+                <!-- Group B -->
+                <div class="diagram-box" style="border-top: 3px solid #3B82F6;">
+                  <div class="diagram-box-title" style="color: #3B82F6;">B. Farmers & Crops</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('farmer')">farmer</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('farm')">farm</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('farmer_crop')">farmer_crop</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('crop_category')">crop_category</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('crop')">crop</div>
+                </div>
+
+                <!-- Group C -->
+                <div class="diagram-box" style="border-top: 3px solid #F59E0B;">
+                  <div class="diagram-box-title" style="color: #F59E0B;">C. Aggregators</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('aggregator')">aggregator</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('warehouse')">warehouse</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('procurement')">procurement</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('aggregator_inventory')">aggregator_inventory</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('inventory_reservation')">inventory_reservation</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('quality_check')">quality_check</div>
+                </div>
+
+                <!-- Group D & E -->
+                <div class="diagram-box" style="border-top: 3px solid #8B5CF6;">
+                  <div class="diagram-box-title" style="color: #8B5CF6;">D. Orders & Delivery</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('orders')">orders</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('order_item')">order_item</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('order_allocation')">order_allocation</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('delivery')">delivery</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('delivery_partner')">delivery_partner</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('delivery_assignment')">delivery_assignment</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('delivery_route')">delivery_route</div>
+                </div>
+
+                <!-- Group F & G -->
+                <div class="diagram-box" style="border-top: 3px solid #EC4899;">
+                  <div class="diagram-box-title" style="color: #EC4899;">E. Engagement & Pay</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('payment')">payment</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('settlement')">settlement</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('settlement_detail')">settlement_detail</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('cart')">cart</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('cart_item')">cart_item</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('coupon')">coupon</div>
+                  <div class="diagram-table-tag" onclick="selectAndLoadTable('review')">review</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    let globalStats = {};
+    let activeTable = '';
+
+    // Module definitions for 47 tables
+    const tableModules = {
+      'Core & Access': ['role', 'users', 'party', 'location', 'customer_address', 'customer'],
+      'Farmer & Farm': ['farmer', 'farm', 'crop_category', 'crop', 'farmer_crop'],
+      'Aggregator & Warehouse': ['aggregator', 'warehouse', 'procurement', 'aggregator_inventory', 'inventory_reservation', 'quality_check'],
+      'Order & Fulfillment': ['orders', 'order_item', 'fulfillment_source', 'order_allocation', 'order_tracking'],
+      'Delivery Logistics': ['delivery', 'delivery_partner', 'delivery_assignment', 'vehicle', 'delivery_route', 'delivery_proof'],
+      'Payments & Settlement': ['payment', 'settlement', 'settlement_detail'],
+      'Customer Engagement': ['cart', 'cart_item', 'wishlist', 'review', 'coupon', 'coupon_usage'],
+      'Notifications': ['notification', 'notification_status'],
+      'Price & Analytics': ['price_history', 'ml_price_prediction'],
+      'Returns & Refunds': ['returns', 'return_item', 'refund'],
+      'Ledger & Movements': ['inventory_movement', 'inventory_adjustment', 'batch_expiry_alert']
+    };
+
+    // Load initial stats
+    async function loadDbStats() {
+      try {
+        const res = await fetch('/api/db/stats');
+        const data = await res.json();
+        globalStats = data;
+        
+        // Update header
+        document.getElementById('header-db-status').innerText = 'Status: Connected';
+        document.getElementById('header-db-tables').innerText = data.tablesCount;
+        
+        // Compute total seeded rows
+        let totalRows = 0;
+        if (data.rowCounts) {
+          Object.values(data.rowCounts).forEach(v => totalRows += v);
+        }
+        document.getElementById('total-rows-count').innerText = totalRows;
+
+        renderTablesList(data.tablesList, data.rowCounts);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('header-db-status').innerText = 'Status: Offline';
+        document.getElementById('header-db-status').style.color = 'var(--accent-danger)';
+      }
+    }
+
+    // Render grouped sidebar tables
+    function renderTablesList(tables, rowCounts = {}) {
+      const container = document.getElementById('sidebar-tables-list');
+      container.innerHTML = '';
+
+      Object.entries(tableModules).forEach(([moduleName, moduleTables]) => {
+        // Filter tables that exist in the DB
+        const existingTables = moduleTables.filter(t => tables.includes(t));
+        
+        if (existingTables.length === 0) return;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'module-group';
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'module-header';
+        headerDiv.innerHTML = `<span>${moduleName}</span><span>(${existingTables.length})</span>`;
+        groupDiv.appendChild(headerDiv);
+
+        const listUl = document.createElement('ul');
+        listUl.className = 'table-list';
+
+        existingTables.forEach(t => {
+          const itemLi = document.createElement('li');
+          itemLi.className = 'table-item';
+          itemLi.id = `table-item-${t}`;
+          itemLi.onclick = () => selectAndLoadTable(t);
+          
+          const rowCount = rowCounts[t] !== undefined ? rowCounts[t] : 0;
+
+          itemLi.innerHTML = `<span>${t}</span><span class="row-count-badge">${rowCount} rows</span>`;
+          listUl.appendChild(itemLi);
+        });
+
+        groupDiv.appendChild(listUl);
+        container.appendChild(groupDiv);
+      });
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.innerText.toLowerCase().includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    // Set Query helper
+    function setQuery(sql) {
+      document.getElementById('sql-query-input').value = sql;
+      switchTab('playground');
+    }
+
+    // Load table data and schema
+    async function selectAndLoadTable(tableName) {
+      activeTable = tableName;
+      
+      // Update Active class in sidebar
+      document.querySelectorAll('.table-item').forEach(item => item.classList.remove('active'));
+      const activeItem = document.getElementById(`table-item-${tableName}`);
+      if (activeItem) activeItem.classList.add('active');
+
+      document.getElementById('current-table-name').innerText = tableName;
+      switchTab('explorer');
+
+      // 1. Fetch Schema Column details
+      try {
+        const schemaRes = await fetch(`/api/db/schema/${tableName}`);
+        const schemaData = await schemaRes.json();
+        
+        document.getElementById('schema-column-count').innerText = `${schemaData.columns.length} Columns`;
+        
+        const schemaContainer = document.getElementById('explorer-schema-list');
+        schemaContainer.innerHTML = '';
+        
+        schemaData.columns.forEach(col => {
+          const colDiv = document.createElement('div');
+          colDiv.className = 'schema-col';
+          
+          let keyBadge = '';
+          if (col.pk) {
+            keyBadge = '<span class="badge-pk">PK</span>';
+          } else {
+            // Check if column is a FK
+            const fkRelation = schemaData.foreignKeys.find(fk => fk.from === col.name);
+            if (fkRelation) {
+              keyBadge = `<span class="badge-fk" title="FK -> ${fkRelation.toTable}.${fkRelation.toColumn}">FK</span>`;
+            }
+          }
+
+          const constraintText = col.notnull ? '<span class="constraint-pill">NOT NULL</span>' : '';
+
+          colDiv.innerHTML = `
+            <div class="col-info">
+              <div class="col-name">${col.name} ${keyBadge}</div>
+              <div class="col-type">${col.type.toUpperCase()}</div>
+            </div>
+            <div class="col-constraints">
+              ${constraintText}
+            </div>
+          `;
+          schemaContainer.appendChild(colDiv);
+        });
+
+      } catch (err) {
+        console.error(err);
+      }
+
+      // 2. Fetch seed rows data
+      try {
+        const dataRes = await fetch(`/api/db/data/${tableName}`);
+        const dataJson = await dataRes.json();
+        
+        document.getElementById('data-row-count').innerText = `${dataJson.rowCount} records`;
+
+        const dataContainer = document.getElementById('explorer-data-container');
+        dataContainer.innerHTML = '';
+
+        if (dataJson.rowCount === 0) {
+          dataContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 5rem;">No records found in this table.</div>';
+          return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'custom-table';
+
+        // Headers
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const columns = Object.keys(dataJson.rows[0]);
+        columns.forEach(col => {
+          const th = document.createElement('th');
+          th.innerText = col;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Body
+        const tbody = document.createElement('tbody');
+        dataJson.rows.forEach(row => {
+          const bodyRow = document.createElement('tr');
+          columns.forEach(col => {
+            const td = document.createElement('td');
+            const val = row[col];
+            td.innerText = val !== null ? val : 'NULL';
+            if (val === null) td.style.color = '#EF4444';
+            bodyRow.appendChild(td);
+          });
+          tbody.appendChild(bodyRow);
+        });
+        table.appendChild(tbody);
+        dataContainer.appendChild(table);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // SQL Playground Execution
+    async function executePlaygroundQuery() {
+      const sqlInput = document.getElementById('sql-query-input').value;
+      if (!sqlInput) return;
+
+      const container = document.getElementById('playground-result-container');
+      container.innerHTML = '<div class="placeholder-message"><div class="loader"></div><p style="margin-top: 1rem;">Executing query...</p></div>';
+
+      try {
+        const res = await fetch('/api/db/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql: sqlInput })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          container.innerHTML = `<div style="color: var(--accent-danger); padding: 2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+            ❌ SQL Error: ${data.error}
+          </div>`;
+          document.getElementById('query-results-count').innerText = `Error`;
+          return;
+        }
+
+        document.getElementById('query-results-count').innerText = `${data.rowCount} rows`;
+
+        if (data.rowCount === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 5rem;">Query executed successfully. 0 rows returned.</div>';
+          return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'custom-table';
+
+        // Headers
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        data.columns.forEach(col => {
+          const th = document.createElement('th');
+          th.innerText = col;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Body
+        const tbody = document.createElement('tbody');
+        data.rows.forEach(row => {
+          const bodyRow = document.createElement('tr');
+          data.columns.forEach(col => {
+            const td = document.createElement('td');
+            const val = row[col];
+            td.innerText = val !== null ? val : 'NULL';
+            if (val === null) td.style.color = '#EF4444';
+            bodyRow.appendChild(td);
+          });
+          tbody.appendChild(bodyRow);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
+
+      } catch (err) {
+        container.innerHTML = `<div style="color: var(--accent-danger); padding: 2rem;">❌ Failed to execute query due to connection error.</div>`;
+      }
+    }
+
+    // Search bar filter for tables list
+    document.getElementById('table-search').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('.table-item').forEach(item => {
+        const tableName = item.id.replace('table-item-', '');
+        if (tableName.includes(q)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      // Hide empty groups
+      document.querySelectorAll('.module-group').forEach(group => {
+        const visibleItems = Array.from(group.querySelectorAll('.table-item')).filter(item => item.style.display !== 'none');
+        if (visibleItems.length === 0) {
+          group.style.display = 'none';
+        } else {
+          group.style.display = 'block';
+        }
+      });
+    });
+
+    // Run setup
+    loadDbStats().then(() => {
+      // Load 'users' by default if exists
+      if (globalStats.tablesList && globalStats.tablesList.includes('users')) {
+        selectAndLoadTable('users');
+      }
+    });
+  </script>
+</body>
+</html>

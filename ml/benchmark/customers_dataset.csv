@@ -1,0 +1,121 @@
+customer_id,customer_type,region,preferred_category,avg_order_value_rs,purchase_frequency_per_month,organic_preference_ratio,max_acceptable_distance_km,total_orders_placed,total_spent_rs,loyalty_points
+CUST-1001,individual,Malur Aggregator Hub,Grains & Cereals,721.08,4,0.53,15.8,28,20190.24,201
+CUST-1002,individual,Bangalore Urban,Organic Products,869.36,1,0.8,18.0,4,3477.44,34
+CUST-1003,individual,Bangalore Urban,Vegetables,668.33,2,0.24,13.5,16,10693.28,106
+CUST-1004,hospital,Bangalore Rural,Vegetables,10145.09,12,0.16,7.1,72,730446.48,7304
+CUST-1005,hostel_pg,Kolar Central,Pulses,5480.09,4,0.31,10.5,24,131522.16,1315
+CUST-1006,corporate,Chickballapur,Vegetables,9310.99,11,0.26,10.2,88,819367.12,8193
+CUST-1007,hostel_pg,Malur Aggregator Hub,Pulses,8060.66,6,0.27,20.8,30,241819.8,2418
+CUST-1008,restaurant,Bangalore Rural,Fruits,4172.37,19,0.21,12.5,114,475650.18,4756
+CUST-1009,hospital,Chickballapur,Pulses,7167.88,6,0.25,17.3,12,86014.56,860
+CUST-1010,corporate,Bangalore Urban,Organic Products,15711.05,7,0.09,22.0,49,769841.45,7698
+CUST-1011,hostel_pg,Kolar Central,Vegetables,6518.93,4,0.14,8.9,8,52151.44,521
+CUST-1012,individual,Chickballapur,Vegetables,825.38,4,0.4,16.9,8,6603.04,66
+CUST-1013,individual,Bangalore Urban,Organic Products,688.98,8,0.36,19.2,80,55118.4,551
+CUST-1014,hospital,Malur Aggregator Hub,Fruits,8849.67,12,0.15,10.9,48,424784.16,4247
+CUST-1015,restaurant,Bangalore Rural,Grains & Cereals,4513.0,15,0.6,19.9,30,135390.0,1353
+CUST-1016,individual,Bangalore Urban,Pulses,382.51,8,0.28,10.9,24,9180.24,91
+CUST-1017,hostel_pg,Chickballapur,Grains & Cereals,6732.29,16,0.19,19.9,64,430866.56,4308
+CUST-1018,individual,Bangalore Urban,Fruits,674.75,2,0.11,6.9,10,6747.5,67
+CUST-1019,individual,Bangalore Rural,Pulses,794.96,6,0.2,12.6,66,52467.36,524
+CUST-1020,individual,Malur Aggregator Hub,Fruits,534.23,3,0.41,21.3,24,12821.52,128
+CUST-1021,hospital,Malur Aggregator Hub,Organic Products,5461.26,5,0.16,18.9,55,300369.3,3003
+CUST-1022,restaurant,Malur Aggregator Hub,Pulses,4247.43,13,0.11,12.7,143,607382.49,6073
+CUST-1023,hostel_pg,Malur Aggregator Hub,Organic Products,8095.08,13,0.32,16.0,143,1157596.44,11575
+CUST-1024,hospital,Chickballapur,Grains & Cereals,7255.53,14,0.23,20.5,140,1015774.2,10157
+CUST-1025,individual,Kolar Central,Vegetables,845.82,4,0.29,11.9,20,16916.4,169
+CUST-1026,hostel_pg,Malur Aggregator Hub,Organic Products,6487.97,9,0.15,13.4,99,642309.03,6423
+CUST-1027,restaurant,Kolar Central,Organic Products,4241.58,11,0.44,9.1,99,419916.42,4199
+CUST-1028,individual,Kolar Central,Pulses,693.48,7,0.42,12.9,77,53397.96,533
+CUST-1029,restaurant,Malur Aggregator Hub,Vegetables,5340.17,11,0.43,10.8,121,646160.57,6461
+CUST-1030,individual,Malur Aggregator Hub,Organic Products,609.89,5,0.32,10.2,35,21346.15,213
+CUST-1031,hostel_pg,Kolar Central,Grains & Cereals,8278.14,7,0.67,16.8,28,231787.92,2317
+CUST-1032,restaurant,Chickballapur,Grains & Cereals,5241.96,13,0.36,12.7,26,136290.96,1362
+CUST-1033,individual,Chickballapur,Vegetables,632.82,3,0.45,15.2,18,11390.76,113
+CUST-1034,restaurant,Bangalore Rural,Vegetables,3760.38,11,0.15,17.5,99,372277.62,3722
+CUST-1035,individual,Chickballapur,Fruits,841.32,5,0.61,11.7,15,12619.8,126
+CUST-1036,restaurant,Bangalore Urban,Fruits,5558.42,13,0.05,4.1,104,578075.68,5780
+CUST-1037,hostel_pg,Kolar Central,Organic Products,8110.66,7,0.42,4.7,49,397422.34,3974
+CUST-1038,hospital,Bangalore Urban,Pulses,9994.74,6,0.23,9.8,18,179905.32,1799
+CUST-1039,individual,Chickballapur,Organic Products,556.21,5,0.21,15.2,45,25029.45,250
+CUST-1040,hostel_pg,Chickballapur,Pulses,7246.95,8,0.06,16.0,48,347853.6,3478
+CUST-1041,individual,Kolar Central,Vegetables,553.01,6,0.05,20.1,12,6636.12,66
+CUST-1042,hostel_pg,Chickballapur,Vegetables,9922.91,6,0.24,3.6,54,535837.14,5358
+CUST-1043,restaurant,Bangalore Rural,Grains & Cereals,5297.48,14,0.26,23.9,84,444988.32,4449
+CUST-1044,individual,Bangalore Urban,Grains & Cereals,746.09,5,0.11,6.6,45,33574.05,335
+CUST-1045,individual,Chickballapur,Pulses,743.99,2,0.13,9.9,8,5951.92,59
+CUST-1046,individual,Kolar Central,Organic Products,705.67,3,0.12,16.3,30,21170.1,211
+CUST-1047,restaurant,Bangalore Urban,Grains & Cereals,4894.45,16,0.22,19.7,128,626489.6,6264
+CUST-1048,restaurant,Bangalore Rural,Organic Products,5551.59,14,0.11,3.9,56,310889.04,3108
+CUST-1049,hostel_pg,Bangalore Rural,Grains & Cereals,6750.39,10,0.17,16.7,70,472527.3,4725
+CUST-1050,hostel_pg,Bangalore Urban,Organic Products,7960.25,10,0.12,19.2,110,875627.5,8756
+CUST-1051,corporate,Bangalore Urban,Fruits,12541.59,8,0.44,21.7,72,902994.48,9029
+CUST-1052,restaurant,Bangalore Rural,Vegetables,7038.69,13,0.47,6.7,91,640520.79,6405
+CUST-1053,individual,Chickballapur,Grains & Cereals,599.63,3,0.52,24.2,9,5396.67,53
+CUST-1054,hospital,Kolar Central,Pulses,10753.13,10,0.45,16.5,20,215062.6,2150
+CUST-1055,restaurant,Chickballapur,Fruits,5666.5,14,0.5,15.5,154,872641.0,8726
+CUST-1056,individual,Chickballapur,Pulses,622.41,8,0.61,15.7,72,44813.52,448
+CUST-1057,individual,Bangalore Rural,Pulses,796.74,4,0.38,21.8,8,6373.92,63
+CUST-1058,restaurant,Bangalore Urban,Grains & Cereals,5458.25,11,0.06,4.6,44,240163.0,2401
+CUST-1059,corporate,Bangalore Urban,Vegetables,17089.37,7,0.5,8.6,56,957004.72,9570
+CUST-1060,hospital,Chickballapur,Organic Products,8701.63,8,0.2,14.5,88,765743.44,7657
+CUST-1061,corporate,Chickballapur,Organic Products,18893.88,4,0.2,7.4,20,377877.6,3778
+CUST-1062,restaurant,Bangalore Rural,Fruits,3701.56,9,0.53,16.9,27,99942.12,999
+CUST-1063,individual,Kolar Central,Vegetables,492.68,5,0.28,18.3,10,4926.8,49
+CUST-1064,individual,Bangalore Rural,Organic Products,801.52,8,0.21,8.7,64,51297.28,512
+CUST-1065,individual,Malur Aggregator Hub,Vegetables,1040.9,3,0.29,26.0,27,28104.3,281
+CUST-1066,individual,Bangalore Urban,Organic Products,701.01,3,0.21,11.7,9,6309.09,63
+CUST-1067,hostel_pg,Malur Aggregator Hub,Fruits,10587.09,5,0.31,28.0,50,529354.5,5293
+CUST-1068,restaurant,Kolar Central,Pulses,3849.63,17,0.29,5.3,153,588993.39,5889
+CUST-1069,individual,Bangalore Rural,Fruits,468.89,10,0.48,12.9,110,51577.9,515
+CUST-1070,restaurant,Malur Aggregator Hub,Organic Products,4395.95,15,0.56,5.8,30,131878.5,1318
+CUST-1071,individual,Bangalore Rural,Organic Products,1125.11,5,0.17,17.7,30,33753.3,337
+CUST-1072,restaurant,Chickballapur,Pulses,5583.61,13,0.14,12.4,26,145173.86,1451
+CUST-1073,individual,Malur Aggregator Hub,Organic Products,683.57,9,0.25,10.4,54,36912.78,369
+CUST-1074,restaurant,Chickballapur,Vegetables,5094.37,9,0.14,13.9,18,91698.66,916
+CUST-1075,hostel_pg,Chickballapur,Pulses,8506.83,4,0.29,17.8,28,238191.24,2381
+CUST-1076,corporate,Bangalore Urban,Fruits,9888.32,6,0.64,20.7,66,652629.12,6526
+CUST-1077,individual,Chickballapur,Fruits,581.45,6,0.31,13.9,36,20932.2,209
+CUST-1078,corporate,Malur Aggregator Hub,Grains & Cereals,8559.12,10,0.04,14.2,30,256773.6,2567
+CUST-1079,restaurant,Bangalore Rural,Organic Products,3313.36,9,0.23,11.6,63,208741.68,2087
+CUST-1080,individual,Bangalore Urban,Organic Products,920.14,5,0.3,20.1,10,9201.4,92
+CUST-1081,corporate,Kolar Central,Grains & Cereals,8719.11,5,0.61,10.6,10,87191.1,871
+CUST-1082,restaurant,Chickballapur,Fruits,4537.66,26,0.35,16.1,260,1179791.6,11797
+CUST-1083,individual,Kolar Central,Fruits,782.04,11,0.57,26.8,44,34409.76,344
+CUST-1084,corporate,Bangalore Urban,Organic Products,10727.88,11,0.18,20.5,121,1298073.48,12980
+CUST-1085,restaurant,Bangalore Urban,Organic Products,4389.27,12,0.21,20.4,36,158013.72,1580
+CUST-1086,restaurant,Chickballapur,Grains & Cereals,4461.49,11,0.39,16.6,110,490763.9,4907
+CUST-1087,individual,Bangalore Urban,Organic Products,606.28,5,0.33,20.5,45,27282.6,272
+CUST-1088,individual,Bangalore Rural,Fruits,543.79,2,0.25,8.0,14,7613.06,76
+CUST-1089,individual,Kolar Central,Grains & Cereals,777.06,7,0.44,11.6,14,10878.84,108
+CUST-1090,individual,Malur Aggregator Hub,Organic Products,907.36,4,0.37,17.0,12,10888.32,108
+CUST-1091,individual,Bangalore Urban,Organic Products,540.1,4,0.27,8.9,44,23764.4,237
+CUST-1092,individual,Chickballapur,Vegetables,677.57,9,0.26,9.4,18,12196.26,121
+CUST-1093,hostel_pg,Malur Aggregator Hub,Vegetables,7976.07,13,0.12,25.1,130,1036889.1,10368
+CUST-1094,hostel_pg,Kolar Central,Grains & Cereals,11784.03,8,0.28,5.9,64,754177.92,7541
+CUST-1095,restaurant,Chickballapur,Pulses,5258.93,12,0.4,10.1,48,252428.64,2524
+CUST-1096,hostel_pg,Chickballapur,Pulses,7066.27,10,0.6,14.2,90,635964.3,6359
+CUST-1097,hostel_pg,Bangalore Rural,Organic Products,10912.31,11,0.18,10.9,55,600177.05,6001
+CUST-1098,individual,Chickballapur,Organic Products,728.65,3,0.1,23.1,33,24045.45,240
+CUST-1099,individual,Malur Aggregator Hub,Organic Products,750.05,5,0.06,21.0,40,30002.0,300
+CUST-1100,restaurant,Bangalore Urban,Organic Products,3399.22,12,0.15,7.2,36,122371.92,1223
+CUST-1101,hospital,Bangalore Urban,Organic Products,5785.49,8,0.15,18.5,88,509123.12,5091
+CUST-1102,individual,Kolar Central,Pulses,847.1,5,0.21,11.3,40,33884.0,338
+CUST-1103,restaurant,Malur Aggregator Hub,Pulses,4725.34,17,0.26,5.8,85,401653.9,4016
+CUST-1104,individual,Chickballapur,Pulses,726.2,6,0.01,16.9,42,30500.4,305
+CUST-1105,individual,Bangalore Urban,Vegetables,950.29,2,0.25,15.6,14,13304.06,133
+CUST-1106,individual,Kolar Central,Organic Products,756.42,6,0.07,16.2,30,22692.6,226
+CUST-1107,hostel_pg,Bangalore Urban,Organic Products,6560.95,6,0.42,12.0,60,393657.0,3936
+CUST-1108,individual,Kolar Central,Pulses,388.85,4,0.29,19.7,28,10887.8,108
+CUST-1109,hostel_pg,Malur Aggregator Hub,Pulses,5530.2,10,0.52,17.3,60,331812.0,3318
+CUST-1110,restaurant,Malur Aggregator Hub,Organic Products,3306.4,10,0.29,6.3,60,198384.0,1983
+CUST-1111,hostel_pg,Bangalore Urban,Fruits,8490.08,14,0.18,16.4,28,237722.24,2377
+CUST-1112,individual,Malur Aggregator Hub,Grains & Cereals,769.92,4,0.37,2.8,20,15398.4,153
+CUST-1113,individual,Bangalore Rural,Grains & Cereals,677.87,3,0.37,20.0,30,20336.1,203
+CUST-1114,corporate,Chickballapur,Grains & Cereals,9729.61,6,0.31,10.7,12,116755.32,1167
+CUST-1115,corporate,Kolar Central,Vegetables,13077.63,7,0.22,18.7,70,915434.1,9154
+CUST-1116,hostel_pg,Malur Aggregator Hub,Organic Products,7779.61,7,0.1,16.6,35,272286.35,2722
+CUST-1117,restaurant,Bangalore Rural,Pulses,3817.67,17,0.13,18.8,170,649003.9,6490
+CUST-1118,restaurant,Chickballapur,Fruits,4881.16,9,0.14,9.0,90,439304.4,4393
+CUST-1119,individual,Kolar Central,Pulses,716.69,5,0.31,14.5,20,14333.8,143
+CUST-1120,corporate,Bangalore Urban,Organic Products,15665.99,6,0.24,15.1,24,375983.76,3759

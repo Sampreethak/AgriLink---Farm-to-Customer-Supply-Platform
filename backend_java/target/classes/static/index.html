@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriLink - Direct Farm Fresh Supply</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <nav class="navbar">
+        <a href="#" class="brand">
+            <i class="fa-solid fa-leaf"></i> AgriLink
+        </a>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchTab('marketplace-tab', this)">
+                <i class="fa-solid fa-store"></i> Shop Fresh
+            </button>
+            <button class="nav-btn" onclick="switchTab('orders-tab', this)">
+                <i class="fa-solid fa-receipt"></i> My Orders
+            </button>
+            <button class="nav-btn" onclick="switchTab('farmer-tab', this)">
+                <i class="fa-solid fa-tractor"></i> Farmer Portal
+            </button>
+            <button class="nav-btn" onclick="switchTab('delivery-tab', this)">
+                <i class="fa-solid fa-truck-fast"></i> Delivery Tracker
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <!-- ================= TAB 1: SHOP FRESH MARKETPLACE ================= -->
+        <div id="marketplace-tab" class="tab-content active">
+            
+            <div class="hero-banner">
+                <div class="hero-text">
+                    <h1>Direct Farm Harvest & Fresh Supply</h1>
+                    <p>Connecting local farmers and cold storage hubs directly to your kitchen with 100% freshness guarantee.</p>
+                </div>
+            </div>
+
+            <!-- Customer Profile Selector -->
+            <div class="user-selector-bar">
+                <div class="user-selector-group">
+                    <i class="fa-solid fa-user-check fa-xl" style="color: var(--primary);"></i>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">DELIVERY LOCATION & USER CONTEXT</div>
+                        <select id="customer-select" class="select-control" onchange="onCustomerChange(this.value)">
+                            <option value="c793972c-ba33-4eb2-91db-83d7b26f19ca">Priya Sharma • Indiranagar, Bengaluru (Loyalty: 120 pts)</option>
+                            <option value="cust-2222-3333-4444">Rahul Verma • Kolar Town (Loyalty: 45 pts)</option>
+                            <option value="cold-start-new-user">Guest Customer • Express Delivery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <div class="dot"></div> Live Inventory Connected
+                </div>
+            </div>
+
+            <!-- Section 1: Recommended For You -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title">
+                    <i class="fa-solid fa-heart" style="color: var(--danger);"></i> Recommended For You
+                </div>
+                <div id="ml-recommendations-grid" class="grid-cards">
+                    <!-- Dynamic Product Cards Inserted Here -->
+                </div>
+            </div>
+
+            <!-- Section 2: Farm Direct Listings -->
+            <div>
+                <div class="section-title">
+                    <i class="fa-solid fa-wheat-awn" style="color: var(--warning);"></i> Direct Farm Harvest Produce
+                </div>
+                <div id="all-listings-grid" class="grid-cards">
+                    <!-- Dynamic Listing Cards Inserted Here -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 2: MY ORDERS ================= -->
+        <div id="orders-tab" class="tab-content">
+            <div class="section-title">
+                <i class="fa-solid fa-receipt"></i> Recent Orders & Deliveries
+            </div>
+            
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Payment Status</th>
+                            <th>Delivery Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>#ORD-99821</b></td>
+                            <td>Today, 2:30 PM</td>
+                            <td>Scenario Tomatoes (100 kg)</td>
+                            <td><b style="color: var(--primary);">₹3,500.00</b></td>
+                            <td><span style="color: var(--primary); font-weight: 600;">Paid (UPI)</span></td>
+                            <td><span style="color: var(--secondary); font-weight: 600;">In Transit</span></td>
+                            <td><button class="btn-action btn-secondary" onclick="switchTab('delivery-tab', document.querySelectorAll('.nav-btn')[3])">Track Order</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>#ORD-99710</b></td>
+                            <td>Yesterday</td>
+                            <td>Kashmir Apples (5 kg), Basmati Rice (10 kg)</td>
+                            <td><b>₹1,700.00</b></td>
+                            <td><span style="color: var(--primary); font-weight: 600;">Paid</span></td>
+                            <td><span style="color: var(--primary); font-weight: 600;">Delivered</span></td>
+                            <td><button class="btn-action btn-secondary">Reorder</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: FARMER PORTAL ================= -->
+        <div id="farmer-tab" class="tab-content">
+            <div class="section-title">
+                <i class="fa-solid fa-tractor" style="color: var(--primary);"></i> Farmer Supply Dashboard
+            </div>
+
+            <div class="metrics-row">
+                <div class="stat-card">
+                    <div class="title">Active Farms</div>
+                    <div class="number">3 Farms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="title">Total Harvest Quantity</div>
+                    <div class="number" style="color: var(--primary);">1,400 kg</div>
+                </div>
+                <div class="stat-card">
+                    <div class="title">This Month Payouts</div>
+                    <div class="number" style="color: var(--secondary);">₹42,500.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="title">Quality Rating</div>
+                    <div class="number" style="color: var(--warning);">4.9 ★</div>
+                </div>
+            </div>
+
+            <div class="section-title" style="font-size: 1.1rem; margin-top: 1.5rem;">
+                My Published Crop Harvest Listings
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Crop Name</th>
+                            <th>Farm Origin</th>
+                            <th>Available Qty</th>
+                            <th>Price / kg</th>
+                            <th>Grade</th>
+                            <th>Freshness</th>
+                            <th>Organic Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Organic Red Tomato</b></td>
+                            <td>Farmer A Green Farm (Kolar)</td>
+                            <td>40.0 kg</td>
+                            <td>₹30.00</td>
+                            <td>Grade A</td>
+                            <td><span style="color: var(--primary); font-weight: 600;">95% Fresh</span></td>
+                            <td><span style="color: var(--primary); font-weight: 600;">Organic Certified</span></td>
+                        </tr>
+                        <tr>
+                            <td><b>Cherry Tomato</b></td>
+                            <td>Farmer B Organic Farm (Kolar)</td>
+                            <td>30.0 kg</td>
+                            <td>₹32.00</td>
+                            <td>Grade A</td>
+                            <td><span style="color: var(--primary); font-weight: 600;">92% Fresh</span></td>
+                            <td><span style="color: var(--primary); font-weight: 600;">Organic Certified</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: DELIVERY TRACKER ================= -->
+        <div id="delivery-tab" class="tab-content">
+            <div class="section-title">
+                <i class="fa-solid fa-truck-fast" style="color: var(--secondary);"></i> Live Order Delivery Tracking
+            </div>
+
+            <div class="stat-card" style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="title">ORDER #ORD-99821</div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-top: 0.25rem;">100 kg Scenario Fresh Tomatoes</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Delivery Partner: Ramesh Kumar (KA-07-SC-1234 • Pickup Truck)</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="title">ESTIMATED ARRIVAL</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">25 Mins</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Stepper -->
+            <div class="query-editor-card">
+                <div style="display: flex; justify-content: space-between; gap: 1rem; text-align: center;">
+                    <div style="flex: 1;">
+                        <i class="fa-solid fa-check-circle fa-2xl" style="color: var(--primary);"></i>
+                        <div style="font-size: 0.9rem; font-weight: 700; margin-top: 0.5rem;">Order Placed</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">2:30 PM</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <i class="fa-solid fa-check-circle fa-2xl" style="color: var(--primary);"></i>
+                        <div style="font-size: 0.9rem; font-weight: 700; margin-top: 0.5rem;">Farmers Harvested</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">2:45 PM</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <i class="fa-solid fa-truck-moving fa-2xl" style="color: var(--secondary);"></i>
+                        <div style="font-size: 0.9rem; font-weight: 700; margin-top: 0.5rem;">Out for Delivery</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">In Transit</div>
+                    </div>
+                    <div style="flex: 1; opacity: 0.5;">
+                        <i class="fa-solid fa-house-chimney fa-2xl" style="color: var(--text-muted);"></i>
+                        <div style="font-size: 0.9rem; font-weight: 700; margin-top: 0.5rem;">Delivered</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Pending OTP</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        AgriLink Farm-to-Customer Platform &copy; 2026. All rights reserved.
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

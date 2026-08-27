@@ -1,0 +1,47 @@
+spring:
+  # H2 database settings for smooth local development without requiring local PostgreSQL
+  datasource:
+    url: jdbc:h2:file:./data/agrilink_dev;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Mail sender mock configuration
+  mail:
+    host: smtp.mailtrap.io
+    port: 2525
+    username: mock-username
+    password: mock-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# PostgreSQL configuration template (uncomment to switch to PostgreSQL)
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/agrilink_db
+#    driver-class-name: org.postgresql.Driver
+#    username: postgres
+#    password: postgres
+#  jpa:
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    hibernate:
+#      ddl-auto: update
