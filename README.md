@@ -1,8 +1,8 @@
-# 🌾 AgriLink — Farm-to-Buyer Digital Marketplace
+# AgriLink — Farm-to-Buyer Digital Marketplace
 
 AgriLink connects farmers directly with buyers and aggregators, eliminating middlemen in agricultural trade.
 
-## 📁 Repository Structure
+## Repository Structure
 
 | Folder | Description | Tech Stack |
 |---|---|---|
@@ -15,7 +15,7 @@ AgriLink connects farmers directly with buyers and aggregators, eliminating midd
 | [`frontend_web/`](./frontend_web/) | Standalone HTML/JS/CSS web frontend | HTML / JS / CSS |
 | [`docs/`](./docs/) | Project reports, handover documents, academic report | PDF / Markdown |
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Database
 ```bash
@@ -38,7 +38,7 @@ flutter pub get
 flutter run -d web-server --web-port 8080
 ```
 
-## 👥 Team Breakdown
+## Team Breakdown
 
 | Person | Owns | Focus Area |
 |---|---|---|
@@ -46,7 +46,7 @@ flutter run -d web-server --web-port 8080
 | Person 2 | `mobile_app/lib/screens/farmer/` + `backend_fastapi/` | Farmer seller experience + API |
 | Person 3 | `database/` + `ml/` | Database schema + ML recommendations |
 
-## 🔗 Live Backend
+## Live Backend
 - Supabase Project: `https://nxwhnbejvwxiuekhtmpm.supabase.co`
 - FastAPI Docs: `http://127.0.0.1:8000/docs`
 - Flutter Web: `http://127.0.0.1:8080`
