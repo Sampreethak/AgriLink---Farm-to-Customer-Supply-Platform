@@ -6,6 +6,8 @@ import 'products/product_details_screen.dart';
 import 'bulk_order_screen.dart';
 import 'recurring_order_screen.dart';
 import 'qa_tracking_screen.dart';
+import 'fair_pricing_screen.dart';
+import '../../services/recommendation_service.dart';
 import '../../widgets/voice_input_field.dart';
 
 class HomeTab extends StatefulWidget {
@@ -23,43 +25,34 @@ class _HomeTabState extends State<HomeTab> {
   String selectedCategory = "All"; // Active category filter
   final TextEditingController _searchController = TextEditingController();
   final ProductService _productService = ProductService();
+  final RecommendationService _recService = RecommendationService();
+
+  String _activeCustomerId = "d48b9f71-c110-4f5f-83da-7b65dbfbc328";
+  List<Map<String, dynamic>> _buyAgainRecs = [];
+  List<Map<String, dynamic>> _pickedForYouRecs = [];
+  List<Map<String, dynamic>> _youMayAlsoWantRecs = [];
+  bool _isLoadingRecs = true;
 
   List<Map<String, dynamic>> _allProducts = [];
   bool _isLoadingProducts = true;
 
-  // Local cart quantities map: productName -> quantity
-  final Map<String, int> _cartQuantities = {};
-
-  // Previously ordered items history (explicitly shown for ML context demonstration)
-  final List<Map<String, String>> _previousOrders = [
-    {
-      "name": "Fresh Red Tomatoes (Nashik Special)",
-      "crop_name": "Tomato",
-      "quantity": "50 kg",
-      "price": "₹1,400",
-      "date": "Delivered July 28, 2026",
-      "farmer": "Ramesh Kumar",
-      "imageUrl": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=80"
-    },
-    {
-      "name": "Shimla Royal Delicious Apples",
-      "crop_name": "Apple",
-      "quantity": "20 kg",
-      "price": "₹2,400",
-      "date": "Delivered July 25, 2026",
-      "farmer": "Anita Sharma",
-      "imageUrl": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=500&auto=format&fit=crop&q=80"
-    },
-    {
-      "name": "Organic Red Onions",
-      "crop_name": "Onion",
-      "quantity": "30 kg",
-      "price": "₹675",
-      "date": "Delivered July 20, 2026",
-      "farmer": "Ramesh Kumar",
-      "imageUrl": "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?w=500&auto=format&fit=crop&q=80"
-    },
-  ];
+  List<Map<String, String>> get _dynamicPreviousOrders {
+    final List<Map<String, String>> list = [];
+    for (final order in _customerState.orders) {
+      for (final item in order.items) {
+        list.add({
+          "name": item.name,
+          "crop_name": item.name.split(' ').first,
+          "quantity": "${item.qty} kg",
+          "price": item.priceStr,
+          "date": order.date,
+          "farmer": item.farmer,
+          "imageUrl": _resolveProduceImage(item.name.split(' ').first, item.imageUrl),
+        });
+      }
+    }
+    return list;
+  }
 
   // Category definitions with real produce images
   final List<Map<String, String>> _categories = [
@@ -85,6 +78,31 @@ class _HomeTabState extends State<HomeTab> {
     },
   ];
 
+  static const Map<String, String> _cropImages = {
+    "Tomato": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&auto=format&fit=crop&q=80",
+    "Potato": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600&auto=format&fit=crop&q=80",
+    "Onion": "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=600&auto=format&fit=crop&q=80",
+    "Carrot": "https://images.unsplash.com/photo-1598170845058-12f6a67a9657?w=600&auto=format&fit=crop&q=80",
+    "Cabbage": "https://images.unsplash.com/photo-1594282486552-05b4d80fbb9f?w=600&auto=format&fit=crop&q=80",
+    "Green Peas": "https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=600&auto=format&fit=crop&q=80",
+    "Green Capsicum": "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=600&auto=format&fit=crop&q=80",
+    "Green Chilli": "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=600&auto=format&fit=crop&q=80",
+    "Palak": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600&auto=format&fit=crop&q=80",
+    "Coriander": "https://images.unsplash.com/photo-1608797178974-15b35a6018b3?w=600&auto=format&fit=crop&q=80",
+    "Mint": "https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=600&auto=format&fit=crop&q=80",
+    "Ginger": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&auto=format&fit=crop&q=80",
+    "Garlic": "https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=600&auto=format&fit=crop&q=80",
+    "Banana": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=600&auto=format&fit=crop&q=80",
+    "Papaya": "https://images.unsplash.com/photo-1526318897912-3283331804f1?w=600&auto=format&fit=crop&q=80",
+    "Pomegranate": "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&auto=format&fit=crop&q=80",
+    "Grapes": "https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=600&auto=format&fit=crop&q=80",
+    "Ragi": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&auto=format&fit=crop&q=80",
+    "Rice": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80",
+    "Apple": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600&auto=format&fit=crop&q=80",
+    "Honey": "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80",
+    "Wheat": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&auto=format&fit=crop&q=80"
+  };
+
   static const Map<String, String> _categoryImages = {
     'Vegetables': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=80',
     'Fruits': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=500&auto=format&fit=crop&q=80',
@@ -93,11 +111,54 @@ class _HomeTabState extends State<HomeTab> {
     'default': 'https://images.unsplash.com/photo-1598170845058-12f6a67a9657?w=500&auto=format&fit=crop&q=80',
   };
 
+  static String _resolveProduceImage(String? cropName, String? defaultUrl) {
+    if (cropName != null && _cropImages.containsKey(cropName)) {
+      return _cropImages[cropName]!;
+    }
+    // Check partial match
+    if (cropName != null) {
+      for (final entry in _cropImages.entries) {
+        if (cropName.toLowerCase().contains(entry.key.toLowerCase())) {
+          return entry.value;
+        }
+      }
+    }
+    return defaultUrl ?? _cropImages['Tomato']!;
+  }
+
   @override
   void initState() {
     super.initState();
+    final role = _customerState.role;
+    if (role.contains("Hostel") || role.contains("PG")) {
+      customerType = "Hostel / PG";
+    } else if (role.contains("Hospital")) {
+      customerType = "Hospital";
+    } else {
+      customerType = "Individual Customer";
+    }
+    _activeCustomerId = _customerState.customerId;
     _customerState.addListener(_onCustomerStateChange);
     _loadProducts();
+    _loadRecommendations();
+  }
+
+  Future<void> _loadRecommendations() async {
+    setState(() => _isLoadingRecs = true);
+    final activeCartCrops = _customerState.cart.keys.map((k) => k.split(' ').first).toList();
+    final data = await _recService.getCustomerHomeDashboard(_activeCustomerId, cartCrops: activeCartCrops);
+    if (data != null && data['sections'] != null) {
+      if (mounted) {
+        setState(() {
+          _buyAgainRecs = List<Map<String, dynamic>>.from(data['sections']['buy_again']['items'] ?? []);
+          _pickedForYouRecs = List<Map<String, dynamic>>.from(data['sections']['picked_for_you']['items'] ?? []);
+          _youMayAlsoWantRecs = List<Map<String, dynamic>>.from(data['sections']['you_may_also_want']['items'] ?? []);
+          _isLoadingRecs = false;
+        });
+      }
+    } else {
+      if (mounted) setState(() => _isLoadingRecs = false);
+    }
   }
 
   @override
@@ -108,7 +169,19 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   void _onCustomerStateChange() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      final role = _customerState.role;
+      if (role.contains("Hostel") || role.contains("PG")) {
+        customerType = "Hostel / PG";
+      } else if (role.contains("Hospital")) {
+        customerType = "Hospital";
+      } else {
+        customerType = "Individual Customer";
+      }
+      _activeCustomerId = _customerState.customerId;
+      setState(() {});
+      _loadRecommendations();
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -128,7 +201,7 @@ class _HomeTabState extends State<HomeTab> {
             'price': '₹${priceNum.toString()}/$unit',
             'imageUrl': (p['image_urls'] != null && (p['image_urls'] as List).isNotEmpty)
                 ? p['image_urls'][0]
-                : (_categoryImages[category] ?? _categoryImages['default']!),
+                : _resolveProduceImage(p['name'] ?? p['crop_name'], _categoryImages[category] ?? _categoryImages['default']!),
             'category': category,
             'rating': (p['rating'] ?? 4.8).toString(),
             'reviews': (p['reviews'] ?? 42).toString(),
@@ -222,13 +295,19 @@ class _HomeTabState extends State<HomeTab> {
   void _updateCartItem(Map<String, dynamic> item, int delta) {
     final name = item['name'].toString();
     final priceStr = item['price'].toString();
-    final imageUrl = (item['imageUrl'] ?? '').toString();
+    final rawImg = (item['imageUrl'] ?? '').toString();
+    final imageUrl = _resolveProduceImage(name, rawImg.isNotEmpty ? rawImg : null);
     final farmer = (item['farmer'] ?? 'Ramesh Kumar').toString();
 
     final priceMatch = RegExp(r'[\d\.]+').firstMatch(priceStr);
     final priceNum = priceMatch != null ? (double.tryParse(priceMatch.group(0)!) ?? 30.0) : 30.0;
 
     _customerState.updateQuantity(name, priceNum, priceStr, imageUrl, farmer, delta);
+
+    if (delta > 0) {
+      _recService.recordInteraction(_activeCustomerId, name, "CART");
+    }
+    _loadRecommendations();
 
     final newQty = _customerState.getQuantity(name);
     final message = newQty > 0
@@ -253,13 +332,15 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   void _navigateToDetails(Map<String, dynamic> product) {
+    final name = product['name']?.toString() ?? 'Produce';
+    final img = _resolveProduceImage(name, product['imageUrl']);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CustomerProductDetailsScreen(
-          productName: product['name'],
+          productName: name,
           price: product['price'],
-          imageUrl: product['imageUrl'],
+          imageUrl: img,
           category: product['category'],
           farmerName: product['farmer'],
           rating: product['rating'],
@@ -278,7 +359,7 @@ class _HomeTabState extends State<HomeTab> {
       return matchesSearch && matchesCategory;
     }).toList();
 
-    final totalCartCount = _cartQuantities.values.fold(0, (sum, q) => sum + q);
+    final totalCartCount = _customerState.cartCount;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -292,18 +373,18 @@ class _HomeTabState extends State<HomeTab> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      "👋 Welcome Priya",
-                      style: TextStyle(
+                      "👋 Welcome ${_customerState.name.split(' ').first}",
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: AppColors.text,
                       ),
                     ),
                     Text(
-                      "Farm-to-Customer Supply Hub",
-                      style: TextStyle(
+                      "${_customerState.role} • ${_customerState.location}",
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
                       ),
@@ -405,11 +486,71 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget _buildIndividualCustomerView(List<Map<String, dynamic>> products) {
-    final recommendations = _allProducts.take(4).toList();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ---------------------------------------------------------------------
+        // ⚖️ SECTION: FAIR PRICING & 4-WAY PAYOUT ACCESS
+        // ---------------------------------------------------------------------
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FairPricingScreen()),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.green.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.scale, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        '⚖️ APMC Fair Pricing & 4-Way Split',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Farmer gets 68% direct payout (+268% boost)',
+                        style: TextStyle(color: Color(0xFFE8F5E9), fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
+              ],
+            ),
+          ),
+        ),
+
         // ---------------------------------------------------------------------
         // 🥦 SECTION 1: INTERACTIVE CATEGORIES (Round Icons Click to Filter List)
         // ---------------------------------------------------------------------
@@ -506,188 +647,44 @@ class _HomeTabState extends State<HomeTab> {
         const SizedBox(height: 25),
 
         // ---------------------------------------------------------------------
-        // 📦 SECTION 2: PREVIOUS ORDERS (Demonstrating ML Input Data Context)
+        // 🛒 SECTION 2: RECOMMENDATIONS (Buy Again, Recommended, Frequently Bought Together)
         // ---------------------------------------------------------------------
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: const [
-                Icon(Icons.history, color: AppColors.lightGreenPrimary, size: 22),
-                SizedBox(width: 6),
-                Text(
-                  "Your Order History",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
-                ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.mintLight,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.lightGreenAccent),
-              ),
-              child: const Text(
-                "ML Input Context",
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.lightGreenPrimary),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          "Items you previously ordered. The LightFM AI model uses these records to generate your recommendations below:",
-          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 105,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _previousOrders.length,
-            itemBuilder: (context, index) {
-              final ord = _previousOrders[index];
-              return Container(
-                width: 250,
-                margin: const EdgeInsets.only(right: 12),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.creamSurface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.creamBorder),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        ord['imageUrl']!,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 50,
-                          height: 50,
-                          color: AppColors.mintLight,
-                          child: const Icon(Icons.eco, color: AppColors.lightGreenPrimary),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            ord['name']!,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.text),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                decoration: BoxDecoration(
-                                  color: AppColors.mintLight,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  ord['quantity']!,
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.lightGreenPrimary),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(ord['price']!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.text)),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            ord['date']!,
-                            style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+
+        // 1. Buy Again
+        if (_buyAgainRecs.isNotEmpty || _allProducts.isNotEmpty) ...[
+          _buildMultiModelSection(
+            title: "Buy Again",
+            icon: Icons.replay_rounded,
+            iconColor: AppColors.lightGreenPrimary,
+            items: _buyAgainRecs.isNotEmpty ? _buyAgainRecs : _allProducts.take(4).toList(),
           ),
-        ),
-        const SizedBox(height: 25),
+          const SizedBox(height: 25),
+        ],
+
+        // 2. Recommended For You (Collaborative Filtering)
+        if (_pickedForYouRecs.isNotEmpty || _allProducts.isNotEmpty) ...[
+          _buildMultiModelSection(
+            title: "Recommended For You",
+            icon: Icons.favorite_border,
+            iconColor: const Color(0xFFC62828),
+            items: _pickedForYouRecs.isNotEmpty ? _pickedForYouRecs : _allProducts.skip(2).take(4).toList(),
+          ),
+          const SizedBox(height: 25),
+        ],
+
+        // 3. Frequently Bought Together (FP-Growth Association Rules)
+        if (_youMayAlsoWantRecs.isNotEmpty || _allProducts.isNotEmpty) ...[
+          _buildMultiModelSection(
+            title: "Frequently Bought Together",
+            icon: Icons.shopping_bag_outlined,
+            iconColor: AppColors.accentOrange,
+            items: _youMayAlsoWantRecs.isNotEmpty ? _youMayAlsoWantRecs : _allProducts.skip(4).take(4).toList(),
+          ),
+          const SizedBox(height: 25),
+        ],
 
         // ---------------------------------------------------------------------
-        // 🤖 SECTION 3: AI RECOMMENDED FOR YOU (With Fixed 240px Height)
-        // ---------------------------------------------------------------------
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: const [
-                Icon(Icons.auto_awesome, color: AppColors.warmGold, size: 22),
-                SizedBox(width: 6),
-                Text(
-                  "Recommended for You",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
-                ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.shade200),
-              ),
-              child: const Text(
-                "LightFM Model Top Picks",
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.warmGold),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        // SizedBox height fixed to 240px to completely prevent bottom overflow!
-        SizedBox(
-          height: 240,
-          child: _isLoadingProducts
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: recommendations.length,
-                  itemBuilder: (context, index) {
-                    final item = recommendations[index];
-                    final qty = _customerState.getQuantity(item['name']);
-                    return RecommendationCard(
-                      name: item['name'],
-                      price: item['price'],
-                      rating: '${item['rating']} ⭐',
-                      imageUrl: item['imageUrl'],
-                      farmer: item['farmer'] ?? 'Ramesh Kumar',
-                      quantityInCart: qty,
-                      onTap: () => _navigateToDetails(item),
-                      onAdd: () => _updateCartItem(item, 1),
-                      onMinus: () => _updateCartItem(item, -1),
-                    );
-                  },
-                ),
-        ),
-        const SizedBox(height: 25),
-
-        // ---------------------------------------------------------------------
-        // 🌽 SECTION 4: ALL CROP LISTINGS (Category & Search Filtered)
+        // 🌽 SECTION 3: ALL CROP LISTINGS (Category & Search Filtered)
         // ---------------------------------------------------------------------
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -782,6 +779,20 @@ class _HomeTabState extends State<HomeTab> {
             );
           },
         ),
+        const SizedBox(height: 20),
+        _buildMultiModelSection(
+          title: "Frequently Ordered for Mess",
+          icon: Icons.replay_rounded,
+          iconColor: AppColors.lightGreenPrimary,
+          items: _buyAgainRecs.isNotEmpty ? _buyAgainRecs : _allProducts.take(4).toList(),
+        ),
+        const SizedBox(height: 20),
+        _buildMultiModelSection(
+          title: "Popular Mess Pairings",
+          icon: Icons.shopping_bag_outlined,
+          iconColor: AppColors.accentOrange,
+          items: _youMayAlsoWantRecs.isNotEmpty ? _youMayAlsoWantRecs : _allProducts.skip(4).take(4).toList(),
+        ),
       ],
     );
   }
@@ -806,6 +817,20 @@ class _HomeTabState extends State<HomeTab> {
               MaterialPageRoute(builder: (_) => const QaTrackingScreen()),
             );
           },
+        ),
+        const SizedBox(height: 20),
+        _buildMultiModelSection(
+          title: "Frequently Ordered Dietary Items",
+          icon: Icons.replay_rounded,
+          iconColor: AppColors.lightGreenPrimary,
+          items: _buyAgainRecs.isNotEmpty ? _buyAgainRecs : _allProducts.take(4).toList(),
+        ),
+        const SizedBox(height: 20),
+        _buildMultiModelSection(
+          title: "Recommended Nutrition Essentials",
+          icon: Icons.favorite_border,
+          iconColor: const Color(0xFFC62828),
+          items: _pickedForYouRecs.isNotEmpty ? _pickedForYouRecs : _allProducts.skip(2).take(4).toList(),
         ),
       ],
     );
@@ -837,6 +862,85 @@ class _HomeTabState extends State<HomeTab> {
         trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
         onTap: onTap,
       ),
+    );
+  }
+
+  Widget _buildMultiModelSection({
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required List<Map<String, dynamic>> items,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: iconColor, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 240,
+          child: _isLoadingRecs
+              ? const Center(child: CircularProgressIndicator())
+              : items.isEmpty
+                  ? const Center(child: Text("No items available", style: TextStyle(fontSize: 12, color: Colors.grey)))
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        final name = item['crop_name'] ?? item['name'] ?? 'Fresh Produce';
+                        final price = item['price_per_unit'] != null
+                            ? '₹${item['price_per_unit']}/${item['unit'] ?? 'kg'}'
+                            : (item['price']?.toString() ?? '₹35/kg');
+                        final img = _resolveProduceImage(name, item['image_url'] ?? item['imageUrl']);
+                        final farmer = item['farmer_name'] ?? item['farmer'] ?? 'Mandya Corridor Farmer';
+                        final rating = (item['rating_avg'] ?? item['rating'] ?? 4.8).toString();
+                        final qty = _customerState.getQuantity(name);
+
+                        return RecommendationCard(
+                          name: name,
+                          price: price,
+                          rating: '$rating ⭐',
+                          imageUrl: img,
+                          farmer: farmer,
+                          quantityInCart: qty,
+                          onTap: () => _navigateToDetails({
+                            'name': name,
+                            'price': price,
+                            'imageUrl': img,
+                            'farmer': farmer,
+                            'rating': rating,
+                            'category': item['category'] ?? 'Vegetables',
+                          }),
+                          onAdd: () => _updateCartItem({
+                            'name': name,
+                            'price': price,
+                            'imageUrl': img,
+                            'farmer': farmer,
+                            'rating': rating,
+                            'category': item['category'] ?? 'Vegetables',
+                          }, 1),
+                          onMinus: () => _updateCartItem({
+                            'name': name,
+                            'price': price,
+                            'imageUrl': img,
+                            'farmer': farmer,
+                            'rating': rating,
+                            'category': item['category'] ?? 'Vegetables',
+                          }, -1),
+                        );
+                      },
+                    ),
+        ),
+      ],
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
+import '../../services/platform_state.dart';
+import '../customer/fair_pricing_screen.dart';
 import '../auth/role_selection_screen.dart';
 
 class AggregatorDashboard extends StatefulWidget {
@@ -10,10 +12,13 @@ class AggregatorDashboard extends StatefulWidget {
 }
 
 class _AggregatorDashboardState extends State<AggregatorDashboard> {
+  final PlatformState _platformState = PlatformState();
   int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final user = _platformState.currentUser;
+
     final List<Widget> tabs = [
       const CollectionGradingTab(),
       const BulkInventoryTab(),
@@ -23,9 +28,29 @@ class _AggregatorDashboardState extends State<AggregatorDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Aggregator Hub Dashboard"),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(user.fullName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              "${user.region} • SHG Hub",
+              style: const TextStyle(fontSize: 11, color: Colors.white70),
+            ),
+          ],
+        ),
         backgroundColor: AppColors.primaryGreen,
+        foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.analytics_outlined),
+            tooltip: 'Dynamic Pricing Oracle',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FairPricingScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -60,7 +85,7 @@ class _AggregatorDashboardState extends State<AggregatorDashboard> {
 }
 
 // ----------------------------------------------------
-// Tab 1: Collection & Quality Grading
+// Tab 1: Collection & Quality Grading (APMC Linked)
 // ----------------------------------------------------
 class CollectionGradingTab extends StatefulWidget {
   const CollectionGradingTab({super.key});
@@ -70,48 +95,72 @@ class CollectionGradingTab extends StatefulWidget {
 }
 
 class _CollectionGradingTabState extends State<CollectionGradingTab> {
-  final List<String> farmers = ["Farmer Guptha", "Farmer Patil", "Farmer Ram Singh"];
-  String selectedFarmer = "Farmer Guptha";
+  final PlatformState _platformState = PlatformState();
+  final List<String> farmers = ["Ramesh Kumar (Mandya)", "Suresh Patel (Anand)", "Anita Sharma (Shimla)", "Farmer Guptha"];
+  String selectedFarmer = "Ramesh Kumar (Mandya)";
   String selectedProduce = "Tomato";
   double qty = 100.0;
-  String selectedGrade = "A";
+  String selectedGrade = "Grade A+";
 
   final List<Map<String, dynamic>> gradingLogs = [
-    {"farmer": "Farmer Patil", "produce": "Potato", "qty": "250 Kg", "grade": "B", "payout": "₹7,437", "date": "Today"},
-    {"farmer": "Farmer Ram Singh", "produce": "Onion", "qty": "500 Kg", "grade": "A", "payout": "₹15,000", "date": "Yesterday"},
+    {"farmer": "Ramesh Kumar", "produce": "Tomato", "qty": "500 Kg", "grade": "Grade A+", "payout": "₹15,195", "hubMargin": "₹2,235", "date": "Today"},
+    {"farmer": "Suresh Patel", "produce": "Potato", "qty": "250 Kg", "grade": "Grade A", "payout": "₹5,950", "hubMargin": "₹875", "date": "Today"},
+    {"farmer": "Anita Sharma", "produce": "Apple", "qty": "300 Kg", "grade": "Grade A+", "payout": "₹24,480", "hubMargin": "₹3,600", "date": "Yesterday"},
   ];
-
-  double getBaseRate(String crop) {
-    if (crop == "Tomato") return 40.0;
-    if (crop == "Potato") return 35.0;
-    return 30.0;
-  }
-
-  double getGradeMultiplier(String grade) {
-    if (grade == "A") return 1.0; // Best price
-    if (grade == "B") return 0.85; // 15% discount for B grade defects
-    return 0.70; // 30% discount for C grade
-  }
 
   @override
   Widget build(BuildContext context) {
-    double baseRate = getBaseRate(selectedProduce);
-    double multiplier = getGradeMultiplier(selectedGrade);
-    double finalRate = baseRate * multiplier;
-    double payout = qty * finalRate;
+    final breakdown = _platformState.getBreakdown(selectedProduce);
+    final farmerRate = breakdown.farmerPayout; // 68%
+    final aggRate = breakdown.aggregatorShare;   // 10%
+    final farmerPayout = qty * farmerRate;
+    final hubMargin = qty * aggRate;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // APMC Dynamic Pricing Oracle Banner
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FairPricingScreen()),
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.scale, color: Colors.green, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Oracle APMC Rate for $selectedProduce: ₹${breakdown.consumerPrice.toStringAsFixed(2)}/kg (Hub gets 10% = ₹${aggRate.toStringAsFixed(2)}/kg)",
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.green),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 15),
+
           const Text(
             "Farmer Produce Intake & Grading",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
-          const Text("Collect fresh produce directly from farmers, perform QA grading, and calculate payouts.", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
+          const Text("Collect fresh produce directly from farmers, perform QA grading, and calculate 4-way payouts.", style: TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 15),
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Padding(
@@ -119,8 +168,6 @@ class _CollectionGradingTabState extends State<CollectionGradingTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Collection Details", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text)),
-                  const SizedBox(height: 15),
                   DropdownButtonFormField<String>(
                     value: selectedFarmer,
                     decoration: const InputDecoration(labelText: "Select Farmer"),
@@ -128,114 +175,90 @@ class _CollectionGradingTabState extends State<CollectionGradingTab> {
                     onChanged: (val) => setState(() => selectedFarmer = val!),
                   ),
                   const SizedBox(height: 15),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: selectedProduce,
-                          decoration: const InputDecoration(labelText: "Produce Crop"),
-                          items: const [
-                            DropdownMenuItem(value: "Tomato", child: Text("Tomato")),
-                            DropdownMenuItem(value: "Potato", child: Text("Potato")),
-                            DropdownMenuItem(value: "Onion", child: Text("Onion")),
-                          ],
-                          onChanged: (val) => setState(() => selectedProduce = val!),
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: TextFormField(
-                          initialValue: "100",
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: "Quantity (Kg)"),
-                          onChanged: (val) => setState(() => qty = double.tryParse(val) ?? 0.0),
-                        ),
-                      ),
-                    ],
+                  DropdownButtonFormField<String>(
+                    value: selectedProduce,
+                    decoration: const InputDecoration(labelText: "Produce Type"),
+                    items: ["Tomato", "Potato", "Onion", "Carrot", "Green Capsicum", "Rice"]
+                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedProduce = val!),
+                  ),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    initialValue: qty.toStringAsFixed(0),
+                    decoration: const InputDecoration(labelText: "Weighed Intake Quantity (Kg)", suffixText: "Kg"),
+                    keyboardType: TextInputType.number,
+                    onChanged: (val) => setState(() => qty = double.tryParse(val) ?? 0.0),
+                  ),
+                  const SizedBox(height: 15),
+                  DropdownButtonFormField<String>(
+                    value: selectedGrade,
+                    decoration: const InputDecoration(labelText: "Quality Grade (Assessed)"),
+                    items: ["Grade A+", "Grade A", "Grade B (Processing)"]
+                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedGrade = val!),
                   ),
                   const SizedBox(height: 20),
-                  const Text("Quality Grade Grading", style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: ["A", "B", "C"].map((grade) {
-                      bool isSelected = grade == selectedGrade;
-                      return ChoiceChip(
-                        label: Text(
-                          "Grade $grade",
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                          ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("Farmer Direct Payout (68%):", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text("₹${farmerPayout.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.green)),
+                          ],
                         ),
-                        selected: isSelected,
-                        selectedColor: AppColors.primaryGreen,
-                        onSelected: (val) {
-                          if (val) setState(() => selectedGrade = grade);
-                        },
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("Aggregator Hub Margin (10%):", style: TextStyle(fontSize: 12, color: Colors.black87)),
+                            Text("₹${hubMargin.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.deepOrange)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        gradingLogs.insert(0, {
+                          "farmer": selectedFarmer.split(' ').first,
+                          "produce": selectedProduce,
+                          "qty": "${qty.toStringAsFixed(0)} Kg",
+                          "grade": selectedGrade,
+                          "payout": "₹${farmerPayout.toStringAsFixed(0)}",
+                          "hubMargin": "₹${hubMargin.toStringAsFixed(0)}",
+                          "date": "Just now",
+                        });
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Intake Recorded & Digital Weigh Slip Generated!"), backgroundColor: AppColors.primaryGreen),
                       );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    selectedGrade == "A"
-                        ? "• Grade A: Premium quality, zero spots. Full payout."
-                        : selectedGrade == "B"
-                            ? "• Grade B: Minor skin spots, fully edible. 15% rate markdown."
-                            : "• Grade C: Significant shape defects. 30% rate markdown.",
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Center(child: Text("Accept Intake & Issue QA Receipt", style: TextStyle(fontWeight: FontWeight.bold))),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Card(
-            color: Colors.green.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Applicable Crop Payout Rate:"),
-                      Text("₹${finalRate.toStringAsFixed(2)} / Kg"),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Estimated Total Payout:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text("₹${payout.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18, color: AppColors.text, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.add_task),
-            label: const Text("Save Collection & Approve Payout"),
-            onPressed: () {
-              setState(() {
-                gradingLogs.insert(0, {
-                  "farmer": selectedFarmer,
-                  "produce": selectedProduce,
-                  "qty": "${qty.toInt()} Kg",
-                  "grade": selectedGrade,
-                  "payout": "₹${payout.toStringAsFixed(0)}",
-                  "date": "Just Now",
-                });
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Collection recorded and payout voucher generated.")),
-              );
-            },
           ),
           const SizedBox(height: 25),
-          const Text("Recent Collections Logs", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text("Recent Intake Logs", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           ListView.builder(
             shrinkWrap: true,
@@ -245,11 +268,11 @@ class _CollectionGradingTabState extends State<CollectionGradingTab> {
               final log = gradingLogs[index];
               return Card(
                 child: ListTile(
-                  title: Text("${log['farmer']} • ${log['produce']}"),
-                  subtitle: Text("Qty: ${log['qty']} | Grade: ${log['grade']}\nDate: ${log['date']}"),
+                  title: Text("${log['farmer']} • ${log['produce']} (${log['qty']})", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text("Grade: ${log['grade']} • Hub Fee: ${log['hubMargin'] ?? ''}"),
                   trailing: Text(
                     log['payout'] ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 16),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 15),
                   ),
                 ),
               );
@@ -268,10 +291,11 @@ class BulkInventoryTab extends StatelessWidget {
   const BulkInventoryTab({super.key});
 
   final List<Map<String, dynamic>> inventory = const [
-    {"name": "Organic Tomatoes", "qty": "850 Kg", "status": "Good", "color": Colors.green},
-    {"name": "Fresh Potatoes", "qty": "2,400 Kg", "status": "Good", "color": Colors.green},
-    {"name": "Red Onions", "qty": "120 Kg", "status": "Low Stock Warning", "color": Colors.orange},
-    {"name": "Green Cabbage", "qty": "80 Kg", "status": "Near Expiry Warning", "color": Colors.red},
+    {"name": "Organic Tomatoes (Nashik / Mandya)", "qty": "1,500 Kg", "status": "Good Condition", "color": Colors.green},
+    {"name": "Fresh Potatoes (Kolar)", "qty": "3,000 Kg", "status": "Good Condition", "color": Colors.green},
+    {"name": "Organic Red Onions", "qty": "3,000 Kg", "status": "Ventilated Storage", "color": Colors.green},
+    {"name": "Shimla Royal Apples", "qty": "1,200 Kg", "status": "Cold Storage (4°C)", "color": Colors.blue},
+    {"name": "Basmati Rice 1121", "qty": "4,000 Kg", "status": "Bagged (50kg)", "color": Colors.teal},
   ];
 
   @override
@@ -281,10 +305,10 @@ class BulkInventoryTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Bulk Inventory Management", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text("Bulk Inventory Management", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
-          const Text("Track collective produce stocks stored at the central warehouse hub.", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
+          const Text("Track collective produce stocks pooled across cluster farmers.", style: TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 15),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -298,8 +322,8 @@ class BulkInventoryTab extends StatelessWidget {
                     foregroundColor: Colors.white,
                     child: Icon(Icons.warehouse),
                   ),
-                  title: Text(item['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text("Available Stock: ${item['qty']}"),
+                  title: Text(item['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: Text("Hub Stock: ${item['qty']}"),
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
@@ -308,7 +332,7 @@ class BulkInventoryTab extends StatelessWidget {
                     ),
                     child: Text(
                       item['status'] ?? '',
-                      style: TextStyle(color: item['color'] as Color, fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(color: item['color'] as Color, fontWeight: FontWeight.bold, fontSize: 11),
                     ),
                   ),
                 ),
@@ -322,7 +346,7 @@ class BulkInventoryTab extends StatelessWidget {
 }
 
 // ----------------------------------------------------
-// Tab 3: Dispatch Management
+// Tab 3: Dispatch Management (Synced with Customer Orders)
 // ----------------------------------------------------
 class DispatchManagementTab extends StatefulWidget {
   const DispatchManagementTab({super.key});
@@ -332,91 +356,120 @@ class DispatchManagementTab extends StatefulWidget {
 }
 
 class _DispatchManagementTabState extends State<DispatchManagementTab> {
-  final List<String> deliveryDrivers = ["Karthik S. (Electric Loader)", "Manjunath (Electric Loader)", "Arjun R. (Pickup Truck)"];
-  String selectedDriver = "Karthik S. (Electric Loader)";
-  String destination = "City General Hospital - Diet Wing";
+  final PlatformState _platformState = PlatformState();
+  final List<String> deliveryDrivers = ["Raju (Express Cold Fleet)", "Karthik S. (Electric Loader)", "Manjunath (Pickup Truck)"];
+  String selectedDriver = "Raju (Express Cold Fleet)";
 
-  final List<Map<String, String>> dispatches = [
-    {"id": "DISP-401", "driver": "Karthik S.", "destination": "City General Hospital", "status": "In Transit"},
-    {"id": "DISP-398", "driver": "Arjun R.", "destination": "Green Meadows PG Mess", "status": "Completed"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _platformState.addListener(_onPlatformChange);
+  }
+
+  @override
+  void dispose() {
+    _platformState.removeListener(_onPlatformChange);
+    super.dispose();
+  }
+
+  void _onPlatformChange() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
+    final liveOrders = _platformState.getAggregatorOrders();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text("Logistics & Dispatch Management", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const Text("Live Customer Order Dispatch", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
-          const Text("Batch customer orders, allocate to delivery partners and dispatch trucks.", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Create Dispatch Batch", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text)),
-                  const SizedBox(height: 15),
-                  DropdownButtonFormField<String>(
-                    value: selectedDriver,
-                    decoration: const InputDecoration(labelText: "Assign Delivery Partner"),
-                    items: deliveryDrivers.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                    onChanged: (val) => setState(() => selectedDriver = val!),
+          const Text("Real-time orders placed by customers automatically pooled for cluster dispatch.", style: TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 15),
+
+          if (liveOrders.isEmpty)
+            const Center(child: Text("No orders waiting for dispatch"))
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: liveOrders.length,
+              itemBuilder: (context, index) {
+                final order = liveOrders[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Order #${order.orderId}",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                order.status,
+                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green.shade800),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text("Customer: ${order.customerName} (${order.customerEmail})", style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                        Text("Delivery Address: ${order.deliveryAddress}", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Total: ₹${order.totalAmount.toStringAsFixed(0)}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text("Hub Commission (10%): ₹${order.aggregatorShare.toStringAsFixed(0)}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange, fontSize: 13)),
+                          ],
+                        ),
+                        const Divider(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                order.assignedDriver != null ? "Driver: ${order.assignedDriver}" : "Driver: Not yet assigned",
+                                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
+                            ),
+                            if (order.status != 'DELIVERED')
+                              ElevatedButton(
+                                onPressed: () {
+                                  _platformState.updateOrderStatus(order.orderId, 'IN_TRANSIT', driverName: selectedDriver);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Order #${order.orderId} dispatched with $selectedDriver!"), backgroundColor: AppColors.primaryGreen),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryGreen,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                child: const Text("Dispatch Fleet", style: TextStyle(fontSize: 12)),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    initialValue: destination,
-                    decoration: const InputDecoration(labelText: "Destination Facility"),
-                    onChanged: (val) => destination = val,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.send),
-                    label: const Text("Launch Dispatch Truck"),
-                    onPressed: () {
-                      setState(() {
-                        dispatches.insert(0, {
-                          "id": "DISP-40${dispatches.length + 2}",
-                          "driver": selectedDriver.split(' ')[0],
-                          "destination": destination,
-                          "status": "Ready for Pickup",
-                        });
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Dispatch order broadcast to delivery partner")),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-          ),
-          const SizedBox(height: 25),
-          const Text("Active Dispatch Tracking", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: dispatches.length,
-            itemBuilder: (context, index) {
-              final disp = dispatches[index];
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.local_shipping, color: AppColors.primaryGreen),
-                  title: Text("${disp['id']} to ${disp['destination']}"),
-                  subtitle: Text("Assigned Driver: ${disp['driver']}"),
-                  trailing: Chip(
-                    label: Text(disp['status'] ?? '', style: const TextStyle(fontSize: 11)),
-                    backgroundColor: disp['status'] == "Completed" ? Colors.green.shade50 : Colors.blue.shade50,
-                  ),
-                ),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -424,122 +477,58 @@ class _DispatchManagementTabState extends State<DispatchManagementTab> {
 }
 
 // ----------------------------------------------------
-// Tab 4: Reports & Analytics
+// Tab 4: Aggregator Financial Reports
 // ----------------------------------------------------
 class AggregatorReportsTab extends StatelessWidget {
   const AggregatorReportsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final state = PlatformState();
+    final totalEarnings = state.getAggregatorTotalEarnings();
+    final totalOrders = state.allOrders.length;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text("Aggregator Hub Analytics", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 5),
-          const Text("Operational metrics overview.", style: TextStyle(color: Colors.grey)),
+          const Text("Financial & Aggregation Reports", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 15),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.mintLight,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.primaryGreen.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Total Hub Aggregation Commission (10%)", style: TextStyle(fontSize: 13, color: Colors.grey)),
+                const SizedBox(height: 4),
+                Text("₹${totalEarnings.toStringAsFixed(2)}", style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryGreen)),
+                const SizedBox(height: 8),
+                Text("Processed $totalOrders collective batches across Mandya & Kolar corridors.", style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
           const SizedBox(height: 20),
-          Row(
-            children: const [
-              Expanded(
-                child: _MetricCard(title: "Today's Intake", value: "3.2 Tons", icon: Icons.download, color: Colors.green),
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: _MetricCard(title: "Dispatched", value: "2.8 Tons", icon: Icons.upload, color: Colors.blue),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: const [
-              Expanded(
-                child: _MetricCard(title: "Active Farmers", value: "48", icon: Icons.people, color: Colors.orange),
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: _MetricCard(title: "Grade A Ratio", value: "78%", icon: Icons.verified_user, color: Colors.purple),
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          const Text("Grade Analysis (Visual Representation)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 15),
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const Text("Quality Grade Distribution", style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      _bar(78, "Grade A", Colors.green),
-                      _bar(15, "Grade B", Colors.orange),
-                      _bar(7, "Grade C", Colors.red),
-                    ],
-                  )
-                ],
-              ),
+            child: ListTile(
+              leading: const Icon(Icons.analytics, color: Colors.green),
+              title: const Text("Open APMC Dynamic Pricing Simulator"),
+              subtitle: const Text("View live benchmarks & 4-way share oracle"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FairPricingScreen()),
+                );
+              },
             ),
-          )
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _bar(double val, String label, Color color) {
-    return Column(
-      children: [
-        Text("${val.toInt()}%", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-        const SizedBox(height: 8),
-        Container(
-          width: 40,
-          height: val * 1.5,
-          color: color,
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
-    );
-  }
-}
-
-class _MetricCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _MetricCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withValues(alpha: 0.1),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(height: 10),
-            Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-          ],
-        ),
       ),
     );
   }

@@ -1,0 +1,55 @@
+antecedent,consequent,support,confidence,lift
+Pomegranate,Papaya,0.1338,1.0,7.4746
+Papaya,Pomegranate,0.1338,1.0,7.4746
+Green Peas,Potato,0.1066,1.0,4.4545
+Ginger,Garlic,0.254,1.0,3.9375
+Garlic,Ginger,0.254,1.0,3.9375
+Pomegranate,Banana,0.1338,1.0,3.7373
+Papaya,Banana,0.1338,1.0,3.7373
+Green Chilli,Coriander,0.2472,1.0,2.7222
+Ginger,Coriander,0.254,1.0,2.7222
+Garlic,Coriander,0.254,1.0,2.7222
+Palak,Carrot,0.2744,1.0,2.625
+Green Peas,Carrot,0.1066,1.0,2.625
+Potato,Onion,0.2245,1.0,2.1832
+Green Peas,Onion,0.1066,1.0,2.1832
+Potato,Tomato,0.2245,1.0,1.6705
+Onion,Tomato,0.458,1.0,1.6705
+Green Peas,Tomato,0.1066,1.0,1.6705
+Tomato,Onion,0.458,0.7652,1.6705
+Carrot,Palak,0.2744,0.7202,2.625
+Coriander,Ginger,0.254,0.6914,2.7222
+Coriander,Garlic,0.254,0.6914,2.7222
+Coriander,Green Chilli,0.2472,0.6728,2.7222
+Carrot,Tomato,0.2472,0.6488,1.0838
+Coriander,Onion,0.2336,0.6358,1.3881
+Coriander,Tomato,0.2336,0.6358,1.0621
+Green Chilli,Ginger,0.1338,0.5413,2.1313
+Green Chilli,Garlic,0.1338,0.5413,2.1313
+Ginger,Green Chilli,0.1338,0.5268,2.1313
+Garlic,Green Chilli,0.1338,0.5268,2.1313
+Palak,Tomato,0.1406,0.5124,0.8559
+Onion,Coriander,0.2336,0.5099,1.3881
+Banana,Pomegranate,0.1338,0.5,3.7373
+Banana,Papaya,0.1338,0.5,3.7373
+Banana,Palak,0.1338,0.5,1.8223
+Banana,Carrot,0.1338,0.5,1.3125
+Onion,Potato,0.2245,0.4901,2.1832
+Palak,Banana,0.1338,0.4876,1.8223
+Potato,Green Peas,0.1066,0.4747,4.4545
+Potato,Carrot,0.1066,0.4747,1.2462
+Ginger,Onion,0.1202,0.4732,1.0331
+Garlic,Onion,0.1202,0.4732,1.0331
+Ginger,Tomato,0.1202,0.4732,0.7905
+Garlic,Tomato,0.1202,0.4732,0.7905
+Green Chilli,Onion,0.1134,0.4587,1.0015
+Green Chilli,Tomato,0.1134,0.4587,0.7663
+Tomato,Carrot,0.2472,0.4129,1.0838
+Tomato,Coriander,0.2336,0.3902,1.0621
+Tomato,Potato,0.2245,0.375,1.6705
+Carrot,Banana,0.1338,0.3512,1.3125
+Carrot,Green Peas,0.1066,0.2798,2.625
+Carrot,Potato,0.1066,0.2798,1.2462
+Carrot,Onion,0.1066,0.2798,0.6108
+Onion,Ginger,0.1202,0.2624,1.0331
+Onion,Garlic,0.1202,0.2624,1.0331

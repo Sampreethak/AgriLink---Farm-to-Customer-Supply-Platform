@@ -1,0 +1,20 @@
+crop_id,category_id,crop_name,description,unit,is_perishable
+abef6b46-97a3-4d47-847a-0a058895e915,60000000-0000-0000-0000-000000000001,Tomato,Farm fresh red ripe tomatoes from Mandya-Maddur farming belt,kg,True
+2f6f3a77-07d3-4a5d-9422-277b8cb53de2,60000000-0000-0000-0000-000000000001,Potato,Clean high-starch table potatoes from Hassan-Mandya corridor,kg,False
+d98d579c-c9b5-454e-8a92-971240c312eb,60000000-0000-0000-0000-000000000001,Onion,Dry cured pungent red onions from Karnataka mandis,kg,False
+59533992-5f56-4fd7-aafc-039199e5d9d6,60000000-0000-0000-0000-000000000001,Carrot,Sweet crunchy orange carrots from Ooty-Mandya farms,kg,True
+68333e4b-e52f-429e-9139-07cc61dc5eb0,60000000-0000-0000-0000-000000000001,Cabbage,Fresh crisp whole green cabbage heads,kg,True
+55048485-b49a-41a8-831b-42e14f8ce5f9,60000000-0000-0000-0000-000000000001,Green Peas,Sweet tender green peas harvested morning,kg,True
+c7ebf4b8-4f50-4c0a-9816-6a6769943bce,60000000-0000-0000-0000-000000000001,Green Capsicum,Polyhouse crisp green bell peppers from Srirangapatna,kg,True
+653ff738-2173-4c0d-9619-2be06db39e8c,60000000-0000-0000-0000-000000000001,Green Chilli,Spicy pungent fresh G4 green chillies,kg,True
+178c56a4-1347-43a1-9c70-b8ad4e14aebd,60000000-0000-0000-0000-000000000001,Palak,Early morning harvested tender leafy spinach,bunch,True
+ef45df06-ae20-45cb-9c78-f423589fe7a0,60000000-0000-0000-0000-000000000002,Coriander,Fragrant fresh green garnish coriander bunches,bunch,True
+b64ca3f8-fd63-4652-b8ab-d082ef554f58,60000000-0000-0000-0000-000000000002,Mint,Aromatic fresh farm pudina leaves,bunch,True
+6bd8ceef-eebc-4d0b-8d12-2dd14c109468,60000000-0000-0000-0000-000000000002,Ginger,Fresh aromatic washed ginger roots,kg,True
+6276a613-f3d1-4ca2-b763-bcc62ebbb363,60000000-0000-0000-0000-000000000002,Garlic,Pungent dried local country garlic bulbs,kg,False
+abf9c741-823f-4047-ae80-0254c25dfaf7,60000000-0000-0000-0000-000000000003,Banana,Naturally ripened sweet Elakki bananas from Mandya,dozen,True
+0ea55d0f-d8b6-4cb1-9303-1c884505a25a,60000000-0000-0000-0000-000000000003,Papaya,Sweet organic Red Lady breakfast papaya,kg,True
+f1ad8b2f-18d6-4dff-a217-b1353e48b40d,60000000-0000-0000-0000-000000000003,Pomegranate,Ruby red arils Kaveri basin pomegranate,kg,True
+ac8068c4-442e-467b-90c9-366eb7fc7bba,60000000-0000-0000-0000-000000000003,Grapes,Sweet and tart fresh Bangalore Blue grapes,kg,True
+3c31fec3-4390-4ed9-99ac-e13a88d60684,60000000-0000-0000-0000-000000000004,Ragi,Nutrient-dense organic whole grain Finger Millet,kg,False
+7324117d-fdfd-4313-8e9c-1e922f46ed4f,60000000-0000-0000-0000-000000000004,Rice,Premium fine grain Sona Masuri table rice,kg,False

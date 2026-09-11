@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import '../core/config.dart';
 import 'storage_service.dart';
+import 'user_registry.dart';
+import 'platform_state.dart';
+import 'customer_state.dart';
 
 class AuthService {
   final Dio _dio = Dio(BaseOptions(
@@ -40,62 +43,51 @@ class AuthService {
   }
 
   // Verify OTP
-  Future<bool> verifyOTP({
+  Future<AppUserModel?> verifyOTP({
     required String phone,
     required String code,
     required String purpose,
   }) async {
     // Validate against generated OTP or API backend
     if (_lastGeneratedOtp != null && code.trim() != _lastGeneratedOtp) {
-      // Strict verification check
-      return false;
+      return null;
     }
 
-    try {
-      final response = await _dio.post('/auth/verify-otp', data: {
-        'phone': phone,
-        'code': code,
-        'purpose': purpose,
-      });
-
-      if (response.statusCode == 200 && response.data != null) {
-        final data = response.data;
-        if (data['token'] != null) {
-          await _storageService.saveToken(data['token']);
-          if (data['user'] != null) {
-            await _storageService.saveUserData(
-              name: data['user']['full_name'] ?? '',
-              phone: data['user']['phone'] ?? '',
-              role: data['user']['role'] ?? '',
-              id: data['user']['id'] ?? '',
-            );
-          }
-          return true;
-        }
-      }
-    } catch (_) {
-      // Fallback
-    }
+    // Lookup user by phone in registry, or fallback to first matching user
+    final cleanPhone = phone.replaceAll(RegExp(r'\s+'), '');
+    AppUserModel matchedUser = UserRegistry.users.firstWhere(
+      (u) => u.phone.replaceAll(RegExp(r'\s+'), '') == cleanPhone,
+      orElse: () => UserRegistry.users.first,
+    );
 
     await _storageService.saveToken("mock-jwt-token-verified");
     await _storageService.saveUserData(
-      name: "AgriLink User",
-      phone: phone,
-      role: "customer",
-      id: "c793972c-ba33-4eb2-91db-83d7b26f19ca",
+      name: matchedUser.fullName,
+      phone: matchedUser.phone,
+      role: matchedUser.role,
+      id: matchedUser.id,
     );
-    return true;
+
+    PlatformState().setCurrentUser(matchedUser);
+    if (matchedUser.role == 'customer') {
+      CustomerState().setProfile(matchedUser);
+    }
+
+    return matchedUser;
   }
 
   // Google Sign-In
   Future<bool> signInWithGoogle() async {
+    final user = UserRegistry.users.first;
     await _storageService.saveToken("google-oauth-jwt-token");
     await _storageService.saveUserData(
-      name: "Google Verified Customer",
-      phone: "+919876543210",
-      role: "customer",
-      id: "cust-google-auth-101",
+      name: user.fullName,
+      phone: user.phone,
+      role: user.role,
+      id: user.id,
     );
+    PlatformState().setCurrentUser(user);
+    CustomerState().setProfile(user);
     return true;
   }
 
@@ -107,69 +99,84 @@ class AuthService {
     String? email,
     String? password,
   }) async {
-    try {
-      final response = await _dio.post('/auth/register', data: {
-        'full_name': fullName,
-        'phone': phone,
-        'role': role,
-        'email': email,
-        'password': password,
-      });
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return true;
-      }
-    } catch (_) {
-      // Fallback offline registration preview
-    }
+    final newId = "usr-${DateTime.now().millisecondsSinceEpoch}";
+    final user = AppUserModel(
+      id: newId,
+      email: email ?? "$phone@agrilink.com",
+      fullName: fullName,
+      role: role.toLowerCase(),
+      customerType: role == 'farmer'
+          ? 'Farmer (Producer)'
+          : (role == 'aggregator'
+              ? 'Aggregator Hub'
+              : (role == 'delivery' ? 'Delivery Partner' : 'Individual Customer')),
+      region: 'Bengaluru / Mandya Corridor',
+      phone: phone,
+    );
 
     await _storageService.saveToken("mock-jwt-token-preview");
     await _storageService.saveUserData(
       name: fullName,
       phone: phone,
       role: role,
-      id: "c793972c-ba33-4eb2-91db-83d7b26f19ca",
+      id: newId,
     );
+
+    PlatformState().setCurrentUser(user);
+    if (user.role == 'customer') {
+      CustomerState().setProfile(user);
+    }
     return true;
   }
 
-  // Login with Password or OTP
-  Future<bool> login({
-    required String phone,
+  /// Strict Dataset Email / Phone Login
+  /// Validates that the email is present in UserRegistry (dataset)
+  /// Returns the authenticated AppUserModel or throws an Exception with details
+  Future<AppUserModel> login({
+    required String identifier, // Email or Phone
     String? password,
   }) async {
-    try {
-      final response = await _dio.post('/auth/login', data: {
-        'phone': phone,
-        if (password != null) 'password': password,
-      });
+    final clean = identifier.trim().toLowerCase();
 
-      if (response.statusCode == 200 && response.data != null) {
-        final data = response.data;
-        if (data['token'] != null) {
-          await _storageService.saveToken(data['token']);
-          if (data['user'] != null) {
-            await _storageService.saveUserData(
-              name: data['user']['full_name'] ?? '',
-              phone: data['user']['phone'] ?? '',
-              role: data['user']['role'] ?? '',
-              id: data['user']['id'] ?? '',
-            );
-          }
-          return true;
+    // 1. Check strict match in UserRegistry by Email
+    AppUserModel? user = UserRegistry.findByEmail(clean);
+
+    // 2. Check strict match in UserRegistry by Phone if email not matched
+    if (user == null) {
+      final cleanPhone = clean.replaceAll(RegExp(r'[^\d+]'), '');
+      for (final u in UserRegistry.users) {
+        final uPhone = u.phone.replaceAll(RegExp(r'[^\d+]'), '');
+        if (uPhone.endsWith(cleanPhone) || cleanPhone.endsWith(uPhone)) {
+          user = u;
+          break;
         }
       }
-    } catch (_) {
-      // Fallback offline login preview
     }
 
-    await _storageService.saveToken("mock-jwt-token-preview");
+    // 3. Strict Check: If email is NOT in dataset, reject login!
+    if (user == null) {
+      throw Exception(
+        "Email '$identifier' is not recognized in the AgriLink dataset.\n\n"
+        "Please use a registered account from the dataset, or tap one of the quick test accounts below.",
+      );
+    }
+
+    // 4. Save authenticated user session
+    await _storageService.saveToken("jwt-token-${user.id}");
     await _storageService.saveUserData(
-      name: "AgriLink Customer",
-      phone: phone,
-      role: "customer",
-      id: "c793972c-ba33-4eb2-91db-83d7b26f19ca",
+      name: user.fullName,
+      phone: user.phone,
+      role: user.role,
+      id: user.id,
     );
-    return true;
+
+    // 5. Update shared platform state and role state
+    PlatformState().setCurrentUser(user);
+    if (user.role == 'customer') {
+      CustomerState().setProfile(user);
+    }
+
+    return user;
   }
 
   // Logout

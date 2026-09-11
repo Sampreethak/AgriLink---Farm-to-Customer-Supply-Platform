@@ -1,0 +1,161 @@
+location_id,address_line1,city,state,pincode,country,latitude,longitude
+13fbc212-fa86-499e-a7ce-b7ff1e672da4,"No. 240, Mandya Sugar Town Agro Depot",Karnataka (Mandya),Karnataka,571401,India,12.5154,76.8944
+44024d53-fc4b-4622-88b2-54c33d55a8fd,"No. 570, Shimsha River Basin Depot, Maddur",Karnataka (Maddur),Karnataka,571428,India,12.587784,77.047827
+b6ab034f-27d3-4459-9753-73089955f94b,"No. 107, Kaveri River Bank Farm Cluster",Karnataka (Srirangapatna),Karnataka,571438,India,12.419448,76.687509
+a96689a6-ac68-4de1-adcc-7fa7140971e8,"No. 586, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.495723,76.671632
+161c8dc6-3668-4a8a-9feb-2a067189b548,"No. 441, Marehalli Green Belt Depot, Malavalli",Karnataka (Malavalli),Karnataka,571430,India,12.390456,77.063221
+06423e96-dc44-4c70-97d6-9f2ee560e4e6,"No. 18, Ramanagara Expressway Agro Transit Hub",Karnataka (Ramanagara),Karnataka,562159,India,12.719187,77.276451
+21eccb01-12df-464b-b052-ffeb0975cfff,"No. 171, Channapatna Highway Consolidation Center",Karnataka (Channapatna),Karnataka,562160,India,12.65317,77.197444
+ceee8f7b-aa5c-4d6b-a0cf-139679b1fc3e,"No. 106, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.802315,77.377386
+4352ad5d-8dd7-4b0a-a454-105390cbbc85,"No. 630, Mysore Road Express Drop Point",Bengaluru (Kengeri),Karnataka,560060,India,12.903547,77.49056
+b77f3b51-6b79-47a8-a1a1-b8ca4995c5f3,"No. 561, BEML Layout Delivery Center",Bengaluru (RR Nagar),Karnataka,560098,India,12.929914,77.521676
+cc31069d-510b-4485-96c6-3d554f0f93c0,"No. 577, JP Nagar 6th Phase Consumer Delivery Hub",Bengaluru (JP Nagar),Karnataka,560078,India,12.91357,77.583057
+4e27a5e5-72bb-4abd-acd7-e544ad672ac3,"No. 382, Defence Colony Drop Point",Bengaluru (Indiranagar),Karnataka,560038,India,12.98327,77.641896
+db81df0d-0385-42ad-96dc-2602f1ae6870,"No. 245, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.938273,77.612733
+7cfa432f-b2ab-4cec-bff6-9bef1020bce0,"No. 115, Kempapura Main Road, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.043564,77.602685
+b9534d3d-3edd-40f0-ae93-6aad2c6a1816,"No. 385, Kogilu Main Road Organic Depot",Bengaluru (Yelahanka),Karnataka,560064,India,13.096948,77.598471
+b8f50ce6-446d-4940-8b83-4b6f9d65ef95,"No. 285, Kallalli Farm Gate, Mandya",Karnataka (Mandya),Karnataka,571401,India,12.520923,76.893352
+a9282b94-109c-449b-af27-dbb6d4ce8d0a,"No. 758, Maddur Tender Coconut and Veg Hub",Karnataka (Maddur),Karnataka,571428,India,12.585746,77.039738
+976760b6-e7f8-4686-899c-3707dada1da2,"No. 667, Ganjam Agro Center, Srirangapatna",Karnataka (Srirangapatna),Karnataka,571438,India,12.412614,76.693071
+5ff6c1b6-24f9-4fc1-b058-c5db55730125,"No. 806, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.502954,76.675486
+b46042e1-94c8-4586-b854-8ae87b6760d4,"No. 335, Marehalli Green Belt Depot, Malavalli",Karnataka (Malavalli),Karnataka,571430,India,12.382665,77.052514
+ef1e6061-8738-4abe-8efd-59a4cb2a0455,"No. 592, Silk City Corridor Staging Center",Karnataka (Ramanagara),Karnataka,562159,India,12.716284,77.275376
+c2fb3ea6-e554-4e32-a11b-5272282d67ef,"No. 670, Toy City Corridor Pooling Depot",Karnataka (Channapatna),Karnataka,562160,India,12.645402,77.199988
+b3486b3c-43ac-4100-93eb-646d3f227820,"No. 774, Corridor Express Transfer Point, Bidadi",Karnataka (Bidadi),Karnataka,562109,India,12.789286,77.374234
+ce9611b0-871a-43e3-a969-95d2c3d3f594,"No. 609, Mysore Road Express Drop Point",Bengaluru (Kengeri),Karnataka,560060,India,12.913952,77.483855
+5d74524d-6c3f-4dd7-ae9c-17f33c973e16,"No. 153, BEML Layout Delivery Center",Bengaluru (RR Nagar),Karnataka,560098,India,12.922792,77.525957
+1f05724b-c65d-4f92-be9f-0727d6f4afff,"No. 124, Dollars Colony Delivery Drop",Bengaluru (JP Nagar),Karnataka,560078,India,12.899455,77.577754
+c2a3c932-50e4-49b7-b6fc-63cbf93e26bd,"No. 444, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.980039,77.644673
+6c1d8592-bdfc-468f-aa24-143280838b4e,"No. 491, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.933156,77.621534
+6087b176-9d67-4d80-a476-3f0e44a2e9eb,"No. 23, Kempapura Main Road, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.043337,77.602772
+1c3df6d9-543c-467d-b533-51c7b5d5a12d,"No. 285, Sector 1, Yelahanka New Town",Bengaluru (Yelahanka),Karnataka,560064,India,13.103407,77.596892
+c66559d8-db0d-466c-9910-29872216ac14,"No. 476, Holalu Organic Vegetable Cluster",Karnataka (Mandya),Karnataka,571401,India,12.516785,76.896956
+6018b0fd-df7b-4c03-899a-c8cc7201793c,"No. 281, Maddur Tender Coconut and Veg Hub",Karnataka (Maddur),Karnataka,571428,India,12.591261,77.051014
+e0196e41-ba19-4d13-8df4-6760cebe8bbf,"No. 652, Ganjam Agro Center, Srirangapatna",Karnataka (Srirangapatna),Karnataka,571438,India,12.418123,76.688703
+024ae1c5-8595-47f8-a6aa-d4e62638422a,"No. 215, Baby Betta Organic Farm Depot, Pandavapura",Karnataka (Pandavapura),Karnataka,571434,India,12.505467,76.670123
+088bbc66-c41d-4be8-aa03-edc7a095849b,"No. 809, Marehalli Green Belt Depot, Malavalli",Karnataka (Malavalli),Karnataka,571430,India,12.384983,77.054585
+f0378097-9dd5-4de3-ab89-c015e9797997,"No. 126, Ramanagara Expressway Agro Transit Hub",Karnataka (Ramanagara),Karnataka,562159,India,12.721583,77.279818
+86bb78aa-f89a-45b3-9d0b-9e381988c857,"No. 326, Toy City Corridor Pooling Depot",Karnataka (Channapatna),Karnataka,562160,India,12.65606,77.205307
+9149ad34-73c3-4543-b6dd-4ca74bdec3b1,"No. 92, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.787927,77.386048
+49852634-60bb-4b2a-a82f-ef4d48835087,"No. 790, Kengeri Satellite Town Delivery Hub",Bengaluru (Kengeri),Karnataka,560060,India,12.913711,77.490056
+4ea13f7c-0cbc-4022-b9f8-68ea705d418d,"No. 574, Rajarajeshwari Nagar Ideal Homes Drop Point",Bengaluru (RR Nagar),Karnataka,560098,India,12.919054,77.517605
+1c76eb5f-e20d-46b5-a6dc-9bb1a9c5b578,"No. 445, JP Nagar 6th Phase Consumer Delivery Hub",Bengaluru (JP Nagar),Karnataka,560078,India,12.902241,77.590959
+3a69cece-d091-41b9-990f-747a4ee77301,"No. 718, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.984863,77.644084
+382521ad-0ad9-492d-8c9c-56dd781fa941,"No. 699, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.938407,77.618384
+3bfa6aa5-b95f-45c4-8d51-da45a04864bc,"No. 135, Kempapura Main Road, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.03481,77.597281
+d430e2c2-20af-41b1-814b-7f5361c2bfaf,"No. 614, Sector 1, Yelahanka New Town",Bengaluru (Yelahanka),Karnataka,560064,India,13.096095,77.593709
+78fa4c76-acf7-4e60-a1dc-6a9277ff8117,"No. 84, Lakshmi SHG Homemaker Depot, Mandya",Karnataka (Mandya),Karnataka,571401,India,12.518682,76.893523
+cc856c7e-4e1e-489e-b84b-5402bd7830c6,"No. 350, Maddur Tender Coconut and Veg Hub",Karnataka (Maddur),Karnataka,571428,India,12.579663,77.051487
+75e29888-e9c0-4cb6-9a88-72c144a3f0f8,"No. 509, Kaveri River Bank Farm Cluster",Karnataka (Srirangapatna),Karnataka,571438,India,12.418226,76.691456
+3f966ae3-ccb1-4124-99dc-3373149c4429,"No. 596, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.500628,76.673574
+b50ecb97-8306-451b-9c38-4ce6c1e70e1f,"No. 428, Malavalli APMC Yard Road",Karnataka (Malavalli),Karnataka,571430,India,12.382888,77.059568
+82de1783-6695-47b7-8e37-a40c97971fcc,"No. 374, Ramanagara Expressway Agro Transit Hub",Karnataka (Ramanagara),Karnataka,562159,India,12.713509,77.282544
+142ab0cb-6e9c-475a-8368-c2ccab662285,"No. 67, Toy City Corridor Pooling Depot",Karnataka (Channapatna),Karnataka,562160,India,12.648578,77.205821
+14e15950-eb29-4890-b1bb-c14c192fe5ef,"No. 831, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.78797,77.383651
+9ce7705c-14bf-4558-80b9-59d1b2b89159,"No. 471, Kengeri Satellite Town Delivery Hub",Bengaluru (Kengeri),Karnataka,560060,India,12.905979,77.480043
+0441181e-cdb8-430a-9d02-3b1dd078f490,"No. 267, Rajarajeshwari Nagar Ideal Homes Drop Point",Bengaluru (RR Nagar),Karnataka,560098,India,12.92375,77.514457
+d19368a0-25af-4f8d-aad5-5ac9a8c614f4,"No. 575, JP Nagar 6th Phase Consumer Delivery Hub",Bengaluru (JP Nagar),Karnataka,560078,India,12.90509,77.590782
+becb3e94-fdc2-4b85-928f-958b8b5651ee,"No. 27, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.970809,77.647989
+44f8fbd8-8b07-4ac7-9fb6-b74ff9e66aff,"No. 182, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.941822,77.625579
+2273bb51-d747-4478-a1e3-18f146a5acdc,"No. 422, Kempapura Main Road, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.03557,77.59242
+47d83015-f301-4f72-bf9f-54e67271bb0e,"No. 411, Sector 1, Yelahanka New Town",Bengaluru (Yelahanka),Karnataka,560064,India,13.095134,77.588334
+364f021c-2da4-4e5e-a38f-8e15d6159224,"No. 304, Holalu Organic Vegetable Cluster",Karnataka (Mandya),Karnataka,571401,India,12.529824,76.902562
+0a29495c-3c3b-4000-8a06-033d9420bb72,"No. 814, Cauvery Mahila Sangha Depot, Maddur",Karnataka (Maddur),Karnataka,571428,India,12.587145,77.048688
+8f265c19-965c-4cf3-8173-d9bbd5ea8bcf,"No. 71, Bhavani SHG Collection Point, Srirangapatna",Karnataka (Srirangapatna),Karnataka,571438,India,12.412477,76.691747
+d861edd6-3a0f-464c-bc95-95087156bbef,"No. 610, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.503968,76.662915
+933a9969-a512-40a6-8608-f74012fbd450,"No. 173, Malavalli APMC Yard Road",Karnataka (Malavalli),Karnataka,571430,India,12.387046,77.065644
+394bab0a-6fca-4227-b0cb-87f576386b24,"No. 202, Ramanagara Expressway Agro Transit Hub",Karnataka (Ramanagara),Karnataka,562159,India,12.727372,77.273282
+5b5e6102-09b2-4b2b-9d83-6721075a616f,"No. 252, Channapatna Highway Consolidation Center",Karnataka (Channapatna),Karnataka,562160,India,12.651521,77.202803
+b8f0a1fe-484a-4ad0-ba4a-f0164c6b752e,"No. 264, Corridor Express Transfer Point, Bidadi",Karnataka (Bidadi),Karnataka,562109,India,12.788918,77.386245
+fcaeb8d2-d830-495d-a050-4ebbedaec2ef,"No. 609, Kengeri Satellite Town Delivery Hub",Bengaluru (Kengeri),Karnataka,560060,India,12.91191,77.483708
+2257ffa6-db77-4d2b-9d5d-09ca44df001c,"No. 745, BEML Layout Delivery Center",Bengaluru (RR Nagar),Karnataka,560098,India,12.931955,77.513268
+74e9bbfa-1b1d-435f-9984-f479146f6ea2,"No. 699, Dollars Colony Delivery Drop",Bengaluru (JP Nagar),Karnataka,560078,India,12.901819,77.583333
+a03de935-8066-4e1d-a873-411663bd21fd,"No. 86, Defence Colony Drop Point",Bengaluru (Indiranagar),Karnataka,560038,India,12.977316,77.646864
+70aafad3-0912-413e-b7c3-3f1705db0bbd,"No. 114, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.934333,77.627975
+b9b42a0d-3ca5-4969-87b8-94668c56dfb1,"No. 147, Near Kirloskar Business Park, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.036402,77.597094
+c7146e3a-e7bc-4fd2-a32a-b3c65ec3f796,"No. 390, Kogilu Main Road Organic Depot",Bengaluru (Yelahanka),Karnataka,560064,India,13.106594,77.602368
+dec3ce49-0d61-49e8-a64f-7eebede5920f,"No. 732, Holalu Organic Vegetable Cluster",Karnataka (Mandya),Karnataka,571401,India,12.517524,76.90334
+f6ab4597-3f83-4d14-8238-1d94d6b7d9db,"No. 681, Kestur Farmer Producer Collective",Karnataka (Maddur),Karnataka,571428,India,12.585787,77.052796
+a2eb05d0-5cf3-4214-ab74-cdadb28ec72a,"No. 691, Kaveri River Bank Farm Cluster",Karnataka (Srirangapatna),Karnataka,571438,India,12.420686,76.695874
+86424574-c428-4c73-8670-33f1dc2ccb9d,"No. 130, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.507023,76.664149
+a94d3860-4b6c-4c8e-a06f-2a337483df22,"No. 300, Marehalli Green Belt Depot, Malavalli",Karnataka (Malavalli),Karnataka,571430,India,12.390879,77.054487
+472e74f1-a782-44d4-88c0-8a01d8240482,"No. 661, Ramanagara Expressway Agro Transit Hub",Karnataka (Ramanagara),Karnataka,562159,India,12.723482,77.275258
+b8f597b4-e56e-4f0d-9f0e-28138caa3fce,"No. 64, Toy City Corridor Pooling Depot",Karnataka (Channapatna),Karnataka,562160,India,12.650087,77.196018
+9c930945-888d-4a48-9394-e6b420b17bf7,"No. 57, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.797149,77.38527
+906913b3-1473-4ef1-8a69-b0552ae78dd9,"No. 280, Kengeri Satellite Town Delivery Hub",Bengaluru (Kengeri),Karnataka,560060,India,12.907337,77.479093
+50918543-2dbb-4632-a385-382e56bcd623,"No. 449, Rajarajeshwari Nagar Ideal Homes Drop Point",Bengaluru (RR Nagar),Karnataka,560098,India,12.92886,77.518827
+1613b60f-6a1b-45b0-8ff5-2352956c4c04,"No. 719, JP Nagar 6th Phase Consumer Delivery Hub",Bengaluru (JP Nagar),Karnataka,560078,India,12.89979,77.592121
+fcf5e81c-8baf-4ced-957b-e874d3a1f9be,"No. 608, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.978729,77.645354
+12d86daa-2a90-4421-b2cb-cfe7366deff1,"No. 385, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.933877,77.612669
+bf99d3de-1ed1-411b-abeb-a13fcd4ea12f,"No. 267, Near Kirloskar Business Park, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.042183,77.592361
+ae086853-f6dc-4eb2-aec6-2495c12ea70d,"No. 428, Sector 1, Yelahanka New Town",Bengaluru (Yelahanka),Karnataka,560064,India,13.098159,77.597258
+2e02adf9-8bf9-4662-96d2-7293d00c60cc,"No. 254, Lakshmi SHG Homemaker Depot, Mandya",Karnataka (Mandya),Karnataka,571401,India,12.526992,76.904812
+c1c595bb-d048-4c75-816f-fa87a9351555,"No. 434, Shimsha River Basin Depot, Maddur",Karnataka (Maddur),Karnataka,571428,India,12.591619,77.049972
+932906c0-d33f-4bde-b426-a2d1766b68b8,"No. 813, Kaveri River Bank Farm Cluster",Karnataka (Srirangapatna),Karnataka,571438,India,12.41287,76.701792
+30958fc8-e901-45fe-a4c6-98e4dab06797,"No. 842, Baby Betta Organic Farm Depot, Pandavapura",Karnataka (Pandavapura),Karnataka,571434,India,12.504836,76.675825
+1c885475-3b7a-4bd6-bd44-b630972622d2,"No. 122, Marehalli Green Belt Depot, Malavalli",Karnataka (Malavalli),Karnataka,571430,India,12.383269,77.064598
+21d1533f-2c75-46b1-bdc8-32127ec4ec6d,"No. 239, Silk City Corridor Staging Center",Karnataka (Ramanagara),Karnataka,562159,India,12.725955,77.285737
+d4bea6fa-ee4f-459e-a945-d73c421c6c88,"No. 324, Channapatna Highway Consolidation Center",Karnataka (Channapatna),Karnataka,562160,India,12.655065,77.199365
+16878a43-9d8e-4922-978f-85f02df7cbba,"No. 420, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.790567,77.382561
+a37896b0-2734-4129-8f58-7fa5b4f66fac,"No. 803, Mysore Road Express Drop Point",Bengaluru (Kengeri),Karnataka,560060,India,12.906458,77.478111
+111d9a7e-ab8d-47f5-8d10-95e33b8aff64,"No. 707, BEML Layout Delivery Center",Bengaluru (RR Nagar),Karnataka,560098,India,12.922618,77.51815
+32f4e71f-d21f-4608-aa72-27120ba4b783,"No. 279, Dollars Colony Delivery Drop",Bengaluru (JP Nagar),Karnataka,560078,India,12.913028,77.578845
+999f86cd-23da-4ec7-bd41-27dda04fe8e5,"No. 51, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.979289,77.647737
+8ccc880e-65fb-43ed-8f47-d05767d703e5,"No. 817, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.936545,77.617531
+b93e5d74-a4c6-4af9-b3c5-1915fa70349c,"No. 130, Kempapura Main Road, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.034782,77.604748
+8eb05f64-8829-4bad-8cd2-86598f6231b2,"No. 57, Kogilu Main Road Organic Depot",Bengaluru (Yelahanka),Karnataka,560064,India,13.106892,77.591341
+7e80b53a-d3d4-43be-85e3-5602b12e1fe5,"No. 563, Mandya APMC Main Yard Road",Karnataka (Mandya),Karnataka,571401,India,12.515027,76.904809
+4fb8f0b4-e9bb-4596-9c00-ef9562f88ebe,"No. 692, Shimsha River Basin Depot, Maddur",Karnataka (Maddur),Karnataka,571428,India,12.581828,77.03812
+f4b442af-096e-40de-9de6-4170e6850236,"No. 139, Paschimavahini Organic Garden",Karnataka (Srirangapatna),Karnataka,571438,India,12.41997,76.697614
+e9537279-1dea-4724-953d-f18846142b0f,"No. 346, Baby Betta Organic Farm Depot, Pandavapura",Karnataka (Pandavapura),Karnataka,571434,India,12.500114,76.67267
+d0810c38-1a36-45fe-bf9e-413fd460d03d,"No. 208, Malavalli APMC Yard Road",Karnataka (Malavalli),Karnataka,571430,India,12.390155,77.060871
+3cb48e7e-5b23-41d3-ae54-cbc54b595944,"No. 778, Silk City Corridor Staging Center",Karnataka (Ramanagara),Karnataka,562159,India,12.722639,77.278066
+3410304f-cab2-4edf-a918-d2cfd4bf98fd,"No. 573, Channapatna Highway Consolidation Center",Karnataka (Channapatna),Karnataka,562160,India,12.651848,77.196815
+033a7a16-3b67-4f5d-aaae-2cfdcebec023,"No. 816, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.791862,77.375363
+cbf86a02-2627-4dc0-940c-18ae843db38a,"No. 230, Mysore Road Express Drop Point",Bengaluru (Kengeri),Karnataka,560060,India,12.90944,77.484075
+aa423df6-efc3-42bd-b10e-dc0b9cee065f,"No. 765, BEML Layout Delivery Center",Bengaluru (RR Nagar),Karnataka,560098,India,12.9297,77.525357
+6064f80b-833f-40d5-9390-ab7ddba06669,"No. 691, JP Nagar 6th Phase Consumer Delivery Hub",Bengaluru (JP Nagar),Karnataka,560078,India,12.908542,77.581541
+5254d15d-f884-4bdb-a84f-a79980645de2,"No. 252, Defence Colony Drop Point",Bengaluru (Indiranagar),Karnataka,560038,India,12.971494,77.647232
+5137427d-7ad1-4e69-bb36-800b24e4917a,"No. 37, Sony World Signal Express Drop Point",Bengaluru (Koramangala),Karnataka,560034,India,12.930594,77.615186
+1f24f593-351b-4d64-856c-3bc3979d4288,"No. 798, Near Kirloskar Business Park, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.031717,77.596602
+7a89dee4-d0f6-489b-8490-3fee32a9628d,"No. 601, Sector 1, Yelahanka New Town",Bengaluru (Yelahanka),Karnataka,560064,India,13.099787,77.602478
+eaff5f6c-e5a3-4dcb-ad78-feb420656d35,"No. 421, Kallalli Farm Gate, Mandya",Karnataka (Mandya),Karnataka,571401,India,12.526494,76.896144
+e1dd3f4e-211e-4344-9ed9-aabbb78f5aac,"No. 780, Shimsha River Basin Depot, Maddur",Karnataka (Maddur),Karnataka,571428,India,12.578361,77.048002
+ca789c8a-2e45-4aba-873f-14b88aad4b90,"No. 835, Kaveri River Bank Farm Cluster",Karnataka (Srirangapatna),Karnataka,571438,India,12.422455,76.690501
+a112d99f-b239-4b73-b722-46ecd20b46a4,"No. 136, Baby Betta Organic Farm Depot, Pandavapura",Karnataka (Pandavapura),Karnataka,571434,India,12.492803,76.665987
+883c4dda-da7a-403a-818e-0e9a55b29c32,"No. 555, Malavalli APMC Yard Road",Karnataka (Malavalli),Karnataka,571430,India,12.381133,77.059434
+b415ff1d-f34c-4e0e-960f-bd11d3550b03,"No. 639, Silk City Corridor Staging Center",Karnataka (Ramanagara),Karnataka,562159,India,12.727201,77.286263
+58c16f9b-36f4-4bbd-b5ec-ddd7595ee919,"No. 174, Toy City Corridor Pooling Depot",Karnataka (Channapatna),Karnataka,562160,India,12.655289,77.200766
+98f5d7a1-4edf-4cc2-9c5f-19a7661b8f5a,"No. 664, Corridor Express Transfer Point, Bidadi",Karnataka (Bidadi),Karnataka,562109,India,12.794201,77.384028
+00c17229-8f1c-458b-9d9e-947ed3f8383a,"No. 653, Mysore Road Express Drop Point",Bengaluru (Kengeri),Karnataka,560060,India,12.914253,77.485341
+efc97c6d-26d5-49b2-b9c2-14b7b8f7a8d5,"No. 304, Rajarajeshwari Nagar Ideal Homes Drop Point",Bengaluru (RR Nagar),Karnataka,560098,India,12.921394,77.51124
+4a740946-61fb-4c2d-a1a3-603f801849d5,"No. 565, JP Nagar 6th Phase Consumer Delivery Hub",Bengaluru (JP Nagar),Karnataka,560078,India,12.902347,77.582115
+16f5e77f-622c-4f19-a87d-67e8fd999e30,"No. 722, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.972214,77.6357
+589c896a-b144-4ce8-9761-cb204df2b66d,"No. 429, 4th Block Koramangala Delivery Hub",Bengaluru (Koramangala),Karnataka,560034,India,12.938303,77.613028
+f44e8579-efb7-4262-b71c-04db86dbf3c8,"No. 223, Kempapura Main Road, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.036482,77.595652
+38ffedd5-19c1-4bfe-87d8-c6007f964765,"No. 724, Kogilu Main Road Organic Depot",Bengaluru (Yelahanka),Karnataka,560064,India,13.098732,77.600617
+68bcdb71-4814-4ddf-8c72-e689eff119fb,"No. 401, Mandya Sugar Town Agro Depot",Karnataka (Mandya),Karnataka,571401,India,12.528708,76.90225
+f8f3026e-d77e-4695-9e7c-7af81a340a6b,"No. 783, Cauvery Mahila Sangha Depot, Maddur",Karnataka (Maddur),Karnataka,571428,India,12.576094,77.042628
+02328de4-8b24-4d69-a9fd-e4a4bc8c746f,"No. 441, Bhavani SHG Collection Point, Srirangapatna",Karnataka (Srirangapatna),Karnataka,571438,India,12.423655,76.702255
+7694ffa6-719a-4abc-b6c7-539ab34d8871,"No. 509, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.499812,76.666367
+6ba6f1f3-cbbf-4e2f-bd7e-91408dc38963,"No. 829, Marehalli Green Belt Depot, Malavalli",Karnataka (Malavalli),Karnataka,571430,India,12.385222,77.062702
+8522741b-1210-4ef2-b04d-7c54bd2d229e,"No. 142, Silk City Corridor Staging Center",Karnataka (Ramanagara),Karnataka,562159,India,12.723587,77.285448
+6925b4a4-55d7-4449-b437-471cd7eef24b,"No. 690, Channapatna Highway Consolidation Center",Karnataka (Channapatna),Karnataka,562160,India,12.656511,77.20147
+4edd7a55-2f1d-4918-945a-f2dea14e26bf,"No. 484, Bidadi Expressway Logistics Center",Karnataka (Bidadi),Karnataka,562109,India,12.788343,77.378858
+4c345c6a-f9a2-4f35-8721-b42c70099493,"No. 228, Kengeri Satellite Town Delivery Hub",Bengaluru (Kengeri),Karnataka,560060,India,12.902805,77.483066
+18109dd0-6c31-419e-8e3b-0d015befc357,"No. 400, BEML Layout Delivery Center",Bengaluru (RR Nagar),Karnataka,560098,India,12.92223,77.52218
+d18a4791-42c3-478e-a726-739484f2c007,"No. 270, Dollars Colony Delivery Drop",Bengaluru (JP Nagar),Karnataka,560078,India,12.910032,77.590311
+b11cda97-ad4d-4eaa-aa15-50e8f952d5b8,"No. 65, 100 Feet Road Delivery Hub, Indiranagar",Bengaluru (Indiranagar),Karnataka,560038,India,12.977525,77.643984
+6580fb82-e039-4fcf-84b9-11c24a335943,"No. 679, Sony World Signal Express Drop Point",Bengaluru (Koramangala),Karnataka,560034,India,12.930588,77.613098
+8ef74f4e-697d-4694-8e2b-8109ba0be15b,"No. 216, Near Kirloskar Business Park, Hebbal",Bengaluru (Hebbal),Karnataka,560024,India,13.039868,77.604194
+fc64f10b-c095-42aa-aa58-0324778bbc68,"No. 496, Sector 1, Yelahanka New Town",Bengaluru (Yelahanka),Karnataka,560064,India,13.102441,77.592117
+3730c7f1-75b8-4a8a-87a2-5ecc3240c9b8,"No. 728, Mandya Sugar Town Agro Depot",Karnataka (Mandya),Karnataka,571401,India,12.524024,76.893487
+d076e2de-7226-41b6-b029-6e824fece7af,"No. 633, Kestur Farmer Producer Collective",Karnataka (Maddur),Karnataka,571428,India,12.58827,77.039685
+708e1b09-4951-4ff8-bc7b-7d9a287bd232,"No. 330, Kaveri River Bank Farm Cluster",Karnataka (Srirangapatna),Karnataka,571438,India,12.422445,76.68962
+edf14343-3f2e-41ef-bcd4-13680ed9d02b,"No. 601, Melukote Foothills Farm Gate",Karnataka (Pandavapura),Karnataka,571434,India,12.501259,76.676862
+0465a261-e252-4140-8f79-ae641798402f,"No. 89, Malavalli APMC Yard Road",Karnataka (Malavalli),Karnataka,571430,India,12.385346,77.06344
+09e169fd-18f2-4e4b-99e5-9ed533ff3976,"No. 712, Ramanagara Expressway Agro Transit Hub",Karnataka (Ramanagara),Karnataka,562159,India,12.71363,77.28436
+e78a223a-2f6f-4632-a09a-ecd435f2ef52,"No. 54, Channapatna Highway Consolidation Center",Karnataka (Channapatna),Karnataka,562160,India,12.65474,77.201055
+62d36ae1-eddb-426c-9e2a-580e7623a02d,"No. 82, Corridor Express Transfer Point, Bidadi",Karnataka (Bidadi),Karnataka,562109,India,12.795524,77.382584
+1031e818-9276-403b-8205-c044c508c560,"No. 513, Mysore Road Express Drop Point",Bengaluru (Kengeri),Karnataka,560060,India,12.902202,77.483721
+90852ff5-581e-4520-ab95-4f26fcc54f0a,"No. 482, Rajarajeshwari Nagar Ideal Homes Drop Point",Bengaluru (RR Nagar),Karnataka,560098,India,12.923936,77.515795

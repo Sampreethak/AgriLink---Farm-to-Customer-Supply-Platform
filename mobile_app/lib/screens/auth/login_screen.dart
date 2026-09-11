@@ -4,8 +4,14 @@ import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
+import '../../services/user_registry.dart';
 import 'register_screen.dart';
 import 'otp_verification_screen.dart';
+import '../customer/customer_dashboard.dart';
+import '../farmer/farmer_dashboard.dart';
+import '../aggregator/aggregator_dashboard.dart';
+import '../delivery/delivery_dashboard.dart';
+import '../admin/admin_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isPhoneLogin = true;
+  bool _isPhoneLogin = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -30,6 +36,33 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _routeToDashboard(AppUserModel user) {
+    Widget targetDashboard;
+    switch (user.role.toLowerCase()) {
+      case 'farmer':
+        targetDashboard = const FarmerDashboard();
+        break;
+      case 'aggregator':
+        targetDashboard = const AggregatorDashboard();
+        break;
+      case 'delivery':
+        targetDashboard = const DeliveryDashboard();
+        break;
+      case 'admin':
+        targetDashboard = const AdminDashboard();
+        break;
+      case 'customer':
+      default:
+        targetDashboard = const CustomerDashboard();
+        break;
+    }
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => targetDashboard),
+      (route) => false,
+    );
   }
 
   Future<void> _handleLogin() async {
@@ -65,19 +98,21 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        // Email/Password login
-        bool success = await authService.login(
-          phone: _emailController.text.trim(), // API supports either format depending on backend handler
+        // Strict Email Authentication in the background
+        final user = await authService.login(
+          identifier: _emailController.text.trim(),
           password: _passwordController.text,
         );
-        if (success && mounted) {
+
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Login Successful!"),
+            SnackBar(
+              content: Text("Welcome ${user.fullName}!"),
               backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 2),
             ),
           );
-          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+          _routeToDashboard(user);
         }
       }
     } catch (e) {
@@ -86,6 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(
             content: Text(e.toString().replaceAll("Exception: ", "")),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -110,18 +146,18 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 35),
                 const Icon(
                   Icons.agriculture,
-                  size: 90,
+                  size: 80,
                   color: AppColors.primaryGreen,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 12),
                 Text(
                   langProvider.translate('welcome_back'),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 30,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: AppColors.text,
                   ),
@@ -135,8 +171,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 40),
-                // Toggle Button (Phone/Email)
+                const SizedBox(height: 35),
+
+                // Toggle Button (Email / Phone)
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -145,35 +182,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isPhoneLogin = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _isPhoneLogin ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: _isPhoneLogin
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.05),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      )
-                                    ]
-                                  : null,
-                            ),
-                            child: const Text(
-                              "Phone OTP",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.text,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                       Expanded(
                         child: GestureDetector(
                           onTap: () => setState(() => _isPhoneLogin = false),
@@ -203,12 +211,41 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isPhoneLogin = true),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: _isPhoneLogin ? Colors.white : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: _isPhoneLogin
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.05),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      )
+                                    ]
+                                  : null,
+                            ),
+                            child: const Text(
+                              "Phone OTP",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.text,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 25),
+
                 if (_isPhoneLogin) ...[
-                  // Phone input
                   VoiceInputField(
                     controller: _phoneController,
                     hintText: langProvider.translate('phone_number'),
@@ -225,7 +262,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ] else ...[
-                  // Email & Password input
                   VoiceInputField(
                     controller: _emailController,
                     hintText: langProvider.translate('email'),
@@ -238,13 +274,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     validator: (val) {
                       if (val == null || val.isEmpty) {
-                        return "Please enter your password";
+                        return "Please enter password";
                       }
                       return null;
                     },
@@ -260,24 +296,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 15),
-                if (!_isPhoneLogin)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        // Handle Forgot Password
-                      },
-                      child: Text(
-                        langProvider.translate('forgot_password'),
-                        style: const TextStyle(
-                          color: AppColors.primaryGreen,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 20),
+
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
@@ -305,7 +325,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                 ),
+
                 const SizedBox(height: 20),
+
                 // Divider OR
                 Row(
                   children: const [
@@ -318,6 +340,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
+
                 // Google Sign In Button
                 OutlinedButton.icon(
                   onPressed: () async {
@@ -328,7 +351,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       setState(() => _isLoading = false);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Signed in with Google! Welcome Customer."),
+                          content: Text("Signed in with Google! Welcome."),
                           backgroundColor: AppColors.success,
                         ),
                       );
@@ -352,6 +375,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 25),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

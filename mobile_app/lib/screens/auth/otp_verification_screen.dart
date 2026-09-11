@@ -5,6 +5,11 @@ import 'package:provider/provider.dart';
 import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../services/auth_service.dart';
+import '../customer/customer_dashboard.dart';
+import '../farmer/farmer_dashboard.dart';
+import '../aggregator/aggregator_dashboard.dart';
+import '../delivery/delivery_dashboard.dart';
+import '../admin/admin_dashboard.dart';
 // We'll navigate to home tab or dashboards depending on role
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -23,7 +28,8 @@ class OtpVerificationScreen extends StatefulWidget {
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final TextEditingController _otpController = TextEditingController();
-  final StreamController<ErrorAnimationType> _errorController = StreamController<ErrorAnimationType>();
+  final StreamController<ErrorAnimationType> _errorController =
+      StreamController<ErrorAnimationType>.broadcast();
   
   bool _isLoading = false;
   int _secondsRemaining = 60;
@@ -32,17 +38,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    _startCountdown();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _otpController.dispose();
     _errorController.close();
     super.dispose();
   }
 
-  void _startTimer() {
+  void _startCountdown() {
     _secondsRemaining = 60;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
@@ -66,28 +73,43 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     try {
       final authService = AuthService();
-      bool success = await authService.verifyOTP(
+      final user = await authService.verifyOTP(
         phone: widget.phoneNumber,
         code: otp,
         purpose: widget.purpose,
       );
 
-      if (success && mounted) {
-        // Successful verification! Check roles or navigate to landing screen
+      if (user != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Authentication Successful!"),
+          SnackBar(
+            content: Text("Welcome ${user.fullName} (${user.customerType})!"),
             backgroundColor: AppColors.success,
           ),
         );
-        
-        // Push to farmer dashboard or home page depending on role
-        // For now, let's navigate to home page
-        // Wait, let's navigate to the correct dashboard / home tab
-        // In the existing skeleton, let's look at home screen or dashboard options
-        // We'll push to a placeholder or home_tab
-        // We will do a generic replacement for now:
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+
+        Widget target;
+        switch (user.role.toLowerCase()) {
+          case 'farmer':
+            target = const FarmerDashboard();
+            break;
+          case 'aggregator':
+            target = const AggregatorDashboard();
+            break;
+          case 'delivery':
+            target = const DeliveryDashboard();
+            break;
+          case 'admin':
+            target = const AdminDashboard();
+            break;
+          default:
+            target = const CustomerDashboard();
+            break;
+        }
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => target),
+          (route) => false,
+        );
       } else if (mounted) {
         _errorController.add(ErrorAnimationType.shake);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,7 +141,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     try {
       final authService = AuthService();
       await authService.sendOTP(phone: widget.phoneNumber, purpose: widget.purpose);
-      _startTimer();
+      _startCountdown();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

@@ -1,0 +1,351 @@
+listing_id,inventory_id,title,is_organic,rating_avg,rating_count
+71052cc8-49f3-422f-be43-de34a2259d59,837099a3-3131-4c60-b80f-d2f22e5b1d48,Fresh Green Chilli - Bengaluru (RR Nagar) Farm Direct,True,4.78,111
+10a2f7b5-2629-4dff-b0d1-9d3c4c954908,70ef4300-5935-4170-9275-12a1c8ebc739,Fresh Ginger - Bengaluru (RR Nagar) Farm Direct,False,4.56,45
+411761d9-6852-477a-8838-487301c8c845,37a28657-fc48-45c3-bbd3-da696b55e924,Fresh Green Peas - Srirangapatna Farm Direct,False,4.45,153
+9ef1d91d-cf40-49eb-9260-13cea31fad19,1530662e-698e-4d67-a6d4-7e355b74e40b,Fresh Mint - Pandavapura Farm Direct,True,4.83,155
+eacee681-5685-4706-b16e-0bf681414fbe,e70f78b3-024d-4de7-8646-fba1fd686c79,Fresh Rice - Bengaluru (Kengeri) Farm Direct,False,4.56,49
+0ef48ef3-7d47-4f95-93c0-3b5cc71273c0,c933f7cf-f970-4409-8ccd-7847727e801c,Fresh Green Peas - Bengaluru (Kengeri) Farm Direct,False,4.97,172
+1b3c4a8b-db3c-47a0-bf6c-b07e358e035a,3530325b-14b5-4f0e-879b-9b5be5aa9cce,Fresh Green Capsicum - Bengaluru (Hebbal) Farm Direct,False,4.77,96
+3f85cf21-51b3-4ff1-bcb6-e1e762386094,75203d2c-768a-4526-a6ce-501f8298a6ac,Fresh Mint - Malavalli Farm Direct,False,4.76,63
+ddd394f4-7f83-4572-a19b-1683aeddbe47,f623b049-6518-48f6-8006-057c1d4ce794,Fresh Mint - Malavalli Farm Direct,True,4.78,159
+6a054225-8f48-4372-aef6-4428edb2c4bb,9582887c-8e0d-49ff-98c5-4ed8682dab6a,Fresh Mint - Bengaluru (Kengeri) Farm Direct,False,4.74,163
+9d1653d7-c14d-409f-8b0a-e199ffe4499d,2f36d26d-9526-42e9-a2d6-59dcfaead775,Fresh Green Peas - Ramanagara Farm Direct,True,4.57,29
+a7290bdd-22fb-4a4d-a4a4-c2bf75c7ab09,088b907f-55db-4d9b-8e87-4f98c0bb3afc,Fresh Pomegranate - Bengaluru (JP Nagar) Farm Direct,True,4.87,30
+e619e35d-2c6a-45f8-9a96-6516579ff2ef,42e42668-1fcf-45ef-8709-87944fef843e,Fresh Pomegranate - Pandavapura Farm Direct,False,4.98,149
+cb60bbbe-2069-47d8-b5e7-b3ea327f47f8,8262093b-1024-4186-89af-3036f14bce35,Fresh Carrot - Pandavapura Farm Direct,True,4.43,177
+29ccbc90-02c5-4cdd-94aa-a6771263620e,dfb40e2a-4502-463a-a83f-5fb9ed051cc4,Fresh Mint - Bengaluru (Yelahanka) Farm Direct,False,4.71,144
+77d21e1a-3f2f-49f2-be52-f1fb6324b498,19473edf-0fa5-407c-bc0f-f1feeba5b79c,Fresh Rice - Channapatna Farm Direct,True,4.81,140
+aed45e5c-011b-40b3-8e26-d48a1b7a655d,e6dd0677-9297-4491-a643-ccfb79acaa82,Fresh Ginger - Bengaluru (Indiranagar) Farm Direct,True,4.45,48
+7b4b3a0e-209c-4217-9a40-96053b050f60,602b94a0-9a71-421b-aa9b-7f5762ad41d7,Fresh Coriander - Pandavapura Farm Direct,False,4.46,127
+472f225e-9fd0-4a31-9d3a-970b74e867a1,827b991e-9075-489d-b0d5-38d66705e677,Fresh Onion - Bengaluru (RR Nagar) Farm Direct,True,4.79,54
+2fd004c8-0a2f-4ef5-a7d2-64e91931e920,27424c12-d741-4e0b-8614-f1123812fa12,Fresh Grapes - Bengaluru (Kengeri) Farm Direct,True,4.54,115
+fae9ed8b-df33-4c78-bb32-8de8a0abed79,9f7b5a4c-0278-4d8b-bb78-c9fa0cbe0395,Fresh Green Peas - Bengaluru (Koramangala) Farm Direct,True,4.67,121
+6e1f18a9-7abb-46a0-81bd-8f86711777f3,57a42d6a-3bc8-4649-aec4-9a1001dea751,Fresh Tomato - Malavalli Farm Direct,False,4.92,59
+07dc2ed6-468c-4698-905f-f1fe021fdf17,c9805386-b76c-4118-9443-7a75ad097d7c,Fresh Mint - Bengaluru (Yelahanka) Farm Direct,True,4.59,111
+e13772f0-0427-4d03-91d9-712882a3d953,9994f1a8-6a85-4569-9ecb-59f5294272ff,Fresh Rice - Channapatna Farm Direct,False,4.8,88
+104009cc-da4b-4dee-a460-f070c98af59a,f777d281-812a-4087-9b2c-cc1002fbfb6a,Fresh Cabbage - Pandavapura Farm Direct,False,4.48,111
+9c684ad3-ee07-4119-a505-2110e78a5f34,d53458de-796d-4cf7-9607-ef52028aa42b,Fresh Cabbage - Pandavapura Farm Direct,True,4.79,56
+5047cd9e-3e7c-4353-9a40-985fe62f9d23,6ecec06c-82ac-4a17-8876-ad9605fb5ed0,Fresh Green Peas - Channapatna Farm Direct,True,4.92,14
+87e05918-0a2e-4f53-8654-374a92ff2d51,b3d30745-6303-4561-983d-b1f31357e5f7,Fresh Cabbage - Srirangapatna Farm Direct,True,4.65,137
+93e9ec1b-13b4-4518-96f2-a58b6118ade4,a6de2fdd-72f2-46ae-a0c5-a02fa90cde00,Fresh Papaya - Srirangapatna Farm Direct,False,4.56,149
+a2871f5a-0a54-4d8a-b7a4-48f8bde8162e,4bf2473c-4441-4180-99e0-8149293b99c0,Fresh Green Peas - Mandya Farm Direct,True,4.74,80
+478565a6-134b-43e0-99c5-454f4ff7cbf0,00abe4df-5c44-4c35-96bc-3592a73bbb87,Fresh Ginger - Ramanagara Farm Direct,False,4.66,179
+d7fe6fa6-3558-4d24-830f-7b3e26266011,5f2c7e55-a247-4dae-9945-a5e77cbfb7f4,Fresh Coriander - Bengaluru (JP Nagar) Farm Direct,True,4.45,42
+60c49867-cdcd-43c3-8ef5-25d932125183,0c05ac66-4a19-416c-9b82-c5cdd5aeac81,Fresh Green Capsicum - Bengaluru (RR Nagar) Farm Direct,True,4.5,47
+ea0ea7fd-6fb0-4eed-b443-80eecde96f61,d3867a6f-bec7-480d-a8a8-71324f0165c6,Fresh Green Capsicum - Bidadi Farm Direct,True,4.5,86
+ab1b7d49-94b3-4a3a-aa89-6ff904cccd84,fc26dea1-6795-49c7-a5bf-d9262a3984ee,Fresh Rice - Ramanagara Farm Direct,True,4.87,27
+2105ba41-5cbc-4ba1-adaa-de4dc098d831,f45b8e2d-6f8e-4a66-8fea-bf930febbdba,Fresh Cabbage - Bengaluru (Hebbal) Farm Direct,True,4.86,112
+1bdc298b-761f-486b-b642-592ca600704a,67a486c3-d25b-4afb-9708-c7ce2378c054,Fresh Cabbage - Bengaluru (Indiranagar) Farm Direct,True,4.78,35
+b8258701-7eba-4efa-be89-1236720808da,93370d94-4b6f-4111-862f-774c95f7da77,Fresh Grapes - Pandavapura Farm Direct,True,4.6,12
+265e1ca7-c45b-473b-b818-6c1e60c08a99,483606b9-93b0-4090-b707-a11b76df11b1,Fresh Papaya - Pandavapura Farm Direct,False,4.98,66
+b4c436be-f3b0-415f-bf41-4043d721bf73,b57f019b-1533-46cb-a20e-30736ad460c2,Fresh Palak - Bengaluru (Hebbal) Farm Direct,False,4.91,99
+2cc864b2-ffcd-4cd9-96ea-35cc70b7f01e,181fc5a3-1b57-4587-8550-aca485fde721,Fresh Potato - Bengaluru (Koramangala) Farm Direct,False,4.91,124
+bf9e355c-e1c9-428e-906d-8e9a455ce885,e75003c8-68c9-4e2f-bdc5-c4597fa171fa,Fresh Tomato - Bengaluru (JP Nagar) Farm Direct,False,4.96,82
+dc34e374-8390-4aec-9210-3712476ff78f,e88f9b6b-bbdf-44e5-acc2-c1964932c157,Fresh Ginger - Pandavapura Farm Direct,False,4.58,71
+590e80bb-af16-404a-9e65-c9a5fb7cd1dd,e0ff5657-0968-4ff5-b5be-fb2be71dee3d,Fresh Onion - Bengaluru (RR Nagar) Farm Direct,False,4.54,125
+119171e8-3049-4289-a1e6-20156e6d3e20,f2adc2fd-49d6-499f-b0dc-069ff199ff6b,Fresh Tomato - Bengaluru (Hebbal) Farm Direct,True,4.54,34
+469de709-3edd-4ecf-b373-98a004b5f3ae,270a1326-11ef-4a16-a1aa-d5ada92514dc,Fresh Carrot - Bengaluru (Yelahanka) Farm Direct,True,4.85,46
+ef1edfc3-47b7-4fd4-83d6-8e411458ec16,f1eaab9a-9f25-4ae3-8647-0e8df089a5cd,Fresh Onion - Ramanagara Farm Direct,False,4.53,50
+91c9927e-dbc0-4857-b3b3-487f7a5adc1d,e290b8db-d46f-4ad1-8ee6-fcdaaba1af34,Fresh Papaya - Bengaluru (JP Nagar) Farm Direct,True,4.75,110
+d58dced7-cfe0-4214-b87d-2cfb44f0ad65,b5fc69f5-2028-4c7f-a5a2-09444d594f69,Fresh Banana - Pandavapura Farm Direct,False,4.76,167
+ee4ae226-aca3-4d7c-8291-771300058d27,b8de54f5-f01e-4c95-a0d1-8d25788a589e,Fresh Tomato - Maddur Farm Direct,True,4.71,112
+d848e305-da92-42ae-a09b-220a4628adde,33dee0e4-500e-455d-b3f9-9ed6d1eed8db,Fresh Potato - Bengaluru (RR Nagar) Farm Direct,False,4.54,175
+4db9e4de-ce3d-41d7-bdf4-3931e7243df5,acaffda4-a14f-456f-9592-b18de6700ce8,Fresh Grapes - Srirangapatna Farm Direct,False,4.92,157
+9ecc0d39-ed33-485e-ad18-7a2a707c6d2a,4db1242f-9102-469b-a727-d488683ce56a,Fresh Ginger - Pandavapura Farm Direct,False,4.44,79
+75b6ac0e-4dbc-44ea-9955-7a0b349e0bb4,d7c21fde-b616-473f-b295-3229f2919530,Fresh Potato - Malavalli Farm Direct,False,4.83,118
+5dab8803-0ab8-4447-a6f6-08365aa53ddb,0a321c3e-f5af-4193-b466-013710b5d8a3,Fresh Garlic - Malavalli Farm Direct,False,4.59,142
+da64164b-75af-434c-bc95-bda04bb24a47,3e380ed9-19db-4f77-87c3-7f2e627073e6,Fresh Cabbage - Bidadi Farm Direct,True,4.84,73
+2858bb15-902c-497e-a053-466c6becf391,8646ed9a-41fe-4fac-a4b2-4cf6ae419870,Fresh Green Chilli - Srirangapatna Farm Direct,True,4.59,180
+0f8e2979-fd0e-4891-afd3-3b4a418d17c1,df3d5042-e0c5-4e63-96f0-37e3d26284f9,Fresh Carrot - Bengaluru (Indiranagar) Farm Direct,True,4.61,144
+40e1e05d-814d-4a4a-a54a-15d27461ead9,b9d3528a-b5b1-406b-84d1-093e1ea654be,Fresh Green Peas - Bengaluru (JP Nagar) Farm Direct,True,4.42,121
+3cd3d555-a147-44bf-93ea-9a3bff52099e,7dfe9bb3-ed85-405a-b665-a544afc1ef81,Fresh Grapes - Srirangapatna Farm Direct,True,4.71,26
+2be74d63-62ec-47aa-b946-d35f63ed3b81,6319d32b-0be9-43e8-9976-94a1d4037e46,Fresh Rice - Malavalli Farm Direct,True,4.47,142
+798ae4e6-fad9-4806-8971-c892a9483220,5db2802a-a4bb-479d-bc87-e4f2876c0922,Fresh Potato - Mandya Farm Direct,False,4.95,57
+5453d043-5f04-4e0e-8ae5-b6e6d808a04a,f85b4dc1-8a8a-42d4-983a-5bed6b9e9f72,Fresh Ragi - Malavalli Farm Direct,False,4.65,93
+a606e6d1-bc53-4773-8d0e-ebb7825f84de,cd8b7c1b-eb4e-4997-b40e-bf6417617322,Fresh Onion - Srirangapatna Farm Direct,False,4.71,23
+c2baad76-3877-4321-9e02-47d4f8e4cc46,fe40a24c-1f88-4192-aaeb-87e926e05ad0,Fresh Onion - Bengaluru (Yelahanka) Farm Direct,False,4.67,106
+10f05ff2-ae9e-42f6-9878-a22a6ac8d86c,0c80012a-d2bb-4737-b348-f1b2901d2228,Fresh Coriander - Bengaluru (Indiranagar) Farm Direct,True,4.76,138
+ee022739-4180-4dc6-8c2b-20baa685e36e,49ceccb7-ce38-4e11-bdcc-040f2f3bb315,Fresh Ragi - Bengaluru (Indiranagar) Farm Direct,False,4.72,174
+43d6910f-14b0-4fa4-8763-100d2a5ef4f5,06a06375-3977-454e-9e84-fffc20b18198,Fresh Mint - Bengaluru (Hebbal) Farm Direct,False,4.99,119
+ca810efa-f2ec-4c94-85c8-746258ad8064,39a6e881-9f87-4ce5-a290-f75fc1d7a595,Fresh Potato - Bengaluru (Indiranagar) Farm Direct,False,4.54,145
+474c4715-f104-4b6d-98d6-3853bd790063,24b44eb8-87f1-4813-be76-22bb7db60193,Fresh Ginger - Bengaluru (JP Nagar) Farm Direct,True,4.78,112
+3a4326ef-cf5f-4283-abaa-a5ee739e5cd3,53b6f9ad-9326-4462-b828-068d18535cc9,Fresh Rice - Bengaluru (Yelahanka) Farm Direct,False,4.91,112
+7289e008-559a-4e6f-bd79-dcbfcdbfe553,8d7be88b-67dc-4107-8b01-037ddb9c0b16,Fresh Mint - Srirangapatna Farm Direct,True,4.75,51
+c9093b22-8d92-453a-a21a-e917e2a5f225,7d16228e-0f67-470c-ba14-4fe9068ceef7,Fresh Green Peas - Bengaluru (Hebbal) Farm Direct,False,4.86,127
+29678b9f-85cc-4478-80dd-b15bfdc3fc2f,26ef1a31-e5c1-4649-b106-dd4cca44445b,Fresh Papaya - Bengaluru (Hebbal) Farm Direct,True,4.82,22
+97a3f8a7-5838-444e-8fd2-ebbb65ba525d,1bac48e3-3351-455d-adb0-47eb4a4e4ea7,Fresh Mint - Malavalli Farm Direct,True,4.81,78
+91cc837c-d604-411e-809c-ace8df152781,a558a0a9-de6d-41de-8a0e-e627542a1865,Fresh Tomato - Bengaluru (Indiranagar) Farm Direct,False,4.68,47
+e8e1f6be-df4b-472a-b946-31dfbfb43dd2,6140a7ca-bbb6-4598-939e-f4156b7e2a7b,Fresh Tomato - Ramanagara Farm Direct,False,4.64,173
+f7034ed5-d9d4-433b-982e-4c12f95f649e,29b18990-f533-478b-8e31-9c06babd5a13,Fresh Rice - Pandavapura Farm Direct,True,4.52,177
+5fd961c1-53ab-45a2-9703-0568fb7e8304,f697d9db-4066-43f0-bba9-8a4d8490352d,Fresh Cabbage - Bidadi Farm Direct,False,4.68,55
+9f51b935-07d8-4b4c-8d00-113810aa5770,121d9602-77c2-44f9-828a-072ffaa8ddc6,Fresh Banana - Pandavapura Farm Direct,True,4.5,66
+c72fff1a-1cca-48c8-8569-0e230d5647fd,d65d9ca9-bda4-4c42-8ea5-35ef02332182,Fresh Palak - Bengaluru (Koramangala) Farm Direct,True,4.55,87
+6dfa977d-ac40-4b0c-9944-77f5fc5892c4,9f73da50-c853-4a4f-8270-220a5c07dfa5,Fresh Banana - Malavalli Farm Direct,False,4.65,176
+7869a02c-ef9c-4865-b4e9-b8e9c7d06af4,b6618eb8-c2de-47fb-ba32-4b6e44474388,Fresh Green Chilli - Malavalli Farm Direct,True,4.62,151
+01cc7f23-cad4-4c40-a54b-fae6740f8e23,b16621e7-5ab6-426c-8b6e-ac330fb41e80,Fresh Ginger - Srirangapatna Farm Direct,False,4.59,68
+39dac036-1cbb-41e3-9550-b0ec6a31b6eb,f5c4b241-1c15-44e8-92a8-381aef3f998d,Fresh Palak - Bengaluru (Hebbal) Farm Direct,True,5.0,52
+26aee757-06a2-4ead-ab16-d1e71fd68f1b,22837568-cfda-4bc0-b128-505c48cb8748,Fresh Green Chilli - Bengaluru (Kengeri) Farm Direct,True,4.99,111
+d042b9c0-0d2c-4cc1-807d-2c6a1f82c476,99875ed5-d727-4c7a-be8c-9156e9886e05,Fresh Green Peas - Bengaluru (JP Nagar) Farm Direct,False,4.82,157
+6d43cbd1-7311-4a08-b596-27572d2a9011,ed22bdfb-797b-4ec9-9876-f7c4be58e325,Fresh Cabbage - Channapatna Farm Direct,False,4.69,35
+b199b97b-df40-43fe-84c4-82e07bffeb1a,c46a1ef3-22ba-4ebb-b15f-8aef558cf421,Fresh Green Chilli - Srirangapatna Farm Direct,False,4.77,45
+7d3f6330-1fd3-427f-8350-6af27ef3a94a,61815c2c-855a-4a3f-8b8a-b1c61683dd7b,Fresh Green Peas - Bengaluru (Indiranagar) Farm Direct,False,4.75,48
+ae9fd366-c734-40ed-a400-bcb11499a529,ea58d284-effc-43aa-af57-60301167c532,Fresh Grapes - Malavalli Farm Direct,True,4.6,94
+90c03401-3bc8-4be4-a348-da1419ba95ab,04cd0165-8d51-4b31-9bb9-abd12eb83fe9,Fresh Green Peas - Channapatna Farm Direct,False,4.98,169
+33b8b450-7c1f-41ce-878c-fb991290c907,6787a7fb-a17b-4d47-9a86-257a25d86918,Fresh Green Chilli - Maddur Farm Direct,True,4.58,57
+fd4c43d3-f5e0-409b-a594-ab22ee5b2788,2048bfb5-30ad-43a6-945b-7a1705c44b3f,Fresh Rice - Mandya Farm Direct,False,4.59,168
+6e117cbd-35bc-431a-a87b-ec32590c8c57,1ce79560-af2e-4f95-bf4b-6100535c059e,Fresh Rice - Pandavapura Farm Direct,False,4.99,54
+97d5ca4f-3b66-4ca0-8ad0-5e170c9e8af1,46179ae0-b57a-4779-936c-0f8f7782b82f,Fresh Mint - Srirangapatna Farm Direct,False,4.87,12
+c6b75ac5-f7f5-4a39-935e-bdda1073cdea,ae812386-35d0-42a5-b40a-b0ec673cfe4e,Fresh Garlic - Bengaluru (Koramangala) Farm Direct,True,4.63,151
+86cea29e-ba3e-4d48-83e6-50fc57051a44,3169bb6b-3e89-45cc-9dc4-fcad95a13a0c,Fresh Carrot - Malavalli Farm Direct,False,4.44,20
+5638747c-cb25-4b64-9d98-851c2db06d60,bc2b4cae-436c-45f9-9871-964c6178d9e9,Fresh Tomato - Bengaluru (RR Nagar) Farm Direct,False,4.63,31
+18fe75c9-121d-44bc-89b9-cc601c87f43e,c440ab62-0f7b-4ce3-bcee-5b39dedb5c39,Fresh Onion - Bengaluru (RR Nagar) Farm Direct,True,4.79,167
+bc471493-c860-41fb-9447-d722e0748c36,b735d919-8d6f-47d8-8e9a-d2efeb4febfe,Fresh Green Peas - Pandavapura Farm Direct,True,4.83,150
+9e62c28d-8fc0-432a-b85d-e57755b7a392,cb7020b1-7cae-47af-a919-235892b1ef62,Fresh Coriander - Pandavapura Farm Direct,True,4.69,25
+1bb87e6c-1ef0-4ba0-9166-0a2eb7a7df7e,1d60460c-8fa5-400b-b536-41b5b6dc059f,Fresh Tomato - Srirangapatna Farm Direct,False,4.42,55
+0921c244-e74f-43b4-b909-08651f21641e,64e7b533-09ef-4c71-8313-15bd1d0873e2,Fresh Onion - Ramanagara Farm Direct,True,4.8,35
+c6f3f0c3-6d77-4e67-be13-948cb6aff21e,616ac34d-4df7-4437-a20e-57e511efa227,Fresh Garlic - Ramanagara Farm Direct,True,4.56,131
+cabd7ff0-1bed-4ba5-bf93-93b2b0f3cc62,1e49a0d5-f245-4f8b-b214-6db7ea5b1870,Fresh Green Chilli - Pandavapura Farm Direct,False,4.61,150
+11c8c1f3-45ad-4242-b7e7-ea4567b89d10,17f2126a-1fe4-450b-8f47-88c0e5a403d0,Fresh Rice - Bengaluru (JP Nagar) Farm Direct,True,4.72,133
+959a6f25-0348-4f7a-a570-d9e166145bc6,9437088b-2af3-4657-a4a9-0570a194dd53,Fresh Green Chilli - Pandavapura Farm Direct,True,4.71,158
+a9adc9d0-b23e-4e5d-be77-825b68788f9f,5e256cd4-3d9f-4feb-b011-1bee8bb3579b,Fresh Carrot - Channapatna Farm Direct,True,4.48,120
+02c672a6-e5ef-4c2f-be80-d74b4bdda901,706a0db4-0105-4918-923b-70cd94be423e,Fresh Banana - Bengaluru (Koramangala) Farm Direct,False,4.95,29
+c550a097-fe9a-4708-a8de-917d87890596,7bb4b438-f495-4164-9502-63634afdde34,Fresh Garlic - Srirangapatna Farm Direct,True,4.92,171
+53375854-801f-4fc4-9bca-a764bf6963fe,a5ddc97c-e958-4ad5-b0f0-d357ba37b668,Fresh Banana - Malavalli Farm Direct,True,4.98,37
+37de3597-b603-4c63-8ff2-99e7384b7a13,5868ef2e-4f00-4128-ae16-a7f1010e7f9b,Fresh Rice - Bengaluru (Hebbal) Farm Direct,True,4.56,179
+130886fe-734c-40fc-bcee-3b28bbe74292,e96a76dc-5bdd-40bf-b84b-6441236bcd65,Fresh Rice - Srirangapatna Farm Direct,False,4.77,114
+f001e0a4-8020-4880-8626-0a0c1e822852,eaec84c2-a7fc-4b47-b184-dc8b213a4626,Fresh Garlic - Malavalli Farm Direct,True,4.95,107
+57bec849-6b01-494e-a630-8713a61402cf,e07fb44b-caa2-482c-a762-06b131a80de3,Fresh Mint - Bidadi Farm Direct,True,4.81,70
+300c236a-5cf1-4646-b74a-bd449ed18374,6803876e-72ca-4617-8f1d-bd98aba36f97,Fresh Coriander - Channapatna Farm Direct,True,4.76,34
+e906f01e-ecde-40a5-a44c-9132a164f942,439fd0d8-3144-457c-b4cc-d8abef5dd967,Fresh Papaya - Bengaluru (Hebbal) Farm Direct,True,4.89,143
+a30967de-2eeb-4230-9552-7c88ededd081,fd5a4ba3-1e3f-44ed-a782-cd11bf881852,Fresh Onion - Bengaluru (Indiranagar) Farm Direct,True,4.42,61
+d37292d7-762b-47aa-a24a-518beba4bb0b,932679f8-66fe-4b97-b158-e0c705526048,Fresh Potato - Bengaluru (Indiranagar) Farm Direct,False,4.89,141
+6fcc34f9-1490-4c70-ae89-f338a3157ec6,884ef301-8863-44e2-9522-5287bbb9a6ae,Fresh Carrot - Bengaluru (Kengeri) Farm Direct,True,4.98,133
+162fd482-95af-4ce7-bd04-543854fda1fd,71252ab5-4d5a-4f62-a199-1c9f5df6998f,Fresh Ginger - Ramanagara Farm Direct,False,4.63,53
+051f1fac-ec2f-43b9-90c2-9b70dc292e82,7ee5a665-1ffd-4704-a4b1-f600826f0603,Fresh Green Capsicum - Pandavapura Farm Direct,True,4.71,14
+f2ae0ff7-611d-4a23-b1ee-97688a2701e7,8f2c8b5d-edde-4ad7-8346-f2fb46f25bf3,Fresh Cabbage - Maddur Farm Direct,False,4.88,90
+34119d47-c8c2-4772-b53c-97c701be9620,c72f29f3-b505-4dc4-b718-c29fecdd1b7e,Fresh Banana - Bengaluru (Hebbal) Farm Direct,False,4.58,145
+139302a4-3980-4643-9f18-f7f19af45373,306f0671-32d4-468c-a923-ddc2a083d749,Fresh Rice - Bengaluru (Kengeri) Farm Direct,True,4.77,88
+d9e5f240-1361-45c1-8b4b-b95f01f4c109,b17a0189-32b1-46d9-9b1a-22e87ee3642f,Fresh Pomegranate - Bengaluru (Hebbal) Farm Direct,False,4.83,178
+fee147d1-51c3-40ae-a709-35b54c350331,31303cb7-1e40-4c70-bf6f-80c4b5f78bfc,Fresh Green Capsicum - Bengaluru (Kengeri) Farm Direct,True,4.59,47
+32c03fc7-af45-4e88-8af6-93a873e81ad5,8dec2a9f-3f80-41ba-b520-b1de821d5c69,Fresh Pomegranate - Bengaluru (Indiranagar) Farm Direct,False,4.42,158
+2e16a932-bc24-4b72-b994-cd2c3554539a,bc5b0342-b965-42cb-96cc-8bc15ef762ae,Fresh Mint - Bengaluru (Hebbal) Farm Direct,True,4.8,141
+2b537ff2-8ee8-461a-9037-6341600cbf5f,951b5992-97b5-4cf4-ac4c-45765e8a11eb,Fresh Green Peas - Bengaluru (Kengeri) Farm Direct,False,4.48,78
+ac50a9d6-f382-4ee3-af21-25a4d7df3eb5,38595e59-f027-464e-98f5-4c1ed50b697d,Fresh Green Peas - Bengaluru (Yelahanka) Farm Direct,False,4.85,90
+c9813573-f89f-44c9-b0e1-a585d1da29ae,3eb80692-c833-47bd-a9aa-924bdc185603,Fresh Mint - Pandavapura Farm Direct,True,4.92,161
+3a552307-6f65-4c3a-a54d-d271c022e93b,b702e5be-58cb-4117-a3d6-ea6d591e29a4,Fresh Onion - Maddur Farm Direct,True,4.65,50
+a4ef8596-5999-4b27-a3fe-44558bcaa2df,c7d849df-6bc4-4288-a26c-03ceb415e363,Fresh Green Capsicum - Bengaluru (Koramangala) Farm Direct,False,4.83,32
+c9258ea0-ea2b-40d1-ab14-ea7cc785ea80,b0f3d800-e54b-4bb7-9f3f-2fa100c21fde,Fresh Mint - Srirangapatna Farm Direct,True,4.53,55
+8a79f0bd-7f06-4ca9-80fe-75a8a001957d,01327f8e-bff4-4bf7-952c-9675da11d832,Fresh Green Peas - Srirangapatna Farm Direct,True,4.78,115
+8124d850-f372-4140-92f6-6ff393d8ad94,6ad211b1-0e72-4963-b707-1e92acb2adeb,Fresh Pomegranate - Bengaluru (RR Nagar) Farm Direct,True,4.94,147
+5b8c6336-1da2-4e93-a5fb-3781c59c29bb,39e19a70-caab-4bcb-bdaf-a7a0db1f1ad1,Fresh Tomato - Bengaluru (Hebbal) Farm Direct,True,4.61,45
+5f90699e-3465-4122-9081-7f2f754993e4,981f1985-0115-4860-a2ae-45f46847dd2c,Fresh Garlic - Bengaluru (Yelahanka) Farm Direct,False,4.57,145
+d6793f9d-f087-485a-a0e0-09ea5616fcef,51a74b76-43b4-4bad-8dbb-5e6f19038d2e,Fresh Mint - Malavalli Farm Direct,True,4.69,60
+ccc17542-0192-4e15-82a8-2224b628efab,35758509-fb1e-4633-99de-25260c01a086,Fresh Garlic - Pandavapura Farm Direct,True,4.75,55
+90e24580-e2f0-49ab-99ce-79902d5d35fd,17efccae-9a01-477e-9210-b2fd6734fe9a,Fresh Ginger - Ramanagara Farm Direct,True,4.77,164
+267bcafa-37c4-4b02-92c3-b227652497c8,e65157a3-381e-4b01-8a03-cbbc7038a548,Fresh Carrot - Bengaluru (Koramangala) Farm Direct,True,4.47,76
+096c9ad4-ee1e-4a86-a373-291bc197469f,a61a2f4c-33cf-4878-b743-d90b02609d48,Fresh Cabbage - Maddur Farm Direct,True,4.46,145
+74396c83-e782-46c3-9710-c78913d5a49a,d22de1b9-65e4-4c9d-9dbe-f19bd09e202c,Fresh Cabbage - Srirangapatna Farm Direct,False,4.47,39
+85c12524-3123-4562-93a4-a52c898f4518,3061ad9d-0d63-473a-8fb1-371d3473011c,Fresh Green Capsicum - Malavalli Farm Direct,False,4.65,53
+9f9f1e08-6d32-48a2-a341-bbaba82c8f65,f8a12906-df5e-4e2f-9cb0-a37dc5b1e793,Fresh Ragi - Mandya Farm Direct,False,4.41,34
+4ac755cc-3384-4c38-89bd-810d4afee67e,6e2e92dc-8f05-4fd5-8479-fa504468eaa3,Fresh Rice - Malavalli Farm Direct,False,4.83,77
+2fc6e23e-4b20-4c24-9330-6bf4084694bd,4dddcb4b-81c6-41e8-98b0-98e8091dab49,Fresh Papaya - Bengaluru (RR Nagar) Farm Direct,False,4.5,22
+3d4ce172-6260-4dfa-9af8-74eeb46f6ae1,a1fb2879-abcf-437e-bfd5-69cb6f858f3f,Fresh Ginger - Ramanagara Farm Direct,True,4.93,14
+a6f0bc98-cd3d-4600-aa52-1551395a9aee,2e3f0b5f-299b-4053-b1bd-b7685fdf2722,Fresh Green Peas - Bengaluru (Koramangala) Farm Direct,True,4.46,99
+0f8ffc1d-42dd-4b60-a223-644c0eb7d1c4,5fad4f4f-c451-4d55-86fc-7883290394f0,Fresh Carrot - Bengaluru (Kengeri) Farm Direct,True,4.69,119
+58ea5898-e09c-4e6b-81bf-211261419595,f57083bb-ec99-4860-af09-506acf15bb1b,Fresh Carrot - Pandavapura Farm Direct,True,4.75,157
+6d8943b9-0740-4df5-a7a1-5e1755570fc2,c8112071-9e65-4c17-b6fa-2e45db19b069,Fresh Green Peas - Malavalli Farm Direct,True,4.93,45
+38725919-c9be-41de-a4ce-7ca2b20d2220,90ff5d7f-6fb8-4265-960b-4bb1ef8cbcb2,Fresh Pomegranate - Bidadi Farm Direct,False,4.59,146
+83ca398d-72d2-4e50-b32e-53acfaf9f224,70f84aeb-f09e-43a7-8e15-28afa2bbec3e,Fresh Rice - Srirangapatna Farm Direct,True,4.82,36
+cb56deaa-8d41-4adc-8a3f-3bdf869aed1e,11cf476f-5c53-4dcd-95d1-0dc4dbdcfbde,Fresh Green Chilli - Srirangapatna Farm Direct,True,4.74,168
+acea3378-4bf7-4d40-8a6e-bab5fadc2196,209ccd08-6426-4165-88cc-e9663beda513,Fresh Tomato - Bengaluru (Yelahanka) Farm Direct,True,4.44,137
+f9d76a86-af1e-436b-ba84-54d2e8a3573e,a547db5a-1be9-4a43-939c-16a3272c1001,Fresh Green Chilli - Bengaluru (Koramangala) Farm Direct,True,4.63,72
+600ad2a1-c479-41cb-ae59-1f480c14eca6,04051798-fe4b-4840-a85a-347f1c523001,Fresh Papaya - Bengaluru (Koramangala) Farm Direct,True,4.47,139
+ffb35857-5a01-4e4d-b7f3-e4dba8ebcf4b,4cd85bbf-2737-4260-8007-03b9a8be9508,Fresh Carrot - Bidadi Farm Direct,True,4.88,170
+5be7f0f5-1d12-45f3-b308-f664330e8da7,4a2599c3-2256-4708-973f-a99698c9a0ee,Fresh Grapes - Mandya Farm Direct,False,4.43,69
+52f59e14-39fc-4311-9763-412f0916662a,b92a69ff-8536-42de-ac4f-a150fd6b5f2d,Fresh Mint - Bengaluru (JP Nagar) Farm Direct,True,4.47,180
+6ceef2d2-1469-48a0-9d65-3453b2d6099a,30105283-caac-4976-97e6-245f861ad1b4,Fresh Tomato - Pandavapura Farm Direct,True,4.82,23
+9752f5b8-1a9f-485f-954c-d7c75c88038f,8602f12e-705e-4829-a68f-ab891eca4a3a,Fresh Pomegranate - Pandavapura Farm Direct,False,4.52,42
+cc42fd2a-523e-4640-b4b1-35a7abc2ad6e,62a85833-2e3b-4504-b61f-eec69fab9cb5,Fresh Green Capsicum - Channapatna Farm Direct,True,4.43,174
+1a485340-f614-4da7-9953-4cbb2f709dc6,23878cbf-1128-45c2-b913-85c2f97df5b5,Fresh Papaya - Ramanagara Farm Direct,True,4.4,24
+16d265ed-77a0-4a24-afb5-719cba043ada,34f3003d-ae28-49dd-9857-ddf91901c813,Fresh Banana - Ramanagara Farm Direct,True,4.5,44
+c3495736-91c7-4cc4-809c-67ddabb167ef,39ced0a7-faec-4a9e-9d1f-98f084b257ac,Fresh Garlic - Bengaluru (Yelahanka) Farm Direct,True,4.65,167
+19d09fa0-c8b2-4b5c-b5a6-7efe29934bd0,4b80caa9-ecbd-467f-995a-d2791d79929e,Fresh Palak - Bengaluru (JP Nagar) Farm Direct,True,4.48,166
+749c4ddf-974f-4931-a100-4225142185fc,80bd7f21-b30c-4a29-9763-11176d5dc73b,Fresh Coriander - Channapatna Farm Direct,True,4.52,171
+30a35155-a204-4dc4-b803-c1c6e3f4b4f6,7a3382a9-99db-4546-a3c0-883998af2d13,Fresh Ginger - Ramanagara Farm Direct,True,4.78,41
+c7753905-347d-4399-b42f-7855b236aa8e,102acc3c-c21c-489a-86e6-e24fdc6044c8,Fresh Ragi - Bengaluru (JP Nagar) Farm Direct,False,4.91,15
+cd06b865-9bda-4bc4-aa63-0b5cc0ad3bdb,f19d2d74-1e2f-42f2-8c65-ee71b3315774,Fresh Carrot - Malavalli Farm Direct,False,4.87,85
+39858fe6-336f-4f49-8f1d-5d6db50a5671,a8885a5c-8edc-4f96-b244-d68b33dec4e3,Fresh Cabbage - Bengaluru (Koramangala) Farm Direct,True,4.42,127
+08b13616-624e-429d-8e3b-6fa21d699d46,7b73e4e9-1370-4f6f-836c-46f1d4900d4c,Fresh Ragi - Bengaluru (Yelahanka) Farm Direct,False,4.87,85
+61196fcb-7d00-4c63-8871-a2da792babf2,04cfe4db-dc7d-47a0-aad3-e8c0b2fcd091,Fresh Garlic - Bengaluru (Koramangala) Farm Direct,False,4.85,63
+36ac1cb7-c55e-46e9-bdbf-67db44692a6b,8a1d0ad1-4f24-41bd-94c8-a7484051ea6f,Fresh Green Chilli - Bidadi Farm Direct,True,4.76,61
+3fb4e8d6-0eb4-427b-bc00-84dd6f15806c,796ec18e-9258-4a64-a810-af379d71528d,Fresh Papaya - Bengaluru (RR Nagar) Farm Direct,True,4.47,22
+eeefd9b6-1b40-41ed-ba70-4f51c247226a,3e302a9d-ba5f-4df0-928a-9d797ea26deb,Fresh Palak - Bengaluru (RR Nagar) Farm Direct,False,4.68,51
+b784d501-caa1-4dbd-baa2-881e03e8d313,0d440eae-8418-4297-8678-dc481ab134cd,Fresh Cabbage - Mandya Farm Direct,True,4.74,103
+369b36dc-5a7f-4661-b814-c9329f431123,f2a3c8eb-9bf4-4611-9e6f-88079483231a,Fresh Mint - Srirangapatna Farm Direct,True,4.5,151
+34375768-3582-4dae-94f6-7d728cf14b72,86a20379-5a84-4c06-b34a-b9fbee5d769e,Fresh Garlic - Pandavapura Farm Direct,False,4.58,170
+93972ebd-a548-446c-a61e-54abc0d9eb7a,08e32558-6ff4-4ff4-9014-c14b7fdf2c87,Fresh Pomegranate - Bidadi Farm Direct,True,4.67,176
+e13af574-1a3d-4d74-a9d2-fcc42f75a927,0ef760d8-3766-4e2e-b776-e2729b996895,Fresh Potato - Bengaluru (Kengeri) Farm Direct,False,4.83,18
+73697b54-c6e2-44c9-8814-663dd2d9dba7,bdcc3da6-afbb-4f7e-b9ee-16a93ca76b66,Fresh Ginger - Malavalli Farm Direct,False,4.79,94
+aae46e83-5eca-4bae-83be-d1af00c5cdc0,026b1692-50a7-4232-9d47-841372ca7bee,Fresh Onion - Channapatna Farm Direct,False,4.44,173
+a0b08496-a82f-4cd0-be10-3ab342d8be86,b720bef5-bc96-42ca-9cfe-8e7c6c687112,Fresh Banana - Bengaluru (Koramangala) Farm Direct,True,4.49,129
+e7185a39-0261-4ed3-8614-036ab8432fa2,e76ee2f7-6c1c-47c5-9704-7cd9239a2ad4,Fresh Potato - Bengaluru (Hebbal) Farm Direct,False,4.89,78
+037383ef-6b0c-4d21-91c9-e5c324305667,403a30a1-7dfe-45d4-b6bf-8ce8b913cfe5,Fresh Garlic - Bengaluru (JP Nagar) Farm Direct,False,4.47,13
+57d67d1a-7d94-4323-8d9f-22d30884bdb9,c8fe687f-a019-40e8-8be7-9cede40f6cf3,Fresh Rice - Bengaluru (Kengeri) Farm Direct,False,4.87,89
+9343e411-1342-4af6-b84c-49ab26ee23f0,5626f6ed-cd30-4140-a4ff-3b36ad3e6203,Fresh Coriander - Srirangapatna Farm Direct,True,4.72,46
+e83f625e-4033-46b8-b595-e7f5d55bab20,3565b1b2-27a2-4f45-8504-017ecc17098d,Fresh Ragi - Channapatna Farm Direct,True,4.41,154
+028a6f74-cbb2-4589-8fa2-ca3fba159ad4,725df805-0661-4aa9-955d-c0fc13f34f0a,Fresh Carrot - Ramanagara Farm Direct,True,4.45,65
+87375ac9-631a-474b-b827-a0d25831f6cc,2e2bd4c5-0534-4ede-a8e5-3b3de023395e,Fresh Green Capsicum - Ramanagara Farm Direct,False,4.53,76
+4cc80ba9-1884-4b13-8df8-b093b3882660,2f890446-c136-44da-a5a8-28f42b994c99,Fresh Carrot - Bengaluru (Kengeri) Farm Direct,True,4.73,86
+e6a04938-5e34-4328-ae59-6d3dc3f1c0f1,034b2990-933d-4288-aefb-f500bbb472ce,Fresh Palak - Bengaluru (JP Nagar) Farm Direct,False,4.8,72
+c50ff350-8d5c-44a4-b91f-08c8a0a5c99f,5de90a51-4578-41c8-ad21-734e2e332852,Fresh Coriander - Bengaluru (Kengeri) Farm Direct,True,4.77,90
+644cb430-839e-4d94-abc5-2aefa812d87c,0c45a894-c163-4272-8b80-e6df1c2153c0,Fresh Cabbage - Bengaluru (Koramangala) Farm Direct,False,4.59,68
+f2c3bde4-f1f1-484c-ab9a-cc85dfc19c06,a3dc2c41-8a20-47f6-a417-20009f7b05cd,Fresh Palak - Pandavapura Farm Direct,True,4.62,90
+caf182d8-b8dc-4efd-9432-9835f25c1d2d,14a8fc94-359e-4ca0-a1e1-5128beeb5432,Fresh Ragi - Srirangapatna Farm Direct,True,4.48,149
+588f8f78-1d77-4989-b8cd-3e0869658448,e6b01b5f-593d-4b91-948c-7e4c358e5aee,Fresh Palak - Bengaluru (Indiranagar) Farm Direct,True,4.78,160
+d2ee5f06-0a65-4618-96e6-c27bc21be525,8f3214cc-37f9-46e9-85ef-6b0e5c136466,Fresh Garlic - Maddur Farm Direct,False,4.94,150
+b0f4aebd-09b1-480e-af04-5435c1379068,1d0e0c3a-1d22-4b1d-84bf-40d060472f38,Fresh Cabbage - Ramanagara Farm Direct,False,4.7,35
+fd8c9d08-eb21-41d5-9636-2248c81282bf,3ea5a21e-b8b3-4693-91d3-dbeb09ebd66e,Fresh Ginger - Bengaluru (Kengeri) Farm Direct,True,4.48,52
+07085e02-3d10-40d1-bd00-3c9607f4b23f,015e83f0-6514-4c59-8e2c-11a68a44b7ae,Fresh Rice - Srirangapatna Farm Direct,True,4.42,136
+14be1626-52a6-4663-a86f-3e63efc5b7f1,bfe13bf4-2871-4365-be53-02f19103d5f1,Fresh Onion - Bengaluru (RR Nagar) Farm Direct,True,4.62,132
+0031e56a-e740-4991-af49-d3cac14a83eb,c76ede1d-e285-46dd-993c-cabfec60e917,Fresh Potato - Bengaluru (JP Nagar) Farm Direct,True,4.56,79
+3a34d1a4-8f79-4d3b-8d81-bb5fd72a1b3a,20b62d5b-4a54-45fc-87c6-b2d127cce534,Fresh Ragi - Maddur Farm Direct,True,4.94,31
+a25999f5-62a0-4f6a-9365-8884d42cb059,ce3a96d6-2b37-43d4-850b-14f2f9ad66b4,Fresh Palak - Malavalli Farm Direct,False,4.92,136
+48c05eff-6a2c-4517-9f87-23a6d289b906,42d13ec9-2b49-4766-ab65-7ae1afee2d9a,Fresh Tomato - Bidadi Farm Direct,False,4.79,66
+01eceb48-f625-49d1-9160-9092e4e32c8f,3a631bb9-cd3f-4838-a7dc-f977a686ca38,Fresh Green Peas - Bengaluru (Indiranagar) Farm Direct,True,4.6,41
+69337b07-6845-49f2-aea2-e3bad6b14da6,07ff79b6-f960-4322-a181-6cf2ebad5d52,Fresh Pomegranate - Bidadi Farm Direct,False,4.48,163
+bb7150c3-181b-435f-9c77-bee1e39665f5,9adf367c-9f58-4c08-9b24-71df6fd2b29b,Fresh Cabbage - Bengaluru (Indiranagar) Farm Direct,False,4.55,58
+43feb303-a583-451a-bf7d-b766f4a40b12,79bf7394-4338-49b9-81d5-70b1cf9b5ef0,Fresh Garlic - Malavalli Farm Direct,True,4.53,167
+4501dcfa-b077-4159-847e-ef9d395168e5,b3d5d093-62f5-4739-bc0b-556cb4f4e67f,Fresh Pomegranate - Ramanagara Farm Direct,True,4.89,58
+3a50c212-b6a5-4a68-8319-9c27735e8d16,7c50a1f7-6d1f-4787-9d7a-4d5c846185d3,Fresh Palak - Bengaluru (Hebbal) Farm Direct,True,4.54,110
+5f7fe85b-a41f-445e-83dd-d16cd8b90fc2,eb7215d2-34bf-4dc3-bdc0-6d7191339142,Fresh Carrot - Bengaluru (Yelahanka) Farm Direct,True,4.76,57
+30e24fd5-2a5d-495d-a6d4-5b181b73efb0,0c936d75-c469-458f-8be5-97315b972f65,Fresh Potato - Maddur Farm Direct,True,4.48,166
+04f54342-120a-43fa-9062-b8d0771ca8a7,fdab1bba-beb5-429a-88bd-f8a009364ee0,Fresh Tomato - Ramanagara Farm Direct,True,4.92,147
+9fde5f92-80d6-4098-9f79-62288afa3012,8948a6c0-3d23-4317-a0ee-0edc4de1d4cb,Fresh Green Chilli - Bengaluru (RR Nagar) Farm Direct,True,4.84,159
+4049d501-b0c1-4269-9ebe-1b50c2150384,c9e72f59-f449-4171-8392-cff9ee5af771,Fresh Banana - Bengaluru (Kengeri) Farm Direct,False,4.93,116
+4d638cde-9f7c-426c-8dee-92486041493f,b9545855-251b-498d-a478-96a6c52bbdf2,Fresh Green Capsicum - Mandya Farm Direct,True,4.71,108
+3ee84a7d-619b-4ebd-a86f-6e73e1aa0f56,4bfdfb8d-a5f9-4a0f-9a9a-c044f391a481,Fresh Mint - Bidadi Farm Direct,False,4.91,120
+0c46d491-ceb2-4f60-94c0-c9ee7e6802a3,5f432ddd-d0fb-45bf-8971-b5129ff907ea,Fresh Ginger - Channapatna Farm Direct,True,4.87,135
+7e966e66-f79b-4e76-b29c-f497a16698ed,796126fc-042a-4545-b902-7a3303bff874,Fresh Ginger - Srirangapatna Farm Direct,False,4.82,47
+2be07e4c-3dbf-42e5-90c3-26540a177fd1,38db8064-ffd0-4505-8010-e99065204d21,Fresh Green Chilli - Bengaluru (Kengeri) Farm Direct,False,4.64,98
+513bda1b-657c-4490-9a52-b4bf2f376704,8b45d589-6b5b-4957-b5d3-c719623e3f6e,Fresh Potato - Bengaluru (RR Nagar) Farm Direct,True,4.68,165
+cd421415-e774-4ace-b0dc-d63a85efee9b,9c6947c7-a209-44c5-938f-59b39edf7bec,Fresh Onion - Pandavapura Farm Direct,False,4.63,114
+9c21e0d1-367d-46e5-8ddf-c5c2e66c5178,86184971-7b34-4b5b-9597-37ec5973fb4c,Fresh Coriander - Malavalli Farm Direct,True,4.52,180
+019151cf-91d6-487b-a2fe-afcd1bc9cd70,55fe0e3f-ab74-4697-97db-93ce2e8be6cd,Fresh Coriander - Malavalli Farm Direct,True,4.77,21
+0235d250-aa7c-4dfb-b553-44b4676cb0a9,02de08b4-c332-4db2-8dd0-d901f20ae37f,Fresh Green Chilli - Srirangapatna Farm Direct,True,4.61,113
+c2e712d4-fa5d-4331-96a6-e1b4233c081b,719e9784-3a8f-4b68-ba03-6d4f1904735c,Fresh Rice - Pandavapura Farm Direct,True,4.84,155
+73ba2336-7a3c-47ec-af09-dc36f47b00fc,d3fc1933-077e-4c56-b238-29f5760d3dea,Fresh Ginger - Bengaluru (Koramangala) Farm Direct,True,4.67,115
+f5ecb502-edeb-4f3d-9b76-0d53f2ba0bcf,0e0190eb-b13e-45fd-8a05-8870470f2c2d,Fresh Tomato - Srirangapatna Farm Direct,False,4.58,41
+3917a229-00ce-4f07-ab63-a7dfc2cd82df,b0ef56fe-dca1-49eb-87b7-f0b523564ed4,Fresh Palak - Channapatna Farm Direct,True,4.98,156
+1fb51520-9238-438a-b8e4-17a7803354a7,8b12db3f-edfa-43e9-a068-991ee16610cd,Fresh Green Chilli - Bidadi Farm Direct,True,4.92,135
+9d200418-2fc9-4275-afd3-387660366ffb,f8623528-1af6-4179-b121-a4f74554b913,Fresh Palak - Mandya Farm Direct,True,4.65,102
+d74863d0-49fd-4224-a133-7612b158140e,fba1f295-4d06-4130-9c80-23e79ae9fe0f,Fresh Ragi - Malavalli Farm Direct,False,4.8,99
+d091bfe2-22ca-4023-a8f1-3226b7f4a7da,5ba81ee2-f298-4afd-a5b4-cdeba445c11e,Fresh Ragi - Bengaluru (Yelahanka) Farm Direct,True,4.56,60
+ffcbe3ac-c1c6-4338-b2aa-421e7396924a,28f72b5a-1b5d-40dc-ab8b-b966c1560bd3,Fresh Green Capsicum - Malavalli Farm Direct,False,4.9,170
+365f0f81-3694-43ad-a200-4c673bf6c199,46595bc2-dfa6-4ac5-8f25-ec53e5b0363a,Fresh Cabbage - Maddur Farm Direct,True,4.86,150
+795061e1-6f7c-4d90-a042-3f0f8849e2dd,70870f15-80aa-4afb-a0b3-4be28030658b,Fresh Pomegranate - Mandya Farm Direct,True,4.99,142
+28e011b1-cf12-42d0-8034-c80656e0c0d5,359db414-7baf-4d0f-9ae1-eabc67f5b6f9,Fresh Garlic - Bengaluru (Koramangala) Farm Direct,True,4.69,150
+27b7bd08-eb19-4d34-8cc6-3e49ea12d010,5f30a759-d6e3-47e3-8bf5-2f3a97fee636,Fresh Grapes - Pandavapura Farm Direct,True,4.82,129
+9e466ab4-0753-45f0-b24d-06ca63637b2d,1a022d81-58e7-4039-9b93-7d7ee93e2724,Fresh Tomato - Bengaluru (Koramangala) Farm Direct,False,4.77,78
+d277ed8e-2eae-4613-be3e-11f69358f1f3,03f06ffc-7dbd-462e-be74-37cd52c35d2e,Fresh Ragi - Bengaluru (Koramangala) Farm Direct,False,4.7,65
+f23a48e4-f663-406f-9b04-9f6835aaa9f4,69f4f6ef-0630-49aa-92de-75b0c8dd0396,Fresh Ginger - Pandavapura Farm Direct,True,4.99,70
+b99e1dae-48e4-4376-947d-936df1d7d3fd,1e130a0a-18a8-4736-9e6f-2fba2a5444fe,Fresh Palak - Bengaluru (Kengeri) Farm Direct,False,4.98,50
+f2b7b5ef-c8f7-4c34-93ed-2e35f3c536c1,6a2078ad-6771-4c59-a261-6d3bb87d9e46,Fresh Tomato - Maddur Farm Direct,True,4.87,88
+f44d292e-2536-44e1-8fc6-4f01e4c1a342,a95fe8a1-83d2-49e4-95ff-d2d15248cd23,Fresh Ragi - Bengaluru (Koramangala) Farm Direct,False,4.89,133
+9b60151d-2d71-442a-b900-6cead41b6a44,bf3c1994-56f9-475a-a477-432793c2a1cc,Fresh Papaya - Bengaluru (Koramangala) Farm Direct,True,4.89,100
+88dc8654-525d-4e13-a1c5-26c467b71fdf,cf78f4eb-c88b-46ce-8f32-d2a793e28a6e,Fresh Banana - Bidadi Farm Direct,True,4.79,149
+6f413aea-b761-4f53-83cc-8909734ca65f,99947c92-5295-4296-8392-f70917db00a8,Fresh Coriander - Bengaluru (Indiranagar) Farm Direct,True,4.63,85
+d87b4379-1d76-4d99-8ebc-d4c330fbd6e5,c079a2be-8bf8-44a5-8f08-68b217ce8492,Fresh Cabbage - Bengaluru (JP Nagar) Farm Direct,True,4.74,30
+8b414293-228c-404f-aedb-2bfc01e00016,9be5f8eb-b4ca-4169-903f-071ec5656395,Fresh Green Peas - Bengaluru (Koramangala) Farm Direct,True,4.64,125
+8444f425-1ec2-4960-b214-3f36015984d2,b7f2e1df-d528-4a45-890f-35e5d9741fe4,Fresh Rice - Srirangapatna Farm Direct,True,4.48,72
+ada3490e-9d0d-41c5-b8f6-ee36f232a592,f4b8684e-f0cb-44a5-8afb-e23e06e251b1,Fresh Onion - Bengaluru (Koramangala) Farm Direct,True,4.68,25
+d5474396-93fa-4ca5-9ce7-c2637eb3b02b,ba876708-6559-489c-8cca-61ca79a335d3,Fresh Garlic - Bengaluru (Indiranagar) Farm Direct,True,4.45,111
+af0f56de-c9ad-4e77-9616-63f500df272d,c9654366-25d6-4306-8e26-06116a64d3d9,Fresh Green Chilli - Bengaluru (Koramangala) Farm Direct,True,4.5,20
+69bdcac8-959c-4ca9-8ead-4604f4508f1f,b49b6510-1009-4d68-9867-e6bb0b5bfdd3,Fresh Mint - Maddur Farm Direct,True,4.48,150
+df12d470-f4d4-4550-b7c7-b362ed0cce5a,92363e1a-4b65-404a-87e9-97db2980fc73,Fresh Rice - Srirangapatna Farm Direct,True,4.78,91
+1565d3db-fa61-4937-9a95-61ffa16b52f8,e04d49c0-8705-4bc4-99b7-ef8136c13711,Fresh Pomegranate - Ramanagara Farm Direct,False,4.56,89
+90d08764-413b-4792-ac7f-41915db7fab3,ba8c3d7c-e18c-4a5f-972c-6837052aaba9,Fresh Tomato - Bengaluru (Hebbal) Farm Direct,False,4.72,137
+431c6fc2-0f8a-4db6-ae8e-8a20bad8a86f,0cd65e60-96be-4e4d-92b0-252bc53d6a73,Fresh Coriander - Malavalli Farm Direct,False,4.4,107
+3548a058-595f-434d-8b3f-a98dc2df2f75,5fbe2537-58c6-477d-8b53-ec67c1cc59e2,Fresh Banana - Bengaluru (Hebbal) Farm Direct,True,4.79,108
+93e72030-6ff8-43c4-8fed-6ec2084ee35e,e88c68f8-21db-45d5-b895-6dbdc7694b5c,Fresh Palak - Pandavapura Farm Direct,True,4.81,84
+0c04e9e0-bb76-47a7-a14d-f2eff4f256d8,fde2e735-138b-4715-894b-5ba83236b489,Fresh Palak - Bengaluru (JP Nagar) Farm Direct,False,4.78,170
+deb77a6a-d2ec-4d3c-8fc3-f9c307c2c6ff,3a0b2dca-a318-479c-b130-66a9bbb53a15,Fresh Palak - Bengaluru (Indiranagar) Farm Direct,False,4.98,17
+8925d13b-14fa-4779-863a-25811e076e6a,7ab0dc3a-ca02-4ae1-a5d9-48f6b5e8ac38,Fresh Carrot - Bengaluru (Koramangala) Farm Direct,False,4.49,138
+ca47a0cb-1dff-4dfb-8451-3e057325388e,f8bcdbd5-e5be-46f7-8b46-3e0ea6760ad5,Fresh Mint - Malavalli Farm Direct,True,4.87,96
+739eefee-2af4-4c44-b3e1-e9e86d01f1d4,b240e5a9-316b-468e-bbbb-32f4b4ef3d44,Fresh Cabbage - Bengaluru (Koramangala) Farm Direct,True,4.52,76
+5ac74607-116b-439d-bc3c-14d60fbbf3c9,2341c53a-2869-4ae7-8e37-146bb1c6dd74,Fresh Tomato - Ramanagara Farm Direct,True,4.67,20
+0f39696d-33be-4ab3-98ce-dfbfa4d9b7e5,d2438925-005b-4485-b27b-6805d083dc70,Fresh Papaya - Bengaluru (Indiranagar) Farm Direct,False,4.98,94
+af72cf78-266e-4f86-a454-6c44b31ab17c,84f73294-3cd4-4e90-a3d9-2878be90721e,Fresh Potato - Bengaluru (Indiranagar) Farm Direct,True,4.58,104
+3be86532-31cf-42eb-813b-2dccd5ac1496,239a6da4-b6aa-4500-8e7c-4f1af853bb3c,Fresh Green Capsicum - Bengaluru (Yelahanka) Farm Direct,False,4.88,161
+25f04353-3717-43fc-8cda-10082eb64989,6fcddd25-931e-4a73-a0c7-2118806e8591,Fresh Garlic - Bengaluru (Kengeri) Farm Direct,True,4.69,164
+c1825c45-0d7b-4a7a-8dcb-9551977f9a86,3679edd8-5576-4338-95e1-c31a430b8e10,Fresh Ginger - Srirangapatna Farm Direct,True,4.6,172
+54e68afd-8558-4ef5-85a1-3e2ff3b0d76a,441a554c-1691-4ac0-a254-37d20cd5331c,Fresh Potato - Bengaluru (Hebbal) Farm Direct,False,4.54,154
+84880841-242e-47ad-b889-243a3d69f06a,3a4c45ba-859d-47cb-a39c-b480b7f160ab,Fresh Papaya - Ramanagara Farm Direct,True,4.55,22
+5f3f1ace-733c-45a8-9015-9c81106d406a,1046ef0f-2855-44a3-b09e-53587375515a,Fresh Papaya - Srirangapatna Farm Direct,True,4.73,94
+6d17c338-b0f2-4dbf-b830-b69f9ee86bc7,fe9db623-ac38-4d87-be96-3872f6b151ec,Fresh Palak - Bidadi Farm Direct,False,4.49,87
+2948b4d3-301f-481d-8a28-8fbc91814afa,b8b7fa47-bb4e-48ec-9c6b-54d033e463ee,Fresh Ragi - Pandavapura Farm Direct,True,4.93,170
+dcc92c40-ca3b-40c8-9cbf-72290ee7e3a0,ed6624e9-5209-4bfb-9c08-a887ea9f5894,Fresh Green Chilli - Bengaluru (Yelahanka) Farm Direct,False,4.81,153
+32fc637e-f9fe-4fc6-9e2a-675ee8c4feee,a0ed104e-008d-4df0-958d-0220e2cf2ae5,Fresh Coriander - Srirangapatna Farm Direct,True,4.44,45
+03a12456-7dd7-4331-bc0e-492c739b4247,90bdf826-5675-4987-96e7-4259f3e3da01,Fresh Potato - Srirangapatna Farm Direct,True,4.9,180
+6009c106-4a8d-4390-b68f-d80d46087798,33f60598-03a7-4db3-84d9-62d254f7fcd5,Fresh Grapes - Bengaluru (Indiranagar) Farm Direct,False,4.83,15
+e39a26e9-549e-4b16-96e2-00865896404e,ec6efaa9-3938-458c-8062-b252c6de99d7,Fresh Pomegranate - Bengaluru (Yelahanka) Farm Direct,False,4.85,118
+334f6d5d-6c87-46e3-b054-4261bb3ac1e2,41944e58-45fe-4bef-85f5-ebe895484f2b,Fresh Potato - Malavalli Farm Direct,True,4.45,67
+5c70169d-eaed-4e4c-a326-52c3e7c96dac,10a99e92-6728-4767-a01d-5ecc503881fa,Fresh Carrot - Malavalli Farm Direct,False,4.79,157
+ad9a3a2b-8061-4101-9c57-bd2afbbf392c,d9129e6e-7f31-4c8e-a87d-fecc483e845f,Fresh Ragi - Srirangapatna Farm Direct,False,4.68,121
+dcbedb32-e346-4e18-89ee-3858c173c294,b167034a-19f7-4f17-844c-2502768b3607,Fresh Green Peas - Bengaluru (Yelahanka) Farm Direct,True,4.72,165
+0edf81e8-0f9f-40e2-bfe7-e4b020cccfd2,5bd5dc26-2a5d-407c-8720-f719bce72342,Fresh Ginger - Bidadi Farm Direct,True,4.78,94
+61994682-174b-47e1-a92b-8d56e543416b,95988ce6-3a36-413c-9a70-12a0621aa6db,Fresh Rice - Ramanagara Farm Direct,False,4.67,113
+d6bbbbbd-5bb9-4372-86a3-876b161d74ed,8bdde6f1-5c03-460d-bfd6-1b2830bcdb12,Fresh Potato - Mandya Farm Direct,True,4.58,88
+ede7e214-7e45-44fa-909e-938a0e7322ea,fb74578c-e967-49eb-9686-83eda83998dd,Fresh Green Capsicum - Pandavapura Farm Direct,True,4.74,158
+f725f521-e54b-4b98-bef4-b645547b1610,212de602-66e8-461e-9d77-e23399471f14,Fresh Carrot - Srirangapatna Farm Direct,False,4.75,71
+c6914581-923c-445a-9f9c-eaf0ec5a2c33,709140a4-d418-4a3a-9e3d-ad809e99cf36,Fresh Coriander - Mandya Farm Direct,True,4.88,56
+a926809a-0d3a-4983-b639-bc8847e0584b,70f32833-a351-42db-a478-4eab3c7c449f,Fresh Rice - Srirangapatna Farm Direct,True,4.75,32
+4b4397e4-6e3d-40ab-be3c-08505ec3f150,848f9ea4-fcd4-4370-96ed-21a6f94b1fe1,Fresh Mint - Srirangapatna Farm Direct,True,4.54,179
+cdbbec30-7793-4d61-884e-57040023b974,c44e9c41-32d4-470e-b6ab-8f9350cb0171,Fresh Garlic - Bengaluru (Hebbal) Farm Direct,True,4.6,68
+e9fb161f-634a-44fb-9050-efc22a610c33,78330201-8575-4aeb-8219-4de4c405eab2,Fresh Potato - Srirangapatna Farm Direct,True,4.45,122
+5dedc130-d37a-4fce-8a23-c2c6186c790f,d7dfb7a7-ce4a-42a4-8ae6-4956cd83b4cf,Fresh Garlic - Ramanagara Farm Direct,True,4.73,79
+67c8f787-036a-4e80-bf5c-615d33d60cb8,5dab8682-e932-4e75-9ac1-4ab53d6c77eb,Fresh Garlic - Pandavapura Farm Direct,True,4.52,113
+de3294f9-be62-4d28-b20b-e8c0b1924b62,d2393faf-7dca-4131-99b5-5b8d3033c354,Fresh Green Capsicum - Pandavapura Farm Direct,False,4.56,122
+d24fe122-9118-4ac7-a533-519394afeea2,9fa2c322-9062-4236-afae-064090d096e3,Fresh Rice - Bengaluru (Koramangala) Farm Direct,False,4.59,164
+0de12161-675e-4cbb-96b4-0107237dd341,d71024b0-deb0-42d5-87b4-9bb713a9a95b,Fresh Coriander - Bengaluru (Indiranagar) Farm Direct,False,4.43,71
+62e3d71d-bfa4-455a-bc72-9c810fe53eb1,11442451-0440-48fb-ab6c-812c448a34f7,Fresh Ginger - Bengaluru (Indiranagar) Farm Direct,True,4.55,170
+6cdd3db3-dda7-490b-a0bf-c17e5da99590,f965677e-8a28-4f1f-83b6-55e9f97789f8,Fresh Coriander - Channapatna Farm Direct,True,4.41,65
+ba41f220-5257-44f8-b81b-33288ae7ef35,0b7cc177-eaa8-4a47-98ea-a736323073c0,Fresh Green Capsicum - Pandavapura Farm Direct,True,4.84,48
+8c7704b4-3de8-4fbb-92a9-2c64d6d4ecee,6dd8ec16-5958-4f3e-af27-bd23cd697d5d,Fresh Garlic - Bidadi Farm Direct,False,4.57,170
+fbcb63ab-7591-4598-83a2-72cc2ef2c603,ed18ca2b-7354-44ce-8de4-5bc770f27ab7,Fresh Potato - Srirangapatna Farm Direct,True,4.8,180
+15e9cdb5-ab3a-4a67-b1e4-e8a4e2469815,f7a922ac-91b6-447e-8cfe-482268529b42,Fresh Carrot - Srirangapatna Farm Direct,True,4.71,37
+2cc99e1e-63fc-4e40-9cde-50fc6471f804,0424ca41-9aab-4bbc-ba17-7f1dc790894b,Fresh Pomegranate - Bengaluru (Koramangala) Farm Direct,True,4.67,17
+70e90051-397e-40bf-833c-120d977f7445,f8c20c5f-df0b-44c7-9a66-a919a466d55b,Fresh Green Chilli - Mandya Farm Direct,True,4.41,102
+6d906107-a0e5-47f2-8799-d65930e76c89,9f26600c-110b-42dd-996a-8499fb35faf2,Fresh Coriander - Bengaluru (JP Nagar) Farm Direct,True,4.78,111
+8696709d-bada-4123-9d4e-f480eb6d6980,cee6621f-1d87-438a-8030-3152aee2e35d,Fresh Ragi - Bengaluru (Hebbal) Farm Direct,True,4.45,109
+276a8aee-f723-43f4-91c4-12ca00eebe1c,174eff07-ba41-4529-b648-b272028a56d2,Fresh Green Chilli - Malavalli Farm Direct,True,4.6,150
+0b8caf16-d2a2-40e6-85fc-c7ca0a3b32b6,ec3e9ae9-fbc6-4c14-8da7-15eb719358ba,Fresh Green Capsicum - Bengaluru (Yelahanka) Farm Direct,False,4.82,146
+631a1e24-52d6-4900-a14f-f38ab19822d4,b7adc3ac-66e7-43dd-b6da-f181aea636bb,Fresh Banana - Channapatna Farm Direct,True,4.59,154
+ef03f9f5-d4ae-43ae-9c98-2b1ac1e2bf87,bc839d66-2f62-42ed-8354-ba0187c10370,Fresh Carrot - Bengaluru (JP Nagar) Farm Direct,True,4.93,117
+ca262023-1ba4-4c5c-b26f-043d23841ff1,b5523e70-6d78-4b8f-8e89-2185b7718d74,Fresh Coriander - Bengaluru (JP Nagar) Farm Direct,True,4.46,59
+fb7ed45f-6d64-4e3f-bff3-3449c34f1179,7c10a545-a4b3-4653-9015-a2ea005da7ae,Fresh Palak - Bengaluru (Indiranagar) Farm Direct,False,4.42,32
+2092e6e4-cc99-42b1-9022-3773df7a65e3,6460e401-ad32-4de0-a8a8-e1c2b4e07c45,Fresh Cabbage - Malavalli Farm Direct,True,4.69,47
+4985cb8a-2526-4b48-9622-96507fd818ac,cff53a78-3659-42f5-bfa8-9b15fc0d80b0,Fresh Green Capsicum - Bengaluru (Indiranagar) Farm Direct,True,4.53,63
+ff6ed914-1af0-4743-a219-3c47dd0455f8,a1067c26-bf3a-4bb0-a859-560e2639dbbf,Fresh Onion - Bidadi Farm Direct,True,4.59,129
+0994cb89-90be-4944-806b-eeefe4d6eabb,504f457e-d5a4-4cd5-9263-2ea79fbc5262,Fresh Banana - Bengaluru (JP Nagar) Farm Direct,False,4.96,158
+8369db0d-a325-4492-a4a6-ce1deefb00be,90e12506-a2e4-4dd4-9dad-b1305c2c6fd9,Fresh Grapes - Pandavapura Farm Direct,False,4.67,22
+02e5b404-20cc-418d-a7b0-36017ac6406e,4c691228-e5f2-4fed-8c17-ad23b611e066,Fresh Grapes - Bengaluru (Kengeri) Farm Direct,False,4.86,24
+5a442680-9fef-499c-825c-bcbe3ceaedb7,384a7cdf-4266-4e4a-b316-f344ed5d269e,Fresh Coriander - Bengaluru (Hebbal) Farm Direct,False,4.58,25
+1dc6cad2-e9f6-4668-8161-d4cccfe729a4,2d927bc7-3bbb-4f69-8a4a-f6b04e91b0c2,Fresh Cabbage - Malavalli Farm Direct,False,4.87,151
+40dc9d92-f58c-4d7d-9147-c68c24af66b3,8fafd238-372a-40df-86ef-9215f92c79dd,Fresh Garlic - Channapatna Farm Direct,True,4.83,63
+fc99c491-28ac-40fc-bd3b-edf6d3a3588b,0151eaf2-de0f-41e1-a875-618ba661cdd2,Fresh Onion - Bengaluru (JP Nagar) Farm Direct,False,4.82,174
+aafb59e7-4643-44a7-be97-2be664e18e79,ee9a2838-4636-44a5-8ebd-718321b1bd63,Fresh Onion - Srirangapatna Farm Direct,True,4.63,109
+b28cb93f-5655-4e05-ab35-b46ab2e434bc,f1571681-16c7-4183-8439-1630b5537bcf,Fresh Green Peas - Bengaluru (Hebbal) Farm Direct,True,4.51,25
+3d9f95b7-246a-4a03-b972-3edf5dc69656,503644c8-7c38-4f7d-a246-74477b144fb6,Fresh Coriander - Pandavapura Farm Direct,True,4.47,45
+f7bc89a4-3acf-4f49-af2d-c878fc6e6f45,1f3b2459-3da6-4302-b343-e3e2a3d83f22,Fresh Tomato - Bengaluru (Indiranagar) Farm Direct,True,4.73,13
+1c84fa0c-e043-4a3d-8fe9-cd3d34c99d78,9e114190-2aa4-4475-a044-075d3e359470,Fresh Green Chilli - Bengaluru (Hebbal) Farm Direct,True,4.76,13
+4d5ef443-7417-46f6-bed0-97173a7829e5,e6441212-4844-4669-b9ff-cd11af312388,Fresh Ragi - Bengaluru (Kengeri) Farm Direct,False,4.43,101
+f41418e2-b35c-40cc-aad0-8cd036569dfe,8dbbf3a7-91bc-42c6-a7d3-621154f3e36c,Fresh Cabbage - Malavalli Farm Direct,False,4.45,39
+ee4da463-7838-44cc-ba60-059bd0de9197,a7f59ec0-02d1-4f07-b647-65eb1f9cc91e,Fresh Green Peas - Srirangapatna Farm Direct,True,4.51,128
+2afaf5f3-0c2f-43fa-9e3d-c2b394605f1a,1022812c-8251-493f-8d54-b43de315da58,Fresh Ginger - Maddur Farm Direct,False,4.63,29
+ba87582f-c244-431b-a4bd-e5bbdf0cf954,8f057ab3-ffbc-44b2-808f-1782e6510524,Fresh Ragi - Bengaluru (RR Nagar) Farm Direct,False,4.65,65
+ce228021-e222-4cb4-afed-b4079dd03dde,3120309c-bf8e-4fbf-9186-15cc0c262823,Fresh Potato - Bengaluru (Yelahanka) Farm Direct,True,4.81,85
+99ece7de-f4c3-4465-9006-ff5bbd499c35,59c52a8d-3aea-4e99-ba6d-d717d36ace3c,Fresh Mint - Bengaluru (RR Nagar) Farm Direct,True,4.77,139
+7a7c4c3b-cbaa-425a-94c8-f3bcd4fe371d,dd234555-0599-46a5-86a4-c3b3d1f07d46,Fresh Pomegranate - Malavalli Farm Direct,True,4.99,12
+c8ab7e01-9ce6-44bf-9bcc-a325e05802a4,8c25ff09-61b6-446c-85bf-2b604e094c7e,Fresh Tomato - Bengaluru (Kengeri) Farm Direct,True,4.65,97
+a5fe64f7-9a3c-4e55-8f0c-7fc431807fdd,e3ca23d1-e886-46e5-8a60-b49538df1410,Fresh Ragi - Pandavapura Farm Direct,False,4.44,88
+b8a0ae63-1527-48a1-8e7f-cb4d54491dee,ddc50e12-b18e-4918-8727-442a2ad497fe,Fresh Ragi - Malavalli Farm Direct,False,4.74,19

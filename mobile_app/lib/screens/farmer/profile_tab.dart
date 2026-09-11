@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/platform_state.dart';
 import 'profile/edit_profile_screen.dart';
 import 'profile/notifications_screen.dart';
 import 'profile/settings_screen.dart';
@@ -10,9 +11,11 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = PlatformState().currentUser;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile"),
+        title: const Text("Farmer Profile"),
         centerTitle: true,
       ),
 
@@ -37,21 +40,32 @@ class ProfileTab extends StatelessWidget {
 
             const SizedBox(height: 15),
 
-            const Text(
-              "Sampreetha",
-              style: TextStyle(
-                fontSize: 26,
+            Text(
+              user.fullName,
+              style: const TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             const SizedBox(height: 5),
 
-            const Text(
-              "Farmer",
-              style: TextStyle(
+            Text(
+              "${user.customerType} • ${user.region}",
+              style: const TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+
+            const SizedBox(height: 3),
+
+            Text(
+              user.email,
+              style: const TextStyle(
                 color: Colors.grey,
-                fontSize: 16,
+                fontSize: 13,
               ),
             ),
 

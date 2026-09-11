@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
+import '../../services/platform_state.dart';
+import '../customer/fair_pricing_screen.dart';
 import '../auth/role_selection_screen.dart';
 
 class DeliveryDashboard extends StatefulWidget {
@@ -10,11 +12,14 @@ class DeliveryDashboard extends StatefulWidget {
 }
 
 class _DeliveryDashboardState extends State<DeliveryDashboard> {
+  final PlatformState _platformState = PlatformState();
   int _currentIndex = 0;
   bool isOnline = true;
 
   @override
   Widget build(BuildContext context) {
+    final user = _platformState.currentUser;
+
     final List<Widget> tabs = [
       JobBoardTab(isOnline: isOnline),
       const ActiveDeliveryTab(),
@@ -23,14 +28,34 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Delivery Partner Portal"),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(user.fullName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            Text(
+              "${user.region} • 14% Value Share Partner",
+              style: const TextStyle(fontSize: 10, color: Colors.white70),
+            ),
+          ],
+        ),
         backgroundColor: AppColors.primaryGreen,
+        foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.analytics_outlined),
+            tooltip: 'Dynamic Pricing Oracle',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FairPricingScreen()),
+              );
+            },
+          ),
           Row(
             children: [
               Text(
-                isOnline ? "ONLINE" : "OFFLINE",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isOnline ? Colors.white : Colors.white70),
+                isOnline ? "ON" : "OFF",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: isOnline ? Colors.white : Colors.white70),
               ),
               Switch(
                 value: isOnline,
@@ -79,7 +104,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
 }
 
 // ----------------------------------------------------
-// Tab 1: Job Board
+// Tab 1: Job Board (Live Synced with Customer Orders)
 // ----------------------------------------------------
 class JobBoardTab extends StatefulWidget {
   final bool isOnline;
@@ -90,24 +115,23 @@ class JobBoardTab extends StatefulWidget {
 }
 
 class _JobBoardTabState extends State<JobBoardTab> {
-  final List<Map<String, dynamic>> jobs = [
-    {
-      "id": "JOB-9921",
-      "origin": "Aggregator Hub A (Kengeri)",
-      "destination": "City General Hospital - Diet Wing",
-      "payout": "₹450.00",
-      "distance": "12.4 Km",
-      "items": "3 Items (Bulk Tomatoes + Spinach + Rice)",
-    },
-    {
-      "id": "JOB-9924",
-      "origin": "Aggregator Hub B (Whitefield)",
-      "destination": "Green Meadows PG Mess Office",
-      "payout": "₹320.00",
-      "distance": "8.1 Km",
-      "items": "2 Items (Potatoes + Onions Bulk)",
-    }
-  ];
+  final PlatformState _platformState = PlatformState();
+
+  @override
+  void initState() {
+    super.initState();
+    _platformState.addListener(_onPlatformChange);
+  }
+
+  @override
+  void dispose() {
+    _platformState.removeListener(_onPlatformChange);
+    super.dispose();
+  }
+
+  void _onPlatformChange() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,17 +143,37 @@ class _JobBoardTabState extends State<JobBoardTab> {
             Icon(Icons.wifi_off, size: 70, color: Colors.grey),
             SizedBox(height: 15),
             Text("You are Offline", style: TextStyle(fontSize: 18, color: Colors.grey)),
-            Text("Go online from the top switch to receive orders.", style: TextStyle(color: Colors.grey)),
+            Text("Switch to ONLINE from top header to receive dispatch requests.", style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    final liveJobs = _platformState.getDeliveryJobBoard();
+
+    if (liveJobs.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+            SizedBox(height: 12),
+            Text("All delivery trips completed!", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text("New orders from customers will appear here automatically.", style: TextStyle(color: Colors.grey, fontSize: 12)),
           ],
         ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: jobs.length,
+      padding: const EdgeInsets.all(16),
+      itemCount: liveJobs.length,
       itemBuilder: (context, index) {
-        final job = jobs[index];
+        final job = liveJobs[index];
+        final payout = job.deliveryPayout > 0 ? "₹${job.deliveryPayout.toStringAsFixed(0)}" : "₹250";
+        final itemsSummary = "${job.items.length} Produce Item(s) (${job.items.map((i) => i.cropName).join(', ')})";
+        final isAssigned = job.status == 'IN_TRANSIT';
+
         return Card(
           margin: const EdgeInsets.only(bottom: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -141,64 +185,83 @@ class _JobBoardTabState extends State<JobBoardTab> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Order ${job['id']}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(
-                      job['payout'] ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 18),
+                    Text("Order #${job.orderId}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Text(
+                        "14% Logistics Share: $payout",
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 13),
+                      ),
                     ),
                   ],
                 ),
-                const Divider(height: 25),
-                _locationRow(Icons.radio_button_checked, "Pickup: ${job['origin']}", Colors.orange),
+                const Divider(height: 20),
+                _locationRow(Icons.radio_button_checked, "Pickup: Mandya Agro Hub / ${job.items.firstOrNull?.farmerName ?? 'Cluster Farm'}", Colors.orange),
                 const SizedBox(height: 8),
-                _locationRow(Icons.location_on, "Dropoff: ${job['destination']}", Colors.green),
+                _locationRow(Icons.location_on, "Dropoff: ${job.customerName} (${job.deliveryAddress})", Colors.green),
                 const SizedBox(height: 12),
                 Row(
                   children: [
                     const Icon(Icons.shopping_basket, size: 16, color: Colors.grey),
                     const SizedBox(width: 6),
-                    Text(job['items'] ?? '', style: const TextStyle(color: Colors.grey, fontSize: 13)),
-                    const Spacer(),
-                    const Icon(Icons.map, size: 16, color: Colors.grey),
-                    const SizedBox(width: 6),
-                    Text(job['distance'] ?? '', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                    Expanded(
+                      child: Text(itemsSummary, style: const TextStyle(color: Colors.grey, fontSize: 12), overflow: TextOverflow.ellipsis),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
+                    if (!isAssigned)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.check, size: 16),
+                          label: const Text("Accept Delivery Trip"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryGreen,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            _platformState.updateOrderStatus(job.orderId, 'IN_TRANSIT', driverName: _platformState.currentUser.fullName);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: AppColors.primaryGreen,
+                                content: Text("Trip accepted! Order #${job.orderId} is now IN TRANSIT."),
+                              ),
+                            );
+                          },
                         ),
-                        onPressed: () {
-                          setState(() {
-                            jobs.removeAt(index);
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Order request declined")),
-                          );
-                        },
-                        child: const Text("Decline"),
+                      )
+                    else ...[
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.done_all, size: 16),
+                          label: const Text("Complete & Mark Delivered"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            _platformState.updateOrderStatus(job.orderId, 'DELIVERED');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.green,
+                                content: Text("Order #${job.orderId} DELIVERED! Payment of $payout credited."),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: AppColors.primaryGreen,
-                              content: Text("Trip accepted! Navigate to active trip tab."),
-                            ),
-                          );
-                        },
-                        child: const Text("Accept Trip"),
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ],
@@ -211,121 +274,62 @@ class _JobBoardTabState extends State<JobBoardTab> {
 
   Widget _locationRow(IconData icon, String text, Color color) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          ),
+        ),
       ],
     );
   }
 }
 
 // ----------------------------------------------------
-// Tab 2: Active Delivery
+// Tab 2: Active Delivery Trip
 // ----------------------------------------------------
-class ActiveDeliveryTab extends StatefulWidget {
+class ActiveDeliveryTab extends StatelessWidget {
   const ActiveDeliveryTab({super.key});
 
   @override
-  State<ActiveDeliveryTab> createState() => _ActiveDeliveryTabState();
-}
-
-class _ActiveDeliveryTabState extends State<ActiveDeliveryTab> {
-  int deliveryPhase = 0; // 0: Pickup pending, 1: Loaded/In-transit, 2: Arrived, 3: Completed
-  final _otpController = TextEditingController();
-  final List<Offset> signaturePoints = [];
-
-  @override
   Widget build(BuildContext context) {
-    if (deliveryPhase == 3) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle, size: 80, color: Colors.green),
-            const SizedBox(height: 15),
-            const Text("Delivery Complete", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 5),
-            const Text("Great job! Go back to Job Board to receive more orders.", style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  deliveryPhase = 0;
-                });
-              },
-              child: const Text("Simulate New Job"),
-            )
-          ],
-        ),
-      );
-    }
+    final state = PlatformState();
+    final inTransit = state.allOrders.where((o) => o.status == 'IN_TRANSIT').toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Active Cargo Route", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                color: Colors.orange.withValues(alpha: 0.1),
-                child: Text(
-                  deliveryPhase == 0 ? "PICKUP PENDING" : "ON ROUTE",
-                  style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 12),
-                ),
-              ),
-            ],
-          ),
+          const Text("Active Delivery Route", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 5),
+          const Text("Mandya ➔ Bengaluru Highway Cold Chain Highway Route (85 km).", style: TextStyle(color: Colors.grey, fontSize: 13)),
           const SizedBox(height: 15),
 
-          // Map Mockup
+          // Map Simulation Box
           Container(
-            height: 160,
+            height: 180,
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
               color: Colors.green.shade50,
-              borderRadius: BorderRadius.circular(15),
               border: Border.all(color: Colors.green.shade200),
             ),
             child: Stack(
+              alignment: Alignment.center,
               children: [
-                Positioned.fill(
-                  child: Image.network(
-                    "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=600",
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(child: Icon(Icons.map, size: 70, color: Colors.green));
-                    },
-                  ),
-                ),
+                const Icon(Icons.local_shipping, size: 60, color: AppColors.primaryGreen),
                 Positioned(
-                  left: 30,
-                  top: 40,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 14,
-                    child: Icon(Icons.radio_button_checked, color: Colors.orange.shade800, size: 16),
-                  ),
-                ),
-                Positioned(
-                  right: 40,
-                  bottom: 30,
-                  child: const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 14,
-                    child: Icon(Icons.location_on, color: Colors.green, size: 16),
-                  ),
-                ),
-                Center(
+                  bottom: 12,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
-                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
                     child: Text(
-                      deliveryPhase == 0 ? "Drive to Kengeri Aggregator Hub" : "En route to City General Hospital",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                      inTransit.isNotEmpty ? "En Route: Order #${inTransit.first.orderId}" : "No Active Trip In Transit",
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
                 ),
@@ -334,130 +338,29 @@ class _ActiveDeliveryTabState extends State<ActiveDeliveryTab> {
           ),
           const SizedBox(height: 20),
 
-          // Step Details
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Trip Instructions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text)),
-                  const SizedBox(height: 10),
-                  Text(
-                    deliveryPhase == 0
-                        ? "1. Drive to Kengeri Aggregator Hub.\n2. Collect Crop Batch BATCH-QA-882.\n3. Verify Temperature constraints (3-5°C)."
-                        : "1. Deliver produce batch to General Ward Kitchen.\n2. Verify identity and get Mess Warden's OTP + Signature verification.",
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Render Actions based on Delivery Phase
-          if (deliveryPhase == 0) ...[
-            ElevatedButton.icon(
-              icon: const Icon(Icons.check_circle),
-              label: const Text("Confirm Cargo Pickup at Hub"),
-              onPressed: () {
-                setState(() {
-                  deliveryPhase = 1;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Cargo verified & locked. Delivery path active.")),
-                );
-              },
-            ),
-          ] else if (deliveryPhase == 1) ...[
-            ElevatedButton.icon(
-              icon: const Icon(Icons.sports_motorsports),
-              label: const Text("Arrived at Delivery Facility"),
-              onPressed: () {
-                setState(() {
-                  deliveryPhase = 2;
-                });
-              },
-            ),
-          ] else ...[
-            // Verification panel: Signature, OTP, and photo
+          if (inTransit.isNotEmpty) ...[
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Consignee Clearance verification", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text)),
-                    const SizedBox(height: 15),
-
-                    // OTP input
-                    TextFormField(
-                      controller: _otpController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: "Enter Customer Clearance OTP",
-                        prefixIcon: Icon(Icons.key),
-                        hintText: "OTP (Mock: 1234)",
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Signature capture pad mock
-                    const Text("Client Signature", style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 100,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: GestureDetector(
-                        onPanUpdate: (details) {
-                          setState(() {
-                            RenderBox renderBox = context.findRenderObject() as RenderBox;
-                            signaturePoints.add(renderBox.globalToLocal(details.globalPosition));
-                          });
-                        },
-                        child: CustomPaint(
-                          painter: SignaturePainter(points: signaturePoints),
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          signaturePoints.clear();
-                        });
-                      },
-                      child: const Text("Clear Signature"),
-                    ),
-
-                    const SizedBox(height: 20),
+                    Text("Trip Order #${inTransit.first.orderId}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 6),
+                    Text("Customer: ${inTransit.first.customerName}"),
+                    Text("Destination: ${inTransit.first.deliveryAddress}"),
+                    const SizedBox(height: 12),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen, foregroundColor: Colors.white),
                       onPressed: () {
-                        if (_otpController.text == "1234" || _otpController.text.isEmpty) {
-                          setState(() {
-                            deliveryPhase = 3;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: AppColors.primaryGreen,
-                              content: Text("Clearance OK. Delivery completed successfully!"),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text("Invalid verification OTP. Please enter 1234"),
-                            ),
-                          );
-                        }
+                        state.updateOrderStatus(inTransit.first.orderId, 'DELIVERED');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Order marked DELIVERED!"), backgroundColor: AppColors.primaryGreen),
+                        );
                       },
-                      child: const Text("Submit Delivery Clearance"),
-                    )
+                      child: const Center(child: Text("Confirm Delivery & Handover")),
+                    ),
                   ],
                 ),
               ),
@@ -469,94 +372,59 @@ class _ActiveDeliveryTabState extends State<ActiveDeliveryTab> {
   }
 }
 
-class SignaturePainter extends CustomPainter {
-  final List<Offset> points;
-  SignaturePainter({required this.points});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-      ..color = Colors.blue.shade900
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 3.0;
-
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != Offset.zero && points[i + 1] != Offset.zero) {
-        canvas.drawLine(points[i], points[i + 1], paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(SignaturePainter oldDelegate) => true;
-}
-
 // ----------------------------------------------------
-// Tab 3: Earnings
+// Tab 3: Delivery Earnings (14% Logistics Share)
 // ----------------------------------------------------
 class DeliveryEarningsTab extends StatelessWidget {
   const DeliveryEarningsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final state = PlatformState();
+    final earnings = state.getDeliveryTotalEarnings();
+    final completedTrips = state.allOrders.where((o) => o.status == 'DELIVERED').length;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text("Delivery Earnings", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 5),
-          const Text("Review your payouts and commission history.", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
-          Card(
-            color: Colors.green.shade50,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const Text("Total Wallet Balance", style: TextStyle(fontSize: 14)),
-                  const SizedBox(height: 5),
-                  const Text("₹1,850.00", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.text)),
-                  const SizedBox(height: 15),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Cashout request of ₹1,850 sent to Bank Account")),
-                      );
-                    },
-                    child: const Text("Instant Cashout to Bank"),
-                  ),
-                ],
-              ),
+          const Text("Logistics Earnings & Escrow", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 15),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.mintLight,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.primaryGreen.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Total 14% Logistics Payout", style: TextStyle(fontSize: 13, color: Colors.grey)),
+                const SizedBox(height: 4),
+                Text("₹${earnings.toStringAsFixed(2)}", style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryGreen)),
+                const SizedBox(height: 8),
+                Text("Settled for $completedTrips cold-corridor delivery trips.", style: const TextStyle(fontSize: 12)),
+              ],
             ),
           ),
-          const SizedBox(height: 25),
-          const Text("Completed Deliveries", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          _completedTripCard("JOB-9811", "2026-06-22", "Kengeri to ICU Wing", "₹450.00"),
-          _completedTripCard("JOB-9742", "2026-06-21", "Whitefield to PG Mess", "₹320.00"),
-          _completedTripCard("JOB-9710", "2026-06-20", "Chikballapur to Mall of India", "₹1,080.00"),
+          const SizedBox(height: 20),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.analytics, color: Colors.green),
+              title: const Text("APMC Dynamic Pricing Simulator"),
+              subtitle: const Text("View logistics share calculation per km/kg"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FairPricingScreen()),
+                );
+              },
+            ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _completedTripCard(String job, String date, String route, String amount) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.green.shade100,
-          child: const Icon(Icons.check, color: Colors.green),
-        ),
-        title: Text("$job • $route"),
-        subtitle: Text("Date: $date"),
-        trailing: Text(
-          amount,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.green),
-        ),
       ),
     );
   }

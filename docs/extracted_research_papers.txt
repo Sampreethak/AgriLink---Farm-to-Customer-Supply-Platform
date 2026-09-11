@@ -1,0 +1,1743 @@
+=== FILE: 2411.08883v1.pdf (Total Pages: 28) ===
+--- Page 1 ---
+KisanQRS: A Deep Learning-based Automated Query-Response
+System for Agricultural Decision-Making
+Mohammad Zia Ur Rehmana,∗, Devraj Raghuvanshib, Nagendra Kumara
+aIndian Institute of Technology Indore, India
+bShri Govindram Seksaria Institute of Technology and Science, Indore, India
+Abstract
+Delivering prompt information and guidance to farmers is critical in agricultural decision-making.
+Farmers’ helpline centres are heavily reliant on the expertise and availability of call centre agents,
+leading to inconsistent quality and delayed responses. To this end, this article presents Kisan
+Query Response System (KisanQRS), a Deep Learning-based robust query-response framework
+for the agriculture sector. KisanQRS integrates semantic and lexical similarities of farmers’
+queries and employs a rapid threshold-based clustering method. The clustering algorithm is
+based on a linear search technique to iterate through all queries and organize them into clusters
+according to their similarity. For query mapping, LSTM is found to be the optimal method. Our
+proposed answer retrieval method clusters candidate answers for a crop, ranks these answer clus-
+ters based on the number of answers in a cluster, and selects the leader of each cluster. The dataset
+used in our analysis consists of a subset of 34 million call logs from the Kisan Call Centre (KCC),
+operated under the Government of India. We evaluated the performance of the query mapping
+module on the data of five major states of India with 3,00,000 samples and the quantifiable out-
+comes demonstrate that KisanQRS significantly outperforms traditional techniques by achieving
+96.58% top F1-score for a state. The answer retrieval module is evaluated on 10,000 samples and
+it achieves a competitive NDCG score of 96.20%. KisanQRS is useful in enabling farmers to make
+informed decisions about their farming practices by providing quick and pertinent responses to
+their queries.
+Keywords: Query-Response System, Question-Answering, Farmers’ Query, Long Short-Term
+Memory, Agricultural Decision-Making
+1. Introduction
+Developing nations are working towards utilizing advancements in technology to gain in-
+sights into the challenges faced by farmers. The agricultural sector faces numerous challenges,
+such as unpredictable weather conditions, poor infrastructure, and pest infestation which often
+∗Corresponding author
+Email addresses: phd2101201005@iiti.ac.in (Mohammad Zia Ur Rehman),
+gs2019042@sgsitsindore.in (Devraj Raghuvanshi), nagendra@iiti.ac.in (Nagendra Kumar)
+Preprint submitted to Computers and Electronics in Agriculture
+November 15, 2024
+arXiv:2411.08883v1  [cs.IR]  26 Oct 2024
+
+--- Page 2 ---
+lead to poor agricultural yield for farmers (Luo et al., 2023). These challenges are compounded
+by the lack of timely access to information which further hinders the sector’s growth. One po-
+tential strategy to overcome these challenges is to furnish timely information and guidance to
+farmers. Keeping this in mind, policymakers in India came up with the idea of Kisan Call Centres
+(KCCs). These farmers’ helpline centres were established by the Government of India to provide
+agriculture-related information and advisory services to farmers. These centres receive thou-
+sands of queries every day from farmers seeking guidance on various issues related to farming.
+The KCCs have become a crucial source of information for farmers, providing them with ad-
+vice on crop cultivation, pest, and disease management, market prices, and government schemes
+(Chachra et al., 2020; Raja and Naika, 2022).
+Although the KCCs have been successful in providing information to farmers, the effective-
+ness of query resolution relies heavily on the expertise and accessibility of call centre agents.
+This can result in delays in responding to queries and a lack of consistency in the quality of
+responses. Additionally, the KCCs receive a large volume of queries, which can be overwhelm-
+ing for call centre agents. An automated query-response system can tackle these challenges by
+providing quick and accurate responses to farmers’ queries using Natural Language Processing
+(NLP) techniques. The massive call logs from KCC can serve as a good knowledge base for such a
+query-response system. A few examples of queries and responses from KCC call logs are shown
+in Table-1. Several approaches have been proposed to develop an automated system that can
+provide answers to farmers’ queries by training on the KCC dataset1. However, none of these
+approaches have utilized state-of-the-art artificial intelligence-based techniques to effectively
+solve this problem. Furthermore, existing systems that utilize traditional techniques such as Bag
+of Words (BoW), and Term Frequency-Inverse Document Frequency (TF-IDF) to calculate cosine
+similarities between sentence vectors fail to account for the semantic meaning of sentences. A
+few approaches collected agriculture-related information through social media such as Twitter
+and Facebook to solve farming problems (Zipper, 2018).
+Table 1: Example of queries and responses from KCC dataset
+Crop
+QueryText
+KccAns
+1
+Garlic
+How to control fungal attack in
+garlic
+Spray to mencozeb carbendazim 35-40 grampump
+2
+Onion
+Want to know how to increase size
+and production in onion crop
+To increase size and production in onion crop n : p
+: k 0:52:34 1 kg at per acer
+3
+Wheat
+Fungal attack in wheat crop
+Dear farmer spray of hexaconazole 5 ec 250-400
+mlacre or 20mlpump and streptocyclin 2 gram at
+15 liter of water in wheat crop
+4
+Cotton Kapas
+Control of pink bollworm of cotton
+To control the pink bollworm of cotton use
+pheromon and light
+5
+Chillies
+Varieties of chilli
+Varieties of chilli -agni -jwala sankeshwari-32
+tejswini sitara phule jyoti pant c agnirekha
+1https://kcc-chakshu.icar.gov.in/
+2
+
+--- Page 3 ---
+This article presents a novel query-response method, KisanQRS. Kisan is a Hindi term that
+stands for the farmer, and QRS is the acronym for Query-Response System. KisanQRS utilizes a
+time-efficient threshold-based clustering algorithm to cluster similar queries. A Long Short-Term
+Memory (LSTM) based model is used to map given queries to accurate clusters. Additionally,
+a rule-based approach is employed to filter and ultimately return the most appropriate top-K
+answers. To evaluate the performance of relevant cluster label retrieval (query mapping), we
+conduct experiments on data from five states taken from the KCC dataset. Our proposed method
+outperforms traditional clustering techniques significantly. To assess the quality of answers,
+we conduct experiments on the ranked set of answers. KisanQRS yields promising results in
+providing accurate answers to farmers’ queries.
+The main contributions of this work are as follows:
+1. We propose KisanQRS, a query response system for the agricultural domain. KisanQRS
+can effectively provide top-K responses most relevant to the given farmer query.
+2. KisanQRS introduces a novel and easy-to-implement query clustering approach based on
+semantic and token-wise similarity, which takes significantly less time than other meth-
+ods. It employs an LSTM-based Deep Learning (DL) approach to map farmers’ queries to
+the most accurate clusters. Experimental results demonstrate the efficacy of the proposed
+model.
+3. KisanQRS proposes a novel answer retrieval method. The proposed answer retrieval method
+is based on clustering of candidate answers for a crop, then ranking of these answer clus-
+ters, and finally electing the leader of each cluster. The proposed method achieves a high
+NDCG score of 96.2%.
+Extensive research has been conducted in the field of question-answering (QA). The existing
+QA methods can be broadly categorized as; 1) Knowledge-based methods and 2) Machine Learn-
+ing (ML) and Deep Learning-based methods. Next, we present related works based on these two
+categories followed by a summary of their limitations and our research objectives formulated as
+problem statements.
+1.1. Knowledge-based Methods
+These methods use structured knowledge representation frameworks, such as ontologies, to
+represent the relationships between concepts in a domain. Knowledge-based methods rely on
+domain-specific knowledge bases and reasoning mechanisms to generate answers to questions.
+Saxena et al. (Saxena et al., 2020) uses knowledge base embeddings to encode information about
+the entities and relations in the knowledge graph. The paper suggests that incorporating knowl-
+edge base embeddings can significantly improve the performance of multi-hop question answer-
+ing over knowledge graphs. Devi et al. (Devi and Dua, 2017) presents a question-answering
+system that is designed specifically for the agriculture domain. This paper proposes a system
+that uses ontologies to represent the knowledge required to answer questions in the agricul-
+ture domain. The system is designed to handle both factoid and descriptive questions. Deepa
+et al. (Deepa and Vigneshwari, 2022) proposes a method for automatically constructing an on-
+tology for the agriculture domain using part of speech tags and the Jaccard similarity method.
+3
+
+============================================================
+
+=== FILE: 517.pdf (Total Pages: 7) ===
+--- Page 1 ---
+2025 IEEE 4th International Conference on Robotics, Automation, Artificial-Intelligence and Internet-of-Things (RAAICON)
+27–28 November 2025, Military Institute of Science and Technology (MIST), Dhaka, Bangladesh
+A Speech-Driven, LLM-Powered Multidomain
+Assistant for Farmers
+Atiqur Rahman
+Dept. of IoT and Robotics Engineering (IRE)
+University of Frontier Technology, Bangladesh
+Gazipur-1750, Bangladesh
+1801025@iot.uftb.ac.bd
+Nishat Tasnim Shishir
+Dept. of IoT and Robotics Engineering (IRE)
+University of Frontier Technology, Bangladesh
+Gazipur-1750, Bangladesh
+1901030@iot.uftb.ac.bd
+Saurav Kundu
+Dept. of IoT and Robotics Engineering (IRE)
+University of Frontier Technology, Bangladesh
+Gazipur-1750, Bangladesh
+1801022@iot.uftb.ac.bd
+Md. Moniruzzaman Hemal
+Dept. of IoT and Robotics Engineering (IRE)
+University of Frontier Technology, Bangladesh
+Gazipur-1750, Bangladesh
+1801007@iot.uftb.ac.bd
+Md. Ashiqussalehin
+Dept. of IoT and Robotics Engineering (IRE)
+University of Frontier Technology, Bangladesh
+Gazipur-1750, Bangladesh
+ashiqussalehin0001@uftb.ac.bd
+Saurav Chandra Das
+Dept. of IoT and Robotics Engineering (IRE)
+University of Frontier Technology, Bangladesh
+Gazipur-1750, Bangladesh
+saurav0001@uftb.ac.bd
+Abstract—Farmers often must sort through fragmented, de-
+layed or inscrutable guidance across soil management, irrigation
+and disease control and caring for animals. Existing tools are
+mostly text-focused, one-domain-centric and offer no guarantees
+to unsafe outputs, impeding on trust and usage particularly
+amongst low-literacy users. In this work, we introduce a speech-
+powered, search-augmented assistant assisted by LLMs for re-
+returning grounded, source-attributed advice in diverse agricul-
+tural domains. The system ingests farmer questions via automatic
+speech recognition (ASR), achieving an 18.5% Word Error Rate
+(WER) on domain-specific queries. It then retrieves relevant
+pas- sages from a curated set of agricultural corpora leveraging
+semantic embeddings and vector search with FAISS and queries
+an LLM to generate informative, concise, context-dependent
+responses. To mitigate hallucinations, the system enforces strict
+factual ground- ing by verifying all generated statements against
+the retrieved sources and provides explicit citations; output
+is rendered by natural TTS for hands-free interaction. We
+assess under realistic conditions on four axes: latency, relevance,
+concurrency and resilience. The assistant attains 3.5 s average
+latency, with a real- time cutoff at 10 s; about 3% of calls are
+killed to preserve responsiveness. Relevance average 0.85 which
+is high similarity. Under load mean latency grows from 4 s to
+7 s; simulated delays of 0-.5 s slightly increase latency with-
+out reducing relevance. The contributions illustrate a working
+model for domain-curated, trustable knowledge integration and
+explicable outputs for operationally-ready decision-support in
+agriculture. We address deployment issues and how to extend
+to multilingual, locale- specific circumstances with a goal of
+supporting productivity enhancement while maintaining farmer
+welfare.
+Index Terms—Large Language Model (LLM), Text-to-speech
+(TTS), Speech recognition, Agricultural technology, Natural lan-
+guage processing (NLP), Multidomain systems, Smart farming.
+I. INTRODUCTION
+Agriculture remains the dominant sector in livelihood and
+food security provision worldwide, particularly in develop-
+ing countries. Farmers generally face complicated, dynamic
+problems like soil erosion, pests infestations, climate unpre-
+dictability, animal disease infections, and price volatility in
+the market. Farmers must be equipped with timely, consistent,
+and location-specific advisory services to enable them to make
+appropriate decisions that result in improved productivity and
+sustainability. But there are drawbacks to conventional ex-
+tension mechanisms such as latency, geographical constraints,
+language translation, and non-personalization [1].
+Emerging trends in machine learning, NLP, and conver-
+sational Al provide us with great potential to overcome these
+limitations. Such systems by which farmers can pose questions
+using natural language, receive relevant answers from exten-
+sion and scientific databases, and obtain voice or text advice
+are also under further investigation.
+But even now there are loopholes. Systems tend to limit to
+text-only input/output, leaving out the less literate or those
+who prefer to communicate orally. Multi-domain coverage
+(soil, pests, irrigation, animal husbandry, etc.), handling re-
+gional/local variability (soil type, climate, languages), and
+voice-based interaction and incorpo- rated in an uninterrupted
+pipeline remains virtually untapped in an end-to-end approach.
+To cover these gaps, the proposed work has a new end-
+to-end system for a speech-to-speech agricultural question-
+answering system with speech-to-text, semantic embeddings,
+979-8-3315-9281-3/25/$31.00©2025IEEE
+
+--- Page 2 ---
+FAISS-based vector search over a manually curated multi-
+domain corpus, and a LLM-based answer generation with
+output synthesized back to speech. The system focuses on
+traceability of answers to the context passages retrieved,
+supports multiple agricultural domains, and is appropriate for
+low-literacy, multilingual, rural user settings.
+The main contributions of the proposed work are:
+• We introduced a speech-Driven, multi-domain agricul-
+tural assistant that converts speech to text, retrieves
+relevant knowledge using FAISS, generates answers via
+an LLM, and delivers responses through text-to-speech,
+overcoming literacy barriers.
+• We used a curated dataset spanning diverse agricultural
+domains to enable the system to address a wide range of
+farmer queries.
+• We quantitatively evaluate under realistic operating con-
+ditions demonstrating practical performance and scalabil-
+ity.
+Rest of the paper is arranged as follows: Section II gives
+a summary of some previous research activities related to
+assisting various voice and LLMs powered assistant as well as
+describing their research gaps also. Section III describes the
+methodology with the overall workflow of the study in detail.
+Section IV presents the results and discussion. Finally, section
+V contains the conclusion and future work of the paper.
+II. LITERATURE REVIEW
+Farmers need advice to be timely, dependable, but good old
+extension can’t always get there when it’s needed. That oppor-
+tunity has lured researchers to Al in particular, conversation
+systems and voice tools for guidance that can be personalized,
+local and on demand.
+However The hitch is, most machines are still tailor-made
+for one purpose and autonomous, inexpensive operation in
+dirty field conditions remains difficult (Maria et al., 2025
+[5]). Modular and recon- figurable robots attempt to be more
+versatile, using centralized or decentralized, or hybrid control
+for executing the different tasks. Nonetheless, most of the
+experiments and cases regard- ing robustness (Hernandez et
+al. 2025 [6]), energy efficiency and scale coordination have
+taken place in simulations or small pilots rather than in
+real commercial farms. Academic research based on popular
+platforms (e.g., Alexa, Siri) has been shown to provide useful
+advice for what crops to choose, and daily chores. However,
+these efforts rely heavily on dependable internet and closed
+commercial ecosystems; and seldom present cohesive plans to
+integrate weather, pricing or soil-test data or scale solutions as
+well as monitor performance over a period of time (Pancham et
+al., 2024) [7]. Task dedicated chatbots as Farmer Companion,
+demonstrate that both supervision and deep learning models
+enable delivering always-on support but performance depends
+on the quality of training data and usually decreases on multi-
+turn, context heavy questions (Ilakiyaselvan et al., 2024 [8]).
+And combining conversational LLMs with ASR can enable
+people to query agronomic datasets in a more natural way,
+or to fuse sensor streams for precision decisions. However,
+data precision, latency and processing throughput are common
+bottlenecks (Potamitis et al., 2023 [9]). Wide reviews illustrate
+how LLMS, LVMs and multimodal models are exploited
+for pest/disease detection, soil mapping and yield support.
+They emphasize the associated productivity gains yet point to
+lin- gering problems inadequacy of data collection, inefficient
+training, benchmark standards and ethics (Hongyan et al., 2024
+[10]; Tawseef et al., 2024 [11]). The early deployments at
+scale give hope: one generative chatbot was deployed in four
+countries, reached more than 15,000 farmers and answered
+over 300k queries. Those numbers highlight the possibilities
+and the necessity to build trust, fact-checking and ongoing
+engagement (Namita et al., 2024) [12].
+In brief, most of today’s systems are outmoded in that
+they’re narrow, text-based, and difficult for farmers to con-
+firm. Few succeed in giving real speech-in/speech-out user
+experience for low literate, hand busy use; few actually go
+so far as to bridge soil-irrigation-pest/disease-animal care end
+to end or point from authoritative agronomy where farmers
+can actually go check. Real world latency under load, num-
+ber of simultaneous users and immunity to noise/jitter are
+not abundant either. We provide these missing links with a
+voice-first, retrieval-augmented assistant learned from curated
+corpora, and report quantitative results for latency, relevance,
+concurrency and noise resistance.
+III. METHODOLOGY
+Fig. 1: Block diagram of the proposed system.
+Fig. 1 outlines our proposed pipeline for generating voice-
+based agricultural guidance using LLMs. A user’s spoken
+query is first processed for noise suppression and converted to
+text via automatic speech recognition (ASR). The text query
+is then used to retrieve the top-k relevant passages from an
+agronomic corpus using a sentence-transformer model and a
+FAISS vector index. These passages, along with the original
+query, are passed to a large language model (e.g., 4- bit
+quantized Llama-2) to generate a context-aware draft. This
+draft undergoes verification for factual accuracy and citation
+integrity against the retrieved sources, followed by safety
+
+--- Page 3 ---
+screening and a polishing step for clarity and structure. The
+final response is delivered via text-to-speech (TTS) synthesis.
+The system is designed for real-time, transparent, and robust
+assistance in on-farm environments.
+The system’s pipeline begins with speech processing. We
+employed a fine-tuned Whisper-base model for ASR. The
+model was adapted using a small, internal dataset of agricul-
+tural queries spoken in regional accents, achieving a final
+Word Error Rate (WER) of 18.5% on our hold-out test set, as
+detailed in Table I. This represents a significant improvement
+over the baseline model, which was not tuned to agricultural
+terminology. This level of accuracy was deemed sufficient for
+capturing query intent, which is subsequently refined by the
+retrieval mechanism. For TTS, a pre-trained, natural-sounding
+voice model was used to synthesize the final text response.
+TABLE I: ASR performance (Word Error Rate %).
+Model
+LibriSpeech
+(General)
+Agro-Query Set
+(Domain-Specific)
+Whisper-base (Baseline)
+12.1%
+31.4%
+Whisper-base (Fine-Tuned)
+14.5%
+18.5%
+A. Data Collection
+The system’s knowledge base was constructed from a
+cu- rated set of publicly available, authoritative agricultural
+sources. This included: (1) Extension program publications
+from sev- eral land-grant universities (e.g., University of Cali-
+fornia Agri- culture and Natural Resources, Cornell Coopera-
+tive Extension), (2) FAO (Food and Agriculture Organization
+of the United Nations) practical guides on sustainable farming,
+and (3) A subset of the AgroQA dataset [13] for question-
+answer pair examples. This combined corpus, totaling 5.92k
+documents (as opposed to training examples), covers diverse
+domains including soil management, pest control, irrigation,
+and animal husbandry. The input questions average 11,201
+characters, while the output responses are more extensive, with
+a total length of approximately 22,580 characters (reflecting
+the Q&A pairs from AgroQA).
+B. Data Preprocessing
+Data from these sources, which included PDFs and web
+articles, underwent a rigorous preprocessing pipeline to elim-
+inate noise and irrelevant information, ensuring only high-
+quality, task-relevant data were fed into the model.
+To optimize the processing of lengthy documents, the
+dataset was divided into smaller, semantically coherent chunks.
+Each chunk di is derived from the original dataset D and
+is split with an overlap O to preserve context across chunk
+boundaries. This chunking process is formalized as:
+di = split(Di, O)
+where Di denotes the document, and O is the overlap length
+between chunks.
+C. Model Selection and Configuration
+The study employs a pre-trained transformer model, fine-
+tuned for agricultural tasks. Selected for its strong text- gen-
+eration performance, the model uses advanced quantization
+to operate efficiently, even in resource-constrained environ-
+ments. The model utilizes a temperature parameter, T, which
+modulates the randomness of the generated responses, ensur-
+ing a balance between deterministic and varied outputs. The
+model’s behavior is defined as follows:
+T ∈ [0, 1] where T = 0 leads to deterministic output,
+and T = 1 allows for maximum randomness.
+Additionally, a response length constraint, L, is set to ensure
+that the generated outputs are not excessively long, promoting
+succinctness without losing context. The maximum number of
+tokens generated, L, is defined as:
+L = max new tokens
+A custom stopping criterion is incorporated into the model
+to halt text generation when specific tokens or sequences are
+encountered. This ensures that responses remain concise and
+relevant to the query at hand. The stopping criterion can be
+mathematically described as:
+f(x) =
+
+
+
+
+
+True,
+if token sequence x matches predefined
+stop tokens,
+False,
+otherwise.
+where x represents the input token sequence.
+D. Proposed algorithm
+Algorithm 1 implements an end-to-end retrieval-augmented
+generation pipeline. It first fixes a random seed s, configures
+quantization Q, and loads model M and its tokenizer in eval-
+uation mode with custom stopping criteria. The corpus D is
+normalized, split into overlapping chunks (size C, overlap O),
+embedded with sentence-transformer model E, and indexed
+with FAISS. For each user query, the retriever returns the
+top-k passages; the query, chat history, and retrieved context
+condition a conversational chain that generates a grounded
+answer with explicit source snippets. The function outputs
+the answer A and sources S, and persists the model/version,
+generation settings G, dataset hash, FAISS index, embedding
+metadata, and seed s for reproducibility and auditability.
+E. Environment and Computational Setup
+All experiments were conducted on a single NVIDIA T4
+GPU (Google Colab). The software environment used Python
+3.12.11 and PyTorch 2.8.0, with FAISS for vector search and
+a Llama-2-7b backbone LLM. All reported metrics (latency,
+relevance, concurrency, robustness) reflect this T4-class con-
+figuration, as detailed in Tables II and III. This standardized
+setup ensures fair comparisons and facilitates replication.
+
+============================================================
+
+=== FILE: AgriLink Paper1.pdf (Total Pages: 13) ===
+--- Page 1 ---
+ScienceDirect
+Available online at www.sciencedirect.com
+Procedia Computer Science 258 (2025) 3510–3522
+1877-0509 © 2025 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (https://creativecommons.org/licenses/by-nc-nd/4.0)
+Peer-review under responsibility of the scientific committee of the International Conference on Machine Learning and 
+Data Engineering
+10.1016/j.procs.2025.04.607
+Available online at www.sciencedirect.com
+00 (2025) 000–000
+www.elsevier.com/locate/procedia
+International Conference on Machine Learning and Data Engineering
+Agri Assist: An AI Integrated Farmer Assistant
+Pennabadi Devendra Reddya, K Satya Sampath Reddya, P Jayantha, Bhanu Prakash
+Kakarlaa, Roshni M Balakrishnana,∗
+aDepartment of Computer Science and Engineering, Amrita School of Computing Bengaluru, Amrita Vishwa Vidyapeetham, India
+Abstract
+In this paper, an AI Agriculture Assistant integrating a crop recommendation system and an agricultural query chatbot is developed
+to provide guidance on crop cultivation. Based on this, the crop recommendation system uses a stack ensemble model comprising
+Random Forest and Gradient Boosting, and an accuracy of 99.32% and F1-Score of 99.26%. Here, word embeddings are performed
+through FastText which allows for a quick response time (0.0244 seconds) and a cosine similarity of 0.88629 for the chatbot. With
+RSA encryption for securing user data, we ensure secure communication. It uses the critical elements of the soil composition,
+weather and crop performance in formulating tailored agricultural guidance. Back end communication is done through Flask,
+and the entire system was deployed in this manner with a web interface to drive usage and for real time data responses. This
+entire application helps the farmers in decision making regarding crops cultivation and management through accurate and secure
+assistance.
+© 2025 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/)
+Peer-review under responsibility of the scientific committee of the International Conference on Machine Learning and Data Engi-
+neering.
+Keywords: Agriculture; AI Assistant; Crop Recommendation; Chatbot; FastText
+1. Introduction
+Agriculture has been long the backbone of economies and in developing countries especially, it has contributed
+greatly to food security, employment and GDP. As global populations grow and traditional farming practices are infil-
+trated by climate change, it is critically important we have solutions that rely on advanced, data-driven technologies
+to help optimize crop yield, lower costs and foster sustainable agricultural operations. While the most immediate
+application of technological advances — particularly in artificial intelligence (AI) and machine learning (ML) — to
+agriculture may be the provision of intelligent decision support systems that aid farmers, there may be longer term
+benefits as well.
+AI helps comprehensively in agriculture in several ways, including in checking the diseases and pests that affects
+plants, checking the maturity level of crops, the quality of soil and the weather condition, help in making utilization
+∗ Corresponding author. Tel.: +0-000-000-0000 ; fax: +0-000-000-0000.
+E-mail address: m roshni@blr.amrita.edu
+1877-0509 © 2025 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/)
+Peer-review under responsibility of the scientific committee of the International Conference on Machine Learning and Data Engineering.
+Available online at www.sciencedirect.com
+00 (2025) 000–000
+www.elsevier.com/locate/procedia
+International Conference on Machine Learning and Data Engineering
+Agri Assist: An AI Integrated Farmer Assistant
+Pennabadi Devendra Reddya, K Satya Sampath Reddya, P Jayantha, Bhanu Prakash
+Kakarlaa, Roshni M Balakrishnana,∗
+aDepartment of Computer Science and Engineering, Amrita School of Computing Bengaluru, Amrita Vishwa Vidyapeetham, India
+Abstract
+In this paper, an AI Agriculture Assistant integrating a crop recommendation system and an agricultural query chatbot is developed
+to provide guidance on crop cultivation. Based on this, the crop recommendation system uses a stack ensemble model comprising
+Random Forest and Gradient Boosting, and an accuracy of 99.32% and F1-Score of 99.26%. Here, word embeddings are performed
+through FastText which allows for a quick response time (0.0244 seconds) and a cosine similarity of 0.88629 for the chatbot. With
+RSA encryption for securing user data, we ensure secure communication. It uses the critical elements of the soil composition,
+weather and crop performance in formulating tailored agricultural guidance. Back end communication is done through Flask,
+and the entire system was deployed in this manner with a web interface to drive usage and for real time data responses. This
+entire application helps the farmers in decision making regarding crops cultivation and management through accurate and secure
+assistance.
+© 2025 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/)
+Peer-review under responsibility of the scientific committee of the International Conference on Machine Learning and Data Engi-
+neering.
+Keywords: Agriculture; AI Assistant; Crop Recommendation; Chatbot; FastText
+1. Introduction
+Agriculture has been long the backbone of economies and in developing countries especially, it has contributed
+greatly to food security, employment and GDP. As global populations grow and traditional farming practices are infil-
+trated by climate change, it is critically important we have solutions that rely on advanced, data-driven technologies
+to help optimize crop yield, lower costs and foster sustainable agricultural operations. While the most immediate
+application of technological advances — particularly in artificial intelligence (AI) and machine learning (ML) — to
+agriculture may be the provision of intelligent decision support systems that aid farmers, there may be longer term
+benefits as well.
+AI helps comprehensively in agriculture in several ways, including in checking the diseases and pests that affects
+plants, checking the maturity level of crops, the quality of soil and the weather condition, help in making utilization
+∗ Corresponding author. Tel.: +0-000-000-0000 ; fax: +0-000-000-0000.
+E-mail address: m roshni@blr.amrita.edu
+1877-0509 © 2025 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/)
+Peer-review under responsibility of the scientific committee of the International Conference on Machine Learning and Data Engineering.
+© 2025 The Authors. Published by Elsevier B.V.
+This is an open access article under the CC BY-NC-ND license (https://creativecommons.org/licenses/by-nc-nd/4.0)
+Peer-review under responsibility of the scientific committee of the International Conference on Machine Learning and Data Engineering
+
+--- Page 2 ---
+ 
+Pennabadi Devendra Reddy  et al. / Procedia Computer Science 258 (2025) 3510–3522 
+3511
+2
+P.D. Reddy et al. / 00 (2025) 000–000
+of resources and in getting the best returns on investment [1]. They also identify various issues concerning supply and
+certain strategies of staffing as well as the anticipation of market demands.
+This is especially important in determining where it is suitable to cultivate crops and the time of the year, application
+of fertilizer and pesticides, among other matters that would help in estimating productions and therefore cutting down
+on expenses like water and fertilizer. The hitches such as weather are being avoided through this, it helps markets and
+it plays a big role in planning for the farmers’ budgets [2].
+A chatbot is the type of software program that can actually replicate the human communication via using the text
+or speech communication [3]. It makes use of the artificial intelligence (AI) for understanding and responding to user
+inputs often in an attempt to provide a service, respond to questions or ease the process. Several applications, including
+messaging apps, websites and customer support portals can incorporate the chatbots [4].
+chatbots are of significance to farming organizations if they need to step up production or organization and also in
+decision making. Some of the advantage are; Access to information on crop management, pests, climate and price of
+the produce in the market, this assist in economical and effective use of resources as well as supervision. It is critical
+to understand that chatbots simplify each day’s tasks, introduce new technologies and market information, and help
+increase the level of readiness to respond in case of an emergency and allocate resources [5].
+As chatbots become integral in handling sensitive user data and performing critical tasks, robust security measures
+are essential to protect against cyber threats and ensure user trust [6]. Cryptographic techniques play a important role in
+security framework by providing mechanisms for data confidentiality, integrity, and authenticity. [7]. Encryption (both
+symmetric and asymmetric) ensures that data remains private and accessible only to authorized parties, while hash
+functions and digital signatures verify data integrity and authenticate identities, preventing tampering and imperson-
+ation. Secure communication protocols further enhance protection by encrypting data in transit, making cryptographic
+algorithms indispensable for maintaining the security and reliability of chatbot interactions.
+This study will work on the following aspects:
+• Implementation of a stacked ensemble model for crop recommendation.
+• Utilisation of NLP techniques and cryptography algorithm to develop the chabot with data encryption.
+• Creation of an application with integrated solution that adds these technologies to offer the intelligent, safe, and
+convenient help to the farmers to improve the decision making.
+The development of this AI Agriculture Assistant includes the development of a crop recommendation system as
+an assistant to a Chatbot for agricultural queries is presented in this paper. Based on the crop recommendations it
+employs a stacked ensemble model to increase predictive accuracy and the use of FastText for rapid and efficient
+query resolution. RSA encryption is used throughout for secure communication and user data privacy on the system.
+The proposed assistant combines highly effective machine learning techniques and robust security measures to provide
+predictable, personalized agricultural guidance that may improve the farmers’ decision making.
+This study is divided into multiple sections. In Section I, an overview of the proposed work is presented, Section
+II discusses the literature review, Section III describes the data used in this study, Section IV describes the proposed
+methodology, Section V provides discussion on results of the proposed method and comparison with models, and
+Section VI presents the conclusion and future work.
+2. LITERATURE REVIEW
+In recent years, agricultural chatbots and crop recommendation systems have emerged as pivotal tools in enhancing
+farming efficiency and decision-making processes. These systems leverage machine learning and AI techniques to
+provide personalized advice and recommendations tailored to farmers’ specific needs and regional conditions.This
+literature review aims to explore different approaches, advancements, and challenges in collaborative filtering, seeking
+to summarize and evaluate the existing research in this area. Rao et al [8] conducted a comparative study of supervised
+learning techniques such as KNN, Random Forest and Decision Tree where they used a data set of 22 varieties of crops
+regarding Random forest present higher accuracy. This paper contributes by providing insights into the effectiveness
+of machine learning techniques for crop prediction, emphasizing the importance of precision, recall, and F1 Score in
+model evaluation. Based on Gini and Entropy criteria, the paper provide the analysis of each model presented helps
+
+--- Page 3 ---
+3512 
+Pennabadi Devendra Reddy  et al. / Procedia Computer Science 258 (2025) 3510–3522
+P.D. Reddy et al. / 00 (2025) 000–000
+3
+in choosing the most accurate one out of the numerous models used in crop recommendation. Shah et al [9] conducts
+a comparative analysis of different supervised machine learning prediction, including voting regression, K-Nearest
+Neighbour (KNN), Support Vector Machine (SVM), Linear Descriptive Analysis (LDA), Least Absolute Shrinkage
+& Selection Operator (LASSO) regression, and Nearest Centroid Classifier, to forecast appropriate crops, with KNN
+and SVM achieving the highest accuracy of 97.78%.The research work therefore seeks to identify the robust machine
+learning algorithm that will be more effective in suggesting right crop to grow given certain sets of data.
+The paper highlights the need for a chatbot in the education domain to provide visitor satisfaction.Ranoliya et al
+[10] presents a design of a chatbot that efficiently answers queries based on FAQs using AIML, that ensures user sat-
+isfaction. The chatbot is designed for universities and intended to engage with curious stuternd with several academic
+related questions. Hiremath et al [11] suggested about an automated system for the education sector, which aims to de-
+liver answers to the information requests of the users through machine learning, natural language processing, pattern
+matching and data processing algorithms. In this study, there is the introduction of the chatbots which may include
+chatter-robots that function in areas that involve auto replies or functioning through knowledge which might be input
+in advance.
+Niranjan et al [12] aims to develop an Agriculture Question Answer System to obtain accurate answers for a farmer
+query through use of machine learning classification. The solution includes training of the system, with the help of
+RNN sequence to sequence algorithm, the generation of the dataset in the format of XML, stressing the effectiveness
+of the RNN option as compared to other machine learning tools, such as SVMS and logistic regression. Momaya et
+al [13] described a farming help chatbot named “Krushi -The Farmer Chatbot” that seeks to foster an improvement
+in decision support in farming with an aim of boosting crop yield through answering typical farmer’s questions on
+subjects like crop sowing, diseases or seasonality. The chatbot learning model is an end-to-end trainable model based
+on AI and ML and the dataset obtained from Kisan Call Centre (KCC) on answering basic and specific queries
+regarding weather conditions, protection of plants & animals, market prices, use of fertilizers, government schemes,
+and soil testing with an average accuracy of about 96.1% using RASA X.
+Suebsombut et al [14] designed a LINE chatbot application that helps farmers in a decision making process con-
+cerning the cultivation of crops including irrigation, fertilizer, disease, insect pests, and weeds control. The study
+therefore merges the chatbot with a recommendation system and IoT technologies with the purpose of offering the
+farmer information, knowledge as well as recommendations concerning crop growing. Dhivvya et al [15] demon-
+strate competence in several tasks aimed at learning English, for instance, question and dialogue generation or the
+attainment of high Bi-lingual Evaluation Understudy (BLEU) benchmarks hence exemplifying its efficacy in different
+learning environments. The study made use of datasets with word samples, dialogues for model fine-tuning as well as
+messenger exchanges that actually occurred in real-life in order to teach chatbots how to comprehend emotions. This
+underlines how significant it is.
+Kuriakose et al [16] uses Deep Learning techniques especially Long Short-Term Memory (LSTM) to develop an
+analytical model for determining the crop yield based on the type of soil, climate and rainfall to support the farmers
+to maximize yields on their farms. This study compares the performance of Deep Learning models as compared to
+the regression models, in the context of crop yield prediction and remarks on how Deep Learning outperforms the
+regression models. Damaraju et al [17] suggested the image based classification as it has given the best results rather
+visual classifications in plant disease detection. This study used Hyperspectral imaging for plant disease detection
+through capturing Spectral signatures that are unique to diseased regions. The study proposed different that have been
+recommended for use in disease diagnosis in plants, including deep convolutional neural networks (CNNs) where
+diseases like powdery mildew on grape leaves were diagnosed with high accuracy.
+Sonawane et al. [18] have outlined a methodology that have essential recourse in deep learning especially using
+LSTM models the project seeks to design a personalized chatbot that may be used in the student portal platforms
+for generating autonomous prompts. The study enhances the generation of text depending on LSTM models thereby
+making experience to be even better in an application. The study has improved the accuracy to 92%, with the precision
+and flexibility of the results underlined by the fact that when the measures have been presented in different formats,
+the accuracy has still ranged between 91 and 93%. During training of the chatbots, 86% of interaction rates were
+achieved.
+Malaka et al [19] provides insight how to use chatbots in a secure environment and sheds light on how their
+design, implementation, and usage practices can affect metadata security.The paper shows how securely built chatbots
+
+============================================================
+
+=== FILE: AgriTalk_Revolutionizing_Farming_with_a_Multilingual_Chatbot4.pdf (Total Pages: 6) ===
+--- Page 1 ---
+AgriTalk: Revolutionizing Farming with a 
+Multilingual Chatbot 
+Abhishek M V, A Jaya Sreekar, Mohith D M, Susmitha Vekkot, Bhavana V. 
+Department of Electronics and Communication Engineering, Amrita School of Engineering, 
+Bengaluru, Amrita Vishwa Vidyapeetham, India. 
+abhishekmv2004@gmail.com, ajsreekar1436@gmail.com, smohith17@gmail.com, 
+v susmitha@blr.amrita.edu, v bhavana@blr.amrita.edu 
+ 
+Abstract—Agriculture plays a vital role in the economy of 
+many nations, especially in regions where a significant portion 
+of the population depends on it for their livelihood. Despite its 
+importance, linguistic and technological barriers often hinder 
+access to accurate agricultural information. This article 
+introduces 
+a 
+multilingual 
+chatbot 
+designed 
+to 
+address 
+agricultural queries efficiently. Leveraging Natural Language 
+Processing and deep learning models, this multi-language 
+chatbot accommodates English, Hindi, Malayalam, Kannada, and 
+Telugu. Since the query is matched with relevant responses using 
+cosine similarity on the sentence-transformers architecture, the 
+system ensures that relevant responses are given. With 
+IndicTrans2 (AI4Bharat), a robust neural machine translation 
+model tailored for Indian languages, the facility provides a 
+single-machine foundation on which translations about 22 Indian 
+languages with subsequent additional features-text-to-speech 
+functionality enhances accessibility to varied users. The system 
+design, data preprocessing, implementation, and evaluation 
+metrics are covered in this study, which also shows how it might 
+help farmers and other agricultural stakeholders. 
+Keywords—NLP, multilingual systems, sentence transformers, 
+cosine similarity, agricultural chatbots, and accessibility. 
+ 
+I. INTRODUCTION 
+The global economy depends heavily on agriculture, 
+especially in areas where a sizable section of the population 
+depends on it for living. Despite its critical importance, the 
+industry nevertheless faces challenges such restricted access to 
+accurate and timely information. Agricultural research often 
+covers a wide range of topics, such as weather forecasting, 
+market trends, crop management, and pest control. It is 
+essential to be able to answer these questions accurately 
+and contextually to empower farmers and increase output. 
+However, the main challenges remain the diversity of 
+regional languages and linguistic hurdles in many rural areas. 
+To address these challenges, multilingual tools are both 
+socially and technologically required [1-3]. 
+ 
+Natural language processing (NLP) and deep learning 
+have emerged as revolutionary technologies for developing 
+intelligent systems, such as chatbots, for a variety of 
+application domains. Multilingual chatbots are very useful 
+for agricultural advising services because they can process 
+requests in multiple languages [4-5]. However, existing 
+algorithms sometimes struggle to answer complex queries,  
+   
+cannot ensure the accuracy of generated responses, and are 
+unable to adequately account for language diversity [6-8]. 
+These disadvantages emphasize the need for robust 
+multilingual chatbots that can bridge the linguistic and 
+informational limitations that farmers face. 
+The application of NLP to the development of domain- 
+specific chatbots has been the subject of numerous studies. 
+Using English datasets and simple keyword-matching 
+algorithms, one approach created a chatbot for agricultural 
+consulting services; however, it struggled with semantics and 
+did not support regional languages. To address multilingual 
+queries, another study included translation tools; nonetheless, 
+the translations frequently produced inaccurate results. On 
+the other hand, by guaranteeing precise and contextual 
+translations across 22 Indian languages, this work makes 
+use of IndicTrans2 (AI4Bharat), a cutting-edge multilingual 
+neural machine translation model, to successfully address 
+linguistic variety. Deep learning methods have been used to 
+develop chatbots in other fields, but they have not addressed 
+the linguistic and contextual difficulties that the agricultural 
+industry faces. 
+The lack of precise multilingual support for agricultural 
+inquiries and the requirement for an effective method to 
+match queries with pertinent answers in a big data set are 
+the two main issues that this study aims to address to close 
+these gaps. The proposed work presents a multilingual chat- 
+bot that works for Telugu, Hindi, Malayalam, Kannada, and 
+English. The system uses cosine similarity-based matcher-like 
+queries with relevant responses and state-of-the-art sentence 
+transformers for creating semantic embeddings. High-quality, 
+contextually sensitive translations specific to Indian languages 
+are guaranteed by the IndicTrans2’s translation capabilities. 
+The following are the contributions made by this work: 
+• creation of a multilingual chatbot specifically designed to 
+answer questions about agriculture and consider the 
+language diversity of farmers. 
+• Integration of modern NLP techniques, including 
+sentence-transformers, to assure semantic understanding 
+and correctness. 
+• Incorporation of text-to-speech capability to boost  
+accessibility for non-literate users. 
+2025 8th International Conference on Electronics, Materials Engineering & Nano-Technology (IEMENTech) | 979-8-3315-2076-2/25/$31.00 ©2025 IEEE | DOI: 10.1109/IEMENTECH65115.2025.10959547
+Authorized licensed use limited to: Amrita School of Engineering. Downloaded on February 18,2026 at 03:49:05 UTC from IEEE Xplore.  Restrictions apply. 
+979-8-3315-2076-2/25/$31.00 ©2025 IEEE
+
+--- Page 2 ---
+• Incorporation of IndicTrans2 for accurate and nuanced 
+translations across supported languages. 
+• Comprehensive examination of the system’s performance 
+across numerous languages and query types. 
+The rest of this paper is organized as follows: Section II 
+addresses the system design and implementation, including 
+details regarding data preprocessing, embedding generation, 
+and query matching. Section III discusses the evaluation 
+technique and findings, focusing on relevance scores, user 
+comments, and translation accuracy. Section IV discusses 
+the limitations of the existing work and outlines potential 
+future improvements. Finally, Section V closes the study by 
+summarizing the contributions and underlining its broader 
+implications [9], [10]. 
+ 
+II. LITERATURE   SURVEY 
+Numerous chatbot solutions have been investigated by 
+researchers to address difficulties in agriculture. With strong 
+usage ratings, Arora et al. [1] demonstrated the potential of 
+a generative neural network-based chatbot that can perform 
+tasks connected to crops, weather forecasting, and pest 
+control. Retrieval-augmented generation (RAG) techniques 
+were utilized by Singh et al. [2] to build Farmer Chat, 
+a multilingual chatbot that achieved a 75% accuracy rate 
+in over 300,000 user queries, considerably enhancing user 
+engagement. 
+ 
+Using the Kisan Call Center dataset, Momaya et al. [3] 
+built a RASA-based chatbot that relates to WhatsApp. It 
+reduced the quantity of unanswered inquiries by 40% and 
+attained an intent classification accuracy of 96.1%. Jain et 
+al. [4] developed a multilingual chatbot utilizing NLP to 
+respond to inquiries on fertilizer, pest management, and soil 
+health, emphasizing the technology’s capacity to overcome 
+communication barriers in rural areas. 
+ 
+Mishra et al. [5] demonstrated the efficacy of large 
+language models by utilizing ChatGPT to address cross- 
+lingual agricultural issues, achieving over 90% accuracy in 
+multilingual datasets. Alimkar et al. [6] developed Kisan 
+Mitra, a chatbot that provides weather updates, guidance on 
+crop selection, and information on government regulations, 
+emphasizing its utility for impoverished farmers. Niranjan et 
+al. [7] demonstrated the efficacy of artificial neural networks 
+(ANN) in managing historical data by developing a chatbot 
+that responds to inquiries about crop management and pest 
+control. Bhatia et al. [8] introduced a similarity search-based 
+chatbot that utilizes natural language processing techniques 
+to enhance question resolution in domains such as soil health 
+and fertilizer recommendations. 
+ 
+Prakash et al. [9] utilized NLP and machine vision to create 
+a chatbot that can answer to text and image-based agricultural 
+queries and identify plant illnesses with 85% accuracy. A 
+scalable chatbot framework for crop planning and fertilizer 
+prediction was proposed by Maduri et al. [10] and was 
+lauded for its intuitive design. Although it lacked complicated 
+NLP capabilities and performance measurements, Anjali 
+et al. [11] focused on a voice-activated chatbot designed for 
+rural farmers that made communication simple. An NLP-
+driven chatbot was constructed by Biswas et al. [12] for real-
+time soil management query answer; however, its usability 
+was impeded by its limited language support. 
+A chatbot optimized for mobile devices was built by 
+Nikhil Sharma et al. [13], who prioritized accessibility 
+above sophisticated natural language processing. Despite its 
+lack of sophistication, the system’s objective was to utilize 
+rudimentary machine learning techniques to solve farming 
+challenges. On the other hand, a structured Q&A framework 
+for agricultural queries was presented in [14]. Although 
+effective for certain queries, the system was less adaptable 
+than more dynamic methods due to its lack of conversational 
+flexibility and sophisticated metrics. 
+Using the CTC approach with XLSR Wav2Vec2.0, Akhilesh 
+et al. [15] demonstrated cross-lingual transfer learning with 
+a WER of 0.58 for Tamil speech recognition, but they had 
+trouble scaling to other dialects. Despite scarce resources, 
+Vancha et al. [16] helped preserve the Sourashtra language by 
+creating a Kaldi-based speech recognition system that achieved 
+a WER of 5.5% on 2000 utterances. Using an Arduino Mega 
+2560 and GSM 800L, Shrivastava et al. [17] suggested an 
+automated watering system that relies on sensor data to send 
+out email and SMS alerts, but it lacks sophisticated predictive 
+analytics. 
+III. SYSTEM    ARCHITECTURE 
+The system architecture of the proposed multilingual chat- 
+bot, as shown in Fig.1, is designed to handle varied  
+agricultural 
+queries 
+efficiently 
+and 
+accurately. 
+The 
+architecture is made of multiple interconnected modules that 
+enable the chatbot to analyze user queries, execute 
+translations, build embeddings, match inquiries to relevant 
+answers, and offer both written and voice responses. Such an 
+approach coincides with techniques mentioned in [11], where 
+multilingual processing and modular chatbot designs were 
+stressed to accommodate linguistic and functional variety. 
+A. System Flow 
+The following steps outline the flow of the system: 
+a) User-Submitted Queries: When a user submits a 
+question via the chatbot interface, the system starts up. 
+Any of the accessible languages-English, Hindi, Malayalam, 
+Kannada, or Telugu may be used for this input. The 
+inquiry is recorded by the interface as text and transmitted 
+to other 
+modules 
+for 
+processing. 
+Effective 
+query 
+processing in multilingual input systems depends on 
+seamless user 
+Authorized licensed use limited to: Amrita School of Engineering. Downloaded on February 18,2026 at 03:49:05 UTC from IEEE Xplore.  Restrictions apply. 
+
+--- Page 3 ---
+ 
+ 
+ 
+Fig. 1. System Architecture of the Proposed Model 
+ 
+interaction because it directly affects response efficiency and 
+accuracy, guaranteeing a consistent experience across multiple 
+languages. 
+ 
+b) Identification and Translation of Languages: The 
+first module applies language detection technology to identify 
+the query’s language. If the query is not in English, 
+IndicTrans2 (AI4Bharat) is used to turn it into English. Since 
+the dataset and embedding models are trained in English, 
+this translation stage provides language consistency for all 
+operation. By focusing on the nuances of Indian languages, 
+IndicTrans2 boosts translation quality and produces exact and 
+contextually sensitive translations. 
+ 
+c) Embedding Generation of Queries: Once translated, 
+the query is given to the embedding producing module. 
+This module employs the sentence-transformers model 
+paraphrase-multilingual-MiniLM-L12-v2. 
+to 
+convert the query into a dense numerical vector. This vector 
+reflects the query’s semantic meaning, enabling accurate 
+matching with similar searches in the dataset. 
+ 
+d) Calculating Similarities: Precomputed embeddings 
+of every question in the dataset are compared to the generated 
+query embedding. Each dataset question’s relevance to the 
+user’s inquiry is examined using a metric called cosine 
+similarity. The most pertinent question is found by sorting 
+the similarity scores. 
+ 
+e) Decision: Found a Relevant Answer? The system 
+decides if the top match’s similarity score is higher than a 
+predetermined threshold (e.g., 0.7). The matched response 
+from the dataset is picked, if the threshold is attained. If not, 
+the system logs the query for more study and confesses that 
+it was unable to locate a pertinent response. 
+f) Generate Text and Audio Response: The system 
+produces a text response if it identifies a pertinent response. 
+Additionally, Google Text-to-Speech (gTTS) is employed 
+to deliver an audio version of the response for greater 
+accessibility. This stage guarantees that clients with varying 
+levels of literacy may utilize the system. 
+g) Apologize and Log Feedback: The system tells the 
+user that it is unable to deliver an appropriate response if 
+no relevant answer is detected. The inquiry is logged for 
+further study, including its context and the system’s judgment. 
+The system’s continual progress depends on this feedback 
+mechanism. 
+h) Response Delivered: Finally, the user receives the text 
+and audio response via the chatbot interface. By doing this, 
+the question resolution process is performed, guaranteeing 
+that the user will acquire the greatest response or recognition. 
+B. Key Features 
+Several major aspects are added into the system architecture 
+to boost its usability and performance: 
+• Multilingual Support: The system’s multilingual  
+support provides accessibility and inclusion for a wide 
+range of users. For Indian languages, IndicTrans2 
+(AI4Bharat) powers translation capabilities, enabling  
+precise and culturally meaningful translations 
+• Semantic Understanding: The system makes use of 
+powerful sentence-transformer models to assure precise 
+query interpretation and matching. 
+• Audio Accessibility: For users with low literacy levels, 
+the text-to-speech tool delivers an audio answer. 
+• Continuous 
+Improvement: 
+To 
+uncover 
+system 
+problems and direct future changes, user feedback is 
+logged. 
+Authorized licensed use limited to: Amrita School of Engineering. Downloaded on February 18,2026 at 03:49:05 UTC from IEEE Xplore.  Restrictions apply. 
+
+============================================================
+
+=== FILE: Intelligent_Chatbot_Assistant_in_Agriculture_Domain7.pdf (Total Pages: 15) ===
+--- Page 1 ---
+Intelligent Chatbot Assistant in Agriculture
+Domain
+Rahul Biswas[0009−0009−4459−4756] and Neeraj Goel[0000−0002−8740−6737]
+Department of Computer Science and Engineering
+Indian Institute of Technology Ropar, Punjab, India.
+{2021csm1013,neeraj}@iitrpr.ac.in
+Abstract. Agriculture is known as the economic game changer of In-
+dia. It is the primary driver of GDP growth because of India’s robust
+agricultural industry, and proper knowledge about agriculture techniques
+helps increase crop yield. So, answering the different types of crop-related
+queries are very important. We proposed the intelligent chatbot appli-
+cation in the agriculture domain so that farmers can get the correct
+information about farming practices. Our system is farmer-friendly and
+capable enough to instantly answer farm-related queries from the knowl-
+edge base, such as plant protection, fertilizer uses, government schemes,
+and many others. We used the agriculture-related data in question-
+answer format and implemented the pre-trained model of the Sentence-
+Transformer approach in our chatbot application to answer providing.
+We also deployed the TF-IDF and Bag-of-Words method but achieved
+a 96% accuracy rate for the test data in the sentence transformer pre-
+trained model. With the help of API services, our system also shows the
+crop’s latest mandi (market) rate and current weather information. So,
+the proposed chatbot system will keep the contribution for farmer’s cost
+savings. Overall, our chatbot system is straightforward and more efficient
+for the farmer to make better decisions.
+Keywords: Sentence Transformer Pre-Trained Model · TF-IDF · Bag
+of Words · Pegasus Model · Mandi(Market) Rate API · Cosine Similarity
+· Weather API.
+1
+Introduction
+In Asia, most countries depend on agriculture to fulfill the food demand of the
+people, and agriculture is a significant contributor to the country’s increasing
+productivity. In India, nearly 60% of the population works in agriculture [1],
+and lots of people from rural areas are farming for their livelihood as their oc-
+cupation [2]. However, most Indian farmers do their farming process in their
+traditional method, and because of the technological or communication gaps,
+they are unknown of the latest farming information. Most of the time, they are
+unable to solve farming-related problems. As a result, they experience limited
+crop growth, which causes them to incur losses.
+
+--- Page 2 ---
+2
+R. Biswas et al.
+So, to solve the agriculture sector issues, the government already take many nec-
+essary steps. The farming authority also organizes several programs for farmers,
+like Front Line Demonstrations with the help of a network of Krishi Vigyan
+Kendras in every district, Rashtriya Krishi Vikas Yojana, and other services [3].
+Moreover, we can see many existing services for farmers, like the Kisan calling
+center, eNam, and farmers portal.
+The Ministry of Agriculture and Farmers Welfare is continuing the Kisan call
+center to facilitate efficient communication of farmer’s queries in various lan-
+guages. However, due to many incoming calls, it is sometimes challenging to
+attend to all of them promptly, and users have to wait a long time to ask their
+queries. As a result, users need help getting the solution to their query. Be-
+sides, Agriculture Ministry has also introduced a web-based service called the
+Farmers Portal, which offers a comprehensive range of information and services
+to farmers in one convenient site. The main feature of this digital platform is
+agri-Advisory, crop management, animal husbandry management, and so on [4].
+Despite its benefits, the Farmers Portal has some limitations, including fixed
+support, and users may need to have the technical knowledge to navigate the
+platform. These challenges may be complex for some users to access required
+agricultural information. Moreover, we can see the eNAM - National Agriculture
+Market platform for selling the farmer produce, the Kisan Suvidha application,
+which integrates all the farm-related services.
+Most of the existing works used the traditional approach or pre-implemented
+platform to deploy the farmer chatbot applications, which is less suitable for a
+large number of chatbot knowledge. We can also see the most recently introduced
+technique, CHATGPT, which can answer all types of questions. However, in the
+agriculture domain, some factors also limit this application. We introduced an in-
+telligent chatbot system for farmers to get suitable solutions for various farming
+practice queries. We aim to enhance farmer operations and eventually support
+the agriculture industry’s expansion and sustainability. One of the biggest chal-
+lenges of deploying an agriculture chatbot application is ensuring reliable and
+efficient data. The collected data for the agriculture chatbot application must be
+relevant, accurate, and up-to-date to provide the farmer with the best possible
+answer and support. To overcome this challenge, we collected data from KCC
+(Krishi Vigyan Kendra) and focused on manual data collection, knowledge mod-
+els, and real-time API information. In our chatbot, users can get answers like
+plant protection, cultural practices, fertilizer uses, water management, and so on.
+Our system also provides the current market price of different crops in India,
+real-time weather information through the API system, and supports the Hindi
+and English languages. We developed our application in the Indian context, so
+we consider the Hindi language as it is the official language of India. We deployed
+a sentence transformer, the latest AI technique, and built a user-friendly system
+for non-technical individuals. Our chatbot is convenient and provides customized
+information about farming-related user queries.
+The paper organizes as follows: Section II discusses the related works. Section III
+describes the proposed methodology, and IV explains the dataset collection and
+
+--- Page 3 ---
+Intelligent Chatbot Assistant in Agriculture Domain
+3
+prepossessing. Section V describes the dataset analysis. Section VI discusses the
+approaches, and Section VII evaluates the result and discussion. Section VIII
+concludes the overall work.
+2
+Related Works
+Bhardwaj et al. [5] proposed the farmer-assistive chatbot using the KNN and
+the sequence-to-sequence model for the answer generation that is multi-language
+supported. Arora et al. [6] implemented the RNN seq2seq technique for the con-
+versational system using the KCC and web scraping data. They also used the
+CNN approach to detect crop disease, and the weather information will come
+through the API services. Niranjan et al. [7] discussed the overall survey on the
+chatbot application. They described the shortcomings of the various technique
+and suggested the seq2seq as a good solution in the case of the chatbot assistant.
+Gounder et al. [8] and Mohapatra et al. [9] implemented the TF-IDF approach to
+generate the vector and used the cosine similarity method to find the similarities
+of the question from the KCC dataset. Besides, they considered the lemmati-
+zation process instead of the steaming process for the data preprocessing and
+deployed the application in Android [8]. On the other hand, they [9] used Mon-
+goDB as a database and found an excellent similarity score for the query text’s
+more matching words.
+Nayak et al. [10] introduced the agriculture expert chatbot application using
+the chatterbot library, where they collected agriculture-related data in question-
+answer format. They used the Levenshtein distance and the best-match approach
+to answer the user queries correctly. Here, users can also ask their query through
+voice and get agro-expert support in case of chatbot is unable to answer.
+Jain et al. [11] deployed the FarmChat android application with audio and (au-
+dio+text) and compared the output efficiency in their study. Here, they con-
+sidered not only the Kisan calling center data but also collected information
+from local cultivators and agriculturalists so that the application could answer
+farm-related questions about potato crops easily. Thatipelli et al. [12] designed
+an Agriculture robot with different types of sensors for collecting data from the
+farmland and storing it in the IBM cloud for real-time analysis. Besides, they
+also deployed the chatbot based on the collected data, which suggests a suitable
+fertilizer considering different parameters and detects plant diseases. Momaya
+et al. [13] also introduced the farmer assistive chatbot name ”Krushi” using the
+RASA X framework, which is able to provide almost 70% of query answers.
+Gunawan et al. [14] proposed an IoT - based chatbot application. With the help
+of an IoT device, it senses the field humidity, temperature, and soil moisture and
+sends the sensor data to the database regular basis. The chatbot uses this data
+to provide real-time information and help urban farmers to improve agriculture’s
+efficiency. Mostaco e al. [15] proposed the AgronomoBot, which can also answer
+the farmer’s queries from the agriculture wireless sensor network data. The data
+will come from the WSN database and deploy the application in the telegram for
+the user interface. Kiruthika et al. [16] proposed a quite different chatbot system
+
+============================================================
+
+=== FILE: Sedek_2021_J._Phys.__Conf._Ser._1874_012022.pdf (Total Pages: 8) ===
+--- Page 1 ---
+Journal of Physics:
+Conference Series
+     
+PAPER • OPEN ACCESS
+Smart Agro E-Marketplace Architectural Model
+Based on Cloud Data Platform
+To cite this article: Khairul Anwar Sedek et al 2021 J. Phys.: Conf. Ser. 1874 012022
+ 
+View the article online for updates and enhancements.
+You may also like
+Research on the analysis and optimization
+method of offshore oil-platforms energy
+system
+Qing Hui Lou, Hong Hai Niu, Jun Chen et
+al.
+-
+Hybrid Testing System Development for
+Single Point Mooring Lines FOWT’s
+Oscar Pires, José Azcona-Armendáriz,
+Carlos Casanovas et al.
+-
+Design and characteristic analysis of a
+four-claw spherical photoelectric
+stabilization platform
+Shan Xue, Nanfang Lv, Xianyu Meng et al.
+-
+This content was downloaded from IP address 106.192.243.236 on 07/09/2026 at 17:32
+
+--- Page 2 ---
+Content from this work may be used under the terms of the Creative Commons Attribution 3.0 licence. Any further distribution
+of this work must maintain attribution to the author(s) and the title of the work, journal citation and DOI.
+Published under licence by IOP Publishing Ltd
+RETREAT 2020
+Journal of Physics: Conference Series
+1874 (2021) 012022
+IOP Publishing
+doi:10.1088/1742-6596/1874/1/012022
+1
+ 
+ 
+ 
+ 
+Smart Agro E-Marketplace Architectural Model Based on 
+Cloud Data Platform 
+Khairul Anwar Sedek1, Mohd Nizam Osman2, Mohd Adib Omar3, Mohd Helmy 
+Abdul Wahab4, Syed Zulkarnain Syed Idrus5 
+1,2Faculty of Computer and Mathematical Sciences, Universiti Teknologi MARA, 
+Perlis Branch, 02600 Arau, Perlis, Malaysia  
+3School of Computer Sciences, Universiti Sains Malaysia, Pulau Pinang 
+4Faculty of Electrical and Electronic Engineering, Universiti Tun Hussein Onn 
+Malaysia 
+5Faculty of Applied and Human Sciences, Universiti Malaysia Perlis (UniMAP), 
+Perlis, Malaysia 
+khairulanwarsedek@uitm.edu.my 
+Abstract. Digital marketplace provides a convenient place for farmers to market farm’s 
+products sales anywhere anytime. If this platform is fully utilized by farmers, it can improve 
+the sustainability of farmers in agriculture industry because it can improve sales volume and 
+fair price for farmers and consumers. However, the current AgroBazaar Online has a few 
+enhancements that can be proposed to improve the acceptance from farmers and consumers. 
+Therefore, there is a need to design the system that can encourage target users to use the system 
+and make the system easy to be used by farmers who relatively have lower ICT literacy. The 
+main requirement to develop intelligent marketing is data to provide intelligent information 
+and services for both farmers and consumers. This project aims to explore data strategies to 
+provide intelligent digital agricultural marketplace based on cloud data platform. This research 
+proposes to develop cloud data platform for e-marketplace based cloud data platform approach. 
+The proposed methodology consists of six phases: problem identification and motivation, 
+definition of the objectives for a solution, design and development, demonstration, evaluation, 
+and communication. This paper proposes an architectural model of agriculture marketplace 
+cloud based on cloud data platform. The architectural model will be used for development of e-
+marketplace that fulfil the Malaysia’s IR 4.0 policy and National Agro-Food Policy (NAFP). 
+1.  Introduction 
+Agrobazaar Online is one of e-marketplace in Malaysia. It recorded MYR 3.05 million sales value in 
+2018 [1]. Compared to overall fruit production is MYR 5.8 billion and vegetable is MYR 5 billion in 
+2018 [2]. Based on the available data, only very small percentage of agriculture products are sold 
+through e-marketplace by farmers. This might due to low acceptance of e-marketplace as technology 
+for marketing and sales of their products. 
+Among main issues in agriculture and foods are diversity of products, the deterioration of fresh 
+products within a short time, the limitations in the evaluation of quality characteristics at the final 
+customer, the consumer, the relevance of commodity products, and the distances between areas of 
+production and areas of consumption [3]. Therefore, the right data strategies are needed to provide up 
+to date information for accurate decision making for marketing and predicting product demands. 
+
+--- Page 3 ---
+RETREAT 2020
+Journal of Physics: Conference Series
+1874 (2021) 012022
+IOP Publishing
+doi:10.1088/1742-6596/1874/1/012022
+2
+ 
+ 
+ 
+ 
+ 
+ 
+An alternative to the traditional marketplace is through e-commerce platform as a digital for selling 
+and buying agricultural products. Digital marketplace provides a platform that can be used by farmers 
+to sell their products directly to consumers with higher price and they also can enjoy higher sales 
+volumes.  
+However, there are a few challenges that need to be addressed by developers to develop e-
+marketplace. Designers need to design the system that can encourage target users to use the system 
+and make the system easy to be used by farmers who relatively have lower ICT literacy [4]. One way 
+to solve this problem is to develop a Smart Agro-Marketplace that provides friendly user interface and 
+intelligent marketing services.  
+The main requirement to develop intelligent marketing is data to provide intelligent information 
+and services for both farmers and consumers. Data is the first element in the information value chain 
+and then followed by information, knowledge, decision and actions. Addressing the correct data 
+strategies will produce quality input to produce information, knowledge, decision, and action for 
+marketing. Otherwise, the agricultural marketplace still acts like a basic e-commerce platform without 
+intelligent information and service to help farmers to market their products like professional 
+marketers. 
+This paper explores data strategies to provide intelligent digital agro-marketplace based on the 
+cloud data platform. Cloud data platform provides business analytical, intelligent information and 
+services [5]. It benefits the farmers to find buyers for their products and predicts the future demands to 
+reduce unsold products. Furthermore, it can increase the acceptance from farmers and consumers to 
+use the digital marketplace.  
+Agriculture environment fluctuates and it always driven by uncertainty. The need always changes 
+to adapt the current and new situation. This results in data structure changes very frequently where the 
+data table and column can be deleted or renamed anytime due to changes in the data sources. Data 
+sources can come from variety of sources such as web log, user log, IoT devices, and RDBMS. 
+Thus, it requires a very flexible data platform that can adapt to the changes. There are two possible 
+solutions: Cloud Data Warehouse (CDW) and Cloud Data Platform (CDP) [5]. 
+Like a traditional enterprise data warehouse, CDW architecture has relational data warehouse and 
+Extract/Transform/Load (ETL) process. The relational data warehouse is responsible to store, process 
+and service the data to the end-users. 
+CDP is a platform to ingest, store, process and make data available for analysis using layered 
+architecture. The CDP architecture consists of four layers: ingestion, storage, processing and serving 
+layers.  
+CDP differs from CDW in two ways. First, CDP uses different design approach where designing 
+for data platform does not need to provide schema for the incoming data. The approach eases handling 
+of schema changes. 
+Second CDP uses different data processing approach. CDP data processing approach provides a 
+more flexible mechanism to handle large semi-structured data set using Apache Spark. Apache Spark 
+provides modular and reusable code which is faster for data processing because it uses machine 
+learning to make complex code simpler. Therefore, CDP brings better flexibility and better 
+performance compared to CDW. 
+ 
+2.  Related Work 
+There are a few initiatives that embark digital marketplace or electronic marketplace in developed and 
+developing countries. Even in least developed country such as Uganda, the digital marketplace has 
+been initiated [4]. In developing country such as China, the digital marketplace is known as 
+Shouguang Vegetable Trading Market Online (SSVTMO) a B2B marketplace [6]. Another developing 
+country is South Africa that already adopts e-marketplace by majority of key decision makers in the 
+agricultural industry. In developed countries such as Germany, Denmark, and Finland, they are early 
+adopters of advanced farming system to achieve precision farming practices [7]. 
+
+============================================================
+
+=== FILE: frsus-04-1073873 (1).pdf (Total Pages: 14) ===
+--- Page 1 ---
+TYPE Original Research
+PUBLISHED 09 February 2023
+DOI 10.3389/frsus.2023.1073873
+OPEN ACCESS
+EDITED BY
+Huaqun Guo,
+Singapore Institute of Technology, Singapore
+REVIEWED BY
+Balkrishna Narkhede,
+National Institute of Industrial
+Engineering, India
+Ivan Bergier,
+Embrapa Digital Agriculture, Brazil
+*CORRESPONDENCE
+Alesandros Glaros
+aglaros@uoguelph.ca
+SPECIALTY SECTION
+This article was submitted to
+Quantitative Sustainability Assessment,
+a section of the journal
+Frontiers in Sustainability
+RECEIVED 19 October 2022
+ACCEPTED 20 January 2023
+PUBLISHED 09 February 2023
+CITATION
+Glaros A, Thomas D, Nost E, Nelson E and
+Schumilas T (2023) Digital technologies in local
+agri-food systems: Opportunities for a more
+interoperable digital farmgate sector.
+Front. Sustain. 4:1073873.
+doi: 10.3389/frsus.2023.1073873
+COPYRIGHT
+© 2023 Glaros, Thomas, Nost, Nelson and
+Schumilas. This is an open-access article
+distributed under the terms of the Creative
+Commons Attribution License (CC BY). The use,
+distribution or reproduction in other forums is
+permitted, provided the original author(s) and
+the copyright owner(s) are credited and that
+the original publication in this journal is cited, in
+accordance with accepted academic practice.
+No use, distribution or reproduction is
+permitted which does not comply with these
+terms.
+Digital technologies in local
+agri-food systems: Opportunities
+for a more interoperable digital
+farmgate sector
+Alesandros Glaros1*, David Thomas2, Eric Nost1, Erin Nelson3 and
+Theresa Schumilas4
+1Department of Geography, Environment and Geomatics, University of Guelph, Guelph, ON, Canada,
+2Open Food Network Canada, St. Agatha, ON, Canada, 3Department of Sociology and Anthropology,
+University of Guelph, Guelph, ON, Canada, 4Laurier Centre for Sustainable Food Systems, Wilfrid Laurier
+University, Waterloo, ON, Canada
+Agriculture e-commerce technologies are transforming how small and medium-scale
+farmers distribute food, consumers access local food, and market vendors negotiate
+sales. However, most of the social scientiﬁc literature exploring digital agriculture
+concentrates on big data analytics in the context of commodity farming systems
+and conventional supply chains. In this paper we review the social scientiﬁc
+literature on agriculture e-commerce technologies and situate this literature within
+broader debates over digital agriculture and its uneven social and economic
+dynamics. We ﬁnd that most social scientiﬁc literature does not include agriculture
+e-commerce in its deﬁnition of digital agriculture, instead deﬁning it predominantly
+in terms of production (e.g., variable-rate technology) or veriﬁcation (e.g., blockchain)
+technologies. We contextualize this review with results from a series of focus
+groups exploring the challenges faced by Ontario’s “digital farmgate sector”—the
+suite of agriculture e-commerce platforms that organize local food sales for hubs,
+farmers’ markets, and small- and medium-scale farmers—related to lack of platform
+interoperability. We ﬁnd that local food systems actors are increasingly adopting
+e-commerce platforms, particularly in the context of the pandemic, and observing
+substantial business-related beneﬁts to their adoption. Yet, there are common
+frustrations with digital tools due to market fragmentation and lack of platform
+interoperability. We recommend the collaborative development of an open standard
+for e-commerce platforms that allows for the cross-platform sale of local food and
+farming products.
+KEYWORDS
+local food, e-commerce, digital agriculture, food system, political economy, interoperability,
+platform
+1. Introduction
+It is clear that a “digital revolution” is underway in agriculture (Fraser and Campbell, 2019).
+On-farm, a suite of data collecting devices (e.g., sensors, drones), combined with Internet of
+Things (IoT) technologies, communicate with decision-support software to inform farmers’
+management of ﬁelds at ever-ﬁner spatial and temporal scales: where and how to apply pest
+or weed management strategies, to harvest, or to water (Balafoutis et al., 2017; Fountas et al.,
+2020). Some suggest that, mid-stream, blockchain technologies are poised to secure distribution
+systems contributing to food traceability goals from farm to landﬁll (Weersink et al., 2018; Nayal
+et al., 2021). Finally, at the downstream end of the supply chain, the e-commerce sector has
+risen to prominence in recent years, across the globe. The entrance of Amazon into the market,
+through its acquisition of Whole Foods, signals how major corporate actors are beginning to shift
+food retailing and shopping habits online (Hillen and Fedoseeva, 2021). The pace of e-commerce
+Frontiers in Sustainability
+01
+frontiersin.org
+
+--- Page 2 ---
+Glaros et al.
+10.3389/frsus.2023.1073873
+adoption substantially increased as a response to COVID-19
+restrictions (Galanakis, 2020). While digital agriculture tools are
+not new, the pace of development appears to be increasing. Some
+observers say these tools will fundamentally transform the way we
+manage food, paving the way for massive increases in agriculture’s
+contribution to national employment and social, environmental, as
+well as economic goals across scales (Stackhouse, 2019; Basso and
+Antle, 2020).
+Scholars have explored the social and economic dimensions of
+digital agriculture technologies for over three decades. In the 1990s,
+political economists began to scrutinize precision agriculture as a
+suite of technologies and were critical of its potential implications
+for the environment and for farmers (Wolf and Wood, 1997).
+More recent work has highlighted the experiences farmers have
+with using digital tools and what factors lead to or prevent
+farmers from adopting technologies (see e.g., Higgins et al., 2017;
+Eastwood and Renwick, 2020). Critical scholars advance questions
+regarding farmer autonomy and sovereignty with respect to digital
+tools. These researchers suggest that digital tools risk further
+consolidating power within the food system, between farmers who
+can and cannot access them (see Rotz et al., 2019b) and between
+farmers write-large and the technology companies that develop
+them (see Miles, 2019; Duncan et al., 2021). Others have evaluated
+discourses and perceptions regarding digital agriculture, noting
+the tensions between technology providers who are optimistic for
+digital agriculture and farmers who may be more skeptical (e.g.,
+Jakku et al., 2019).
+Broader governance considerations for digital tools have also
+begun to be explored, with researchers documenting the actor
+networks and policies that are mobilizing around diverse digital
+tools (Klerkx and Begemann, 2020; Lajoie-O’Malley et al., 2020).
+Recent literature catalogs this mobilization, reviewing topics
+such as technology use and adoption, eﬀects of digitization on
+farmer practice, power and ethics in digitalization, knowledge and
+innovation systems change, and the economics and management of
+digital value chains (Klerkx et al., 2019; Lajoie-O’Malley et al., 2020;
+McCampbell et al., 2022). Overall, there is much critical scholarly
+debate around who owns digital tools and the data they generate
+(Bronson and Knezevic, 2016), who possesses the knowledge and
+capabilities to use digital tools in meaningful ways (Carolan, 2018),
+who is excluded from the digital revolution (Rotz et al., 2019a),
+and how digital data are to be managed equitably and transparently
+(Weersink et al., 2018). Responsible innovation has emerged as a key
+approach to realizing inclusive governance mechanisms and more
+equitable outcomes in digital agriculture (Bronson, 2018; Fleming
+et al., 2018; Jakku et al., 2022).
+One
+under-researched
+area
+where
+these
+debates
+around
+ownership, use, power, and equity crystallize is in the interoperability
+of digital agriculture tools. Interoperability refers to a condition in
+which two or more technologies can communicate and interface with
+each other, even if those technologies are developed from diﬀerent
+companies or organizations. Calls for increased interoperability
+in the digital economy have increased in recent years, as seen
+in the design and implementation of FAIR (ﬁndable, accessible,
+interoperable, and reusable) principles in multiple sectors, such as
+academia (Wilkinson et al., 2016) and even agriculture (Phillips
+et al., 2019; Arnaud et al., 2021). In the case of agriculture, a
+lack of interoperability between hardware or software platforms
+means technology users (e.g., farmers), become locked-in to
+a
+user-agreement
+with
+a
+company.
+This
+poses
+a
+technical
+challenge to farmers, making business management more time-
+consuming and ineﬃcient (Bahlo et al., 2019; Hansen et al., 2021).
+Limited interoperability is not just a technical challenge but a
+political issue, as farmers have decreased ability or agency over
+what tools they use or what is done with their data (see e.g.,
+Rotz et al., 2019a).
+1.1. Contributions
+In this paper we analyze the technical and political dimensions of
+interoperability with respect to agriculture e-commerce tools (AEC)–
+tools that organize the sale of agricultural goods between producers,
+distributors, and consumers. Much of the research and policy focus
+regarding digital agriculture is on larger-scale, commodity-farming;
+that is, how digitalization and big data are promising eﬃciencies and
+environmental beneﬁts in agronomic (production) practices across
+global value chains (see e.g., Kamilaris et al., 2019). While non-
+governmental and international organizations have begun to explore
+AEC as a part of the digital agriculture revolution (FAO and ZJU,
+2021; Stephenson et al., 2021), critical social scientiﬁc literature has
+yet to examine these technologies in substantial detail. Our study
+is among the ﬁrst in this body of critical social scientiﬁc literature
+to do so.
+We contribute to critical social scientiﬁc literature on digital
+agriculture technologies in four ways. First, we explore the extent
+to which AEC tools are discussed within the digital agriculture
+literature. It is important to examine agricultural applications of e-
+commerce platforms, as these tools are more accessible to small and
+medium-scale farmers compared to more expensive digital tools such
+as autonomous tractors that often require existing ownership of large-
+scale capital and land (Rotz et al., 2019a). We examine some of
+the top-cited digital agriculture papers, exploring how they deﬁne
+digital agriculture and if, and in what ways, they discuss the digital
+farmgate sector. In doing so, we broaden the critical literature on
+digital agriculture into an aspect of food systems it has neglected: e-
+commerce. Second, we explore how local food system stakeholders
+are using e-commerce tools in practice, by presenting the results of a
+series of focus groups conducted with local food system stakeholders.
+We describe how disruptions in farmgate marketing and sales,
+through e-commerce platforms, are oﬀering opportunities and
+challenges to farms that sell in multiple direct-to-consumer channels.
+Factors such as the COVID-19 pandemic and increased consumer
+interest in local food have accelerated the adoption of existing e-
+commerce tools, making it important to evaluate their current use.
+Third, we highlight interoperability-related issues faced by producers
+and how they navigate these in practice. Fourth, we recommend
+solutions to some of the stakeholder-deﬁned challenges related to
+interoperability that we found through this research. We contribute
+to digital agriculture scholarship by moving beyond a broad focus
+on critique to solution, drawing from design process methodologies
+(Chou, 2018). Speciﬁcally, we explore potential mechanisms through
+which to address some of the political economic barriers identiﬁed in
+this literature (e.g., interoperability-related challenges) that prevent
+the widespread realization of beneﬁts of digital farmgate platforms.
+Frontiers in Sustainability
+02
+frontiersin.org
+
+--- Page 3 ---
+Glaros et al.
+10.3389/frsus.2023.1073873
+2. Methods
+2.1. Deﬁning agriculture ecommerce tools
+AEC are online intermediary tools that coordinate online
+market
+transactions
+across
+the
+food
+system.
+Platforms
+may
+integrate additional features designed for producers to catalog
+inventory, market products, and organize distribution and pickups
+with customers (wholesalers, consumers, restaurants, etc.). Digital
+platforms in general, beyond food or agricultural e-commerce, have
+only recently begun to be systematically explored (de Reuver et al.,
+2018). The body of research exploring AEC is even more recent and
+rapidly evolving. The results of a recent systematic review of AEC
+research indicate that the predominant focus of this ﬁeld of study is
+on the microeconomic factors that inﬂuence a ﬁrm’s adoption of e-
+commerce tools, and work has been regionally concentrated in the
+United States and China (Zeng et al., 2017). More recent eﬀorts have
+begun to distinguish multiple types of AEC tools, considering their
+function either for value transfer between ﬁrms and consumers or for
+the governance and creation of grassroots interactions and networks
+(Oncini et al., 2020). Crucially, this literature has highlighted the
+present as a pivotal moment for the food platform economy, where
+major corporate actors such as Amazon have yet to consolidate
+and control the market, while multiple smaller players have geared
+their operations for multiple types of markets, including local and
+ecological food sectors.
+In this paper, we focus on AEC tools designed for local and
+regional food distribution as part of what we term the “digital
+farmgate sector.” In turn, we typologize digital farmgate sector
+platforms as either “tailored” or “generic.” Tailored platforms are
+those that are designed to ﬁt the needs of local food systems
+speciﬁcally by, for example, accommodating community-supported
+agriculture (CSA) business management practices and organizing
+multi-vendor sales channels. Tailored platforms prioritize local value
+exchange by disrupting distribution patterns in a way that favors the
+growth of decentralized supply networks (see Glaros et al., 2021).
+They aim to do this by directly connecting farmers to other farmers,
+distributors, wholesalers, restauranteurs, and individual consumers.
+Generic platforms such as Shopify or Etsy are used for commerce
+of all kinds, including, in some cases, the local and regional sale
+of agricultural products (Figure 1). Generic platforms most often
+host single storefronts and are not designed to facilitate network
+interactions, instead prioritizing single business sales and services.
+2.2. Focus groups: Exploring Ontario’s digital
+farmgate sector
+All research design was undertaken in collaboration with Open
+Food Network (OFN) Canada. OFN Canada is a not-for-proﬁt
+providing e-commerce solutions and sector development support
+for local food system stakeholders. Open Food Network operates in
+over ten countries while OFN Canada is headquartered in Ontario
+but hosts shops across most provinces and territories in Canada. At
+present, their ﬂagship e-commerce platform engages close to 1,000
+community food initiatives across Canada. The platform hosts local
+producers, processors and artisans, small scale diversiﬁed farms,
+farmers’ markets, food hubs, buying clubs and local economic
+FIGURE 1
+Digital farmgate sector typology. The digital farmgate sector is part of
+the broader AEC sector which includes platforms for food sales at
+broader scales than local or regional (e.g., superstore online shopping
+platforms).
+development agencies, with the bulk of these stakeholders located
+in Ontario.
+This research aims to identify user experiences, concerns, and
+challenges regarding the use of AEC in local food systems in
+Ontario, focusing on lack of interoperability in the digital farmgate
+sector. We employed a case study approach, focusing on Ontario’s
+digital farmgate sector. A case study approach is widely used
+across disciplines, and allows researchers to examine a complex
+phenomenon, in this case interoperability, in a speciﬁc context
+(Baxter and Jack, 2008). A case study approach seeks to identify
+and recognize experiences, processes, and broad though maybe
+not representative patterns in a speciﬁc context, rather than to
+identify general trends throughout a population; its strengths are
+in understanding context and searching for causal pathways, rather
+than measuring correlation or probabilistic associations (Flyvbjerg,
+2011). In case studies, it is recommended to use a variety of methods
+to document ﬁndings to triangulate and corroborate ﬁndings across
+multiple methods (Golafshani, 2003). As such, we used mixed
+methods including focus groups and survey.
+Further, we adopted a participatory methodological approach,
+where we worked with local food system stakeholders to identify
+needs and pursue research to directly address those needs (Minkler,
+2005). This paper summarizes the ﬁndings of the ﬁrst of two
+phases for a larger responsible research and innovation agenda
+undertaken by OFN Canada. Extending participatory research,
+responsible innovation practices work to co-develop and iteratively
+test solutions with stakeholders in a way that better integrates and
+directly addresses their needs (Bronson, 2018). The two phases for
+this project are distinguished by the following two objectives:
+Phase 1 (this paper): identify clear needs and challenges
+experienced by local food system stakeholders regarding digital
+technology use in the sector.
+Phase 2 (future work): engage directly with local food system
+stakeholders to design e-commerce solutions that directly address
+those needs and challenges.
+The data we report in this paper come predominantly from a
+set of three focus groups and follow-up surveys undertaken in
+Frontiers in Sustainability
+03
+frontiersin.org
+
+============================================================
+
+=== FILE: s11119-018-09624-8.pdf (Total Pages: 33) ===
+--- Page 1 ---
+Vol:.(1234567890)
+Precision Agriculture (2019) 20:926–958
+https://doi.org/10.1007/s11119-018-09624-8
+1 3
+Architecture design approach for IoT‑based farm 
+management information systems
+Ö. Köksal1 · B. Tekinerdogan1 
+Published online: 11 December 2018 
+© The Author(s) 2018
+Abstract
+Smart farming adopts advanced technology and the corresponding principles to increase 
+the amount of production and economic returns, often also with the goal to reduce the 
+impact on the environment. One of the key elements of smart farming is the farm manage-
+ment information systems (FMISs) that supports the automation of data acquisition and 
+processing, monitoring, planning, decision making, documenting, and managing the farm 
+operations. An increased number of FMISs now adopt internet of things (IoT) technology 
+to further optimize the targeted business goals. Obviously IoT systems in agriculture typi-
+cally have different functional and quality requirements such as choice of communication 
+protocols, the data processing capacity, the security level, safety level, and time perfor-
+mance. For developing an IoT-based FMIS, it is important to design the proper architec-
+ture that meets the corresponding requirements. To guide the architect in designing the 
+IoT based farm management information system that meets the business objectives a sys-
+tematic approach is provided. To this end a design-driven research approach is adopted in 
+which feature-driven domain analysis is used to model the various smart farming require-
+ments. Further, based on a FMIS and IoT reference architectures the steps and the mode-
+ling approaches for designing IoT-based FMIS architectures are described. The approach is 
+illustrated using two case studies on smart farming in Turkey, one for smart wheat produc-
+tion in Konya, and the other for smart green houses in Antalya.
+Keywords Smart farming · Farm management information system · Internet of things · 
+Architecture design
+Introduction
+Smart farming represents the application of modern information and communication technol-
+ogies (ICT) into agriculture to increase the amount of production and economic returns, often 
+also with the goal to reduce the impact on the environment (Rains and Thomas 2009). Similar 
+ * Ö. Köksal 
+ 
+koksal@aselsan.com.tr
+ 
+B. Tekinerdogan 
+ 
+bedir.tekinerdogan@wur.nl
+1 
+Wageningen University & Research, Hollandseweg 1, 6706 KN Wageningen, The Netherlands
+
+--- Page 2 ---
+927
+Precision Agriculture (2019) 20:926–958 
+1 3
+terms are used for the same purpose such as precision agriculture, site-specific farming, site-
+specific crop management, prescription farming, and satellite farming (Adamchuk et al. 2004; 
+Zhang et al. 2002). Smart farming builds on advanced technology such as cloud computing, 
+remote sensing, data-driven farming, big data analytics and internet of things (IoT). Several 
+important benefits of smart farming have been provided in the literature including optimiz-
+ing production efficiency, optimizing quality of the crop, minimizing environmental impact, 
+minimizing risk, conservation of resources, reducing cost, increasing profit, and better man-
+agement decisions (Sørensen et al. 2010, 2011; Rains and Thomas 2009; Zhang et al. 2002).
+One of the key elements of the smart farming is the farm management information system 
+(FMIS). Although initially FMISs started as simple record keeping systems, modern FMISs 
+are sophisticated systems with advanced modules supporting a comprehensive set of farm-
+ing operations (Fountas et al. 2015). With the introduction of IoT, FMIS and smart farming 
+in general have gained a new momentum. The IoT helps in smart and automated information 
+gathering and merging. It helps as well as in monitoring sensor data coming from different 
+machines, animals, plants, other farms and greenhouses and other systems such as unmanned 
+air and land vehicles. In this way, the decision making and planning in the agricultural domain 
+can be further supported which can lead to even more effective and efficient farming. With 
+the help of the IoT, farming practices such as yield monitoring, cultivar selection, pest man-
+agement, irrigation, etc. can be applied more precisely. Crop yield can be monitored and pre-
+cise crop maps which show high and low production areas can be obtained readily (Rains and 
+Thomas 2009).
+For developing an IoT-based FMIS it is important to design the proper IoT architecture 
+which represents the overall gross level structure of the system. IoT based farm management 
+information systems typically have different functional requirements such as the type of crop, 
+the type of sensors, communication protocols, and the data processing capacity. Besides of 
+functional requirements also quality requirements such as security level, safety level, time 
+performance, and overall cost of development and operation are also different for different 
+applications.
+The different requirements typically require changing the IoT architecture. In the literature, 
+several reference architectures for FMISs and IoT have been proposed that can be reused to 
+derive the IoT application architecture. Deriving the proper architecture however is far from 
+trivial and this can impede the success of the IoT system. The objective of this study is to con-
+tribute to the current state-of-the-art of FMISs by enhancing the current architecture design 
+approaches for IoT-based FMIS. Hereby, the study aims to provide an architecture design 
+method for designing IoT-based FMISs. The approach presented adopts a feature-driven 
+domain analysis approach to model the different smart farming requirements. Further, based 
+on FMIS and IoT reference architectures the steps and the modeling approaches for design-
+ing the IoT-based FMIS architecture are described. The approach is illustrated using two case 
+studies on smart farming in Turkey, one for developing IoT-based FMIS for smart wheat pro-
+duction in Konya, and the other for smart green houses in Antalya.
+Background and related work
+Internet of things (IoT)
+Until recent time, the internet was primarily used for interconnecting computers any 
+time and any place but this required human interaction and monitoring. The IoT is a new 
+
+--- Page 3 ---
+ 928
+Precision Agriculture (2019) 20:926–958
+1 3
+paradigm that adds a dimension to the current information and communications technolo-
+gies (ICTs), whereby the dimension “Anything communication” is added to the communi-
+cation capabilities. The IoT enables anytime, anyplace connectivity for anything, by linking 
+the objects of the real world with the virtual world. In the IoT world physical things and 
+virtual things, all interact with each other in the same space and time.
+Since the IoT is the result of technological progress in many fields such as wireless 
+sensor networks, machine-to-machine communication, mobile computing, ubiquitous 
+computing, and embedded systems, the term “IoT” might have different meanings. Many 
+definitions of IoT can be found in the literature, but the IoT is defined by the International 
+Telecommunication Union (ITU) as “the network of physical objects or ‘things’ embedded 
+with electronics, software, sensors, and network connectivity, which enables these objects 
+to collect and exchange data”. Here “thing” is defined as: an object of the physical world 
+(physical things) or the information world (virtual things), which is capable of being iden-
+tified and integrated into communication networks (ITU 2005). McEwen and Cassimally 
+(2014) formulate the IoT with a simple equation as: “Physical Object + Controller, Sensor, 
+and Actuators + Internet = IoT”.
+The IoT is the result of technological progress in many parallel and often overlap-
+ping fields, including those of embedded systems, ubiquitous and pervasive computing, 
+mobile telephony, telemetry and machine-to-machine communication, wireless sensor 
+networks, mobile computing, and computer networking. What is important is that IoT 
+adds a dimension to the current ICTs, which already provide “any time” and “any place” 
+communication.
+Various reference architectures have been provided for the IoT. In general, IoT archi-
+tecture is represented as a layered architecture. In this case a “layer” simply represents a 
+grouping of modules that offers a cohesive set of services. Based on the literature (Al-
+Fuqaha et al. 2015; Pandya and Champaneria 2015; Gazis et al. 2015; Palattella et al. 2013; 
+Sheng et al. 2013) the reference architecture is shown in Fig. 1.
+The reference architecture includes the following layers: device, network, session, appli-
+cation, business, management and security. The device layer consists of sensors and physi-
+cal devices. This layer identifies and collects data and specific information generated by 
+sensors and physical devices. The data gathered is passed to the network layer. In essence 
+the device layer bridges the gap between the physical world and the digital world. The 
+network layer provides functionality for networking connectivity and transport capabilities. 
+This layer is also called transport layer. This layer securely transmits data gathered from 
+sensors to the session layer. The transmission medium can be wired or wireless. The ses-
+sion layer is responsible for service management and consists of functionality for setting 
+up and taking down of the association between the IoT connection points. Several session 
+Fig. 1  IoT reference architecture
+Device Layer
+Network Layer
+Session Layer
+Security Layer
+Management Layer
+Application Layer
+Business Layer
+
+============================================================
+

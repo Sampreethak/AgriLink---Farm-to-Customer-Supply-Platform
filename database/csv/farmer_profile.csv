@@ -1,0 +1,151 @@
+farmer_id,user_id,farm_size_acres,primary_crops,kyc_verified
+2873a54d-41a4-4501-8402-073f25c21424,b0c8c6d2-b5b9-4390-bee5-50c84875728f,24.19,"Palak, Ragi, Pomegranate",True
+ce8bfc63-78c0-41ae-850c-53bc26241c7d,06b2bfe7-297e-4465-8971-0f7a01b8c2b8,9.07,"Green Chilli, Onion, Palak",True
+5274ea89-1cb4-4f04-9c42-24e313345a85,a37e1fa0-e1f2-4894-bde6-498c3e74e624,15.84,"Garlic, Mint, Tomato",True
+6de37666-ae67-4f65-a99b-4187f816731f,6eaffc12-b816-45de-8c23-53b70bc504d7,6.48,"Palak, Mint, Rice",True
+37e82a5b-5303-4240-85cb-904ec24eba1b,31e8a823-9f9d-4f0b-8ef0-1a1def6ebf2a,13.64,"Green Capsicum, Onion, Green Chilli",True
+bcc3976a-8a05-48bb-a862-805e86572d9d,f40b156c-faf1-4086-880a-ac5442f53416,17.73,"Pomegranate, Papaya, Tomato",True
+49a8469f-212b-471b-8192-e4ace6e3cac9,280c741f-8071-4824-8dc1-fb296bac2220,17.76,"Coriander, Ginger, Pomegranate",True
+21ea0d7a-0e9d-4f9b-8d41-71b86c803b84,11d257ed-3c00-4188-9366-1077198a55dc,24.92,"Ragi, Mint, Ginger",True
+475ea49c-d449-4060-8c2b-612057a1228e,254283c9-e3f9-4eba-acfb-4194205ca575,6.92,"Green Capsicum, Mint, Carrot",True
+247c30b9-5365-4f6d-93c8-b4bfdefa1c02,55b38320-7a93-4544-a83f-fcd5733cc57e,18.86,"Palak, Grapes, Coriander",True
+535d7f82-b061-47ce-b642-ec1a13f155b8,908ad311-c275-40f6-8437-55f8a2853147,9.98,"Coriander, Tomato, Cabbage",True
+0337727d-6dc8-4ac9-ac4b-c9e3b13447b8,ef9ac141-549f-413a-8676-22702ec1ce11,8.37,"Cabbage, Pomegranate, Carrot",True
+be14bc31-9c77-413a-8a70-ca2135c23384,d452a14f-2ef3-4c26-8ab6-9a8ecd1a28a3,12.75,"Mint, Green Peas, Potato",True
+69b3a421-e4b2-4c2f-9c3a-216468238f6e,8615918e-0367-4f8d-b23b-5d33b313d851,10.92,"Onion, Potato, Cabbage",True
+4aad497d-22db-4506-95a5-ec55b1cd5e02,adc8cc83-49af-446e-ac88-74f36ebd5673,24.86,"Carrot, Ragi, Banana",True
+93e9fd5d-a0bc-427e-afde-9d995a5f19d4,7bc1166d-a3ac-4d86-b859-09ffea7e145a,12.09,"Papaya, Coriander, Banana",True
+60f93b9f-6840-4ea1-b553-8b6d86e4a65a,f0567104-3984-4f39-b1e2-e98e4f20526f,15.83,"Carrot, Green Capsicum, Ragi",True
+c6d43312-4415-4d6a-a8ae-e6a145cdc01f,fa4ecde6-8f23-48a0-97cf-c78a9da48b51,5.58,"Onion, Green Peas, Tomato",True
+af5ba54d-7b4b-433c-96da-ba2adcba27e3,ea8f3676-1ce0-4db9-9f99-a4faf09a7f82,8.34,"Green Chilli, Coriander, Ragi",True
+87e7baf3-1143-4a5a-8d2f-0ffe01378f7b,28f543b4-2918-4d77-bca8-7fee833a8157,20.01,"Rice, Green Capsicum, Banana",True
+a12e6ff4-f66e-4429-9bdc-f164dd3073b6,acab5e5a-cfef-4c13-89b1-0fa1c4ad89ca,5.0,"Palak, Cabbage, Onion",True
+ca8d2b80-7748-435d-94b3-3edca250909e,b3084ea0-8618-4bd8-86f6-8ebe482d44cd,19.1,"Rice, Coriander, Papaya",True
+c3a34d28-bd0b-410e-8dd4-0c7f3462f3b3,c6516e97-1794-4415-8b3f-2dc3fe0c93cd,23.65,"Grapes, Ragi, Pomegranate",True
+666dc0b8-40a6-4ccb-b64f-53f92c033f9e,a22e6049-6f99-43f8-93f5-4d4e5e1ce7a8,22.4,"Mint, Palak, Tomato",True
+a08a856c-d03b-4830-a6e1-4773918dde6c,592c2557-856b-46b5-988a-648acb62be18,23.84,"Palak, Potato, Green Peas",True
+05fa3e5d-8992-48b4-ab7c-cf87e0562aa0,4c2f58be-a9b8-4746-aed0-60a86540795c,5.76,"Rice, Banana, Pomegranate",True
+0f6a779f-384d-42bb-8630-e1528d8df762,ecbda645-51db-4dcb-9b56-f473f81cbefc,9.33,"Carrot, Green Peas, Mint",True
+77c51465-77ab-4e04-8b05-8751311a72dc,b7a99d39-8f91-427b-a3ff-801cacfaf90e,23.71,"Ragi, Potato, Papaya",True
+96ce04d7-20c2-4c9e-937b-ca556670f11e,2daa9085-acae-4ab6-baca-dd0433dd998b,4.22,"Garlic, Grapes, Tomato",True
+59be3b29-2cc8-43f6-8627-e2e3e52fc0c5,8dd8eee8-92a8-40d5-808e-c22377a7a8e1,5.91,"Ginger, Pomegranate, Papaya",True
+1b4dea5a-256f-4f00-a847-cd5d3e25e897,3bb8cb03-9947-4bfa-bb4e-0efbad40b9ee,4.58,"Coriander, Papaya, Pomegranate",True
+cc866dd9-5c28-4a0c-a6a2-6905294cc13a,bbc80609-7b21-4e43-9c2b-b645e36980fc,18.18,"Coriander, Ragi, Tomato",True
+3ebf4438-5a90-48b3-b103-4b5c79ef74b3,b5b2acc4-c5f6-41f8-8aaa-1ec5b30860df,24.82,"Carrot, Papaya, Rice",True
+8ee9c46f-104d-4ed7-ab2e-863c16c0522d,7aa8c827-7f78-498e-b07f-3ae4780f1aff,18.08,"Banana, Pomegranate, Ragi",True
+3285a726-74ff-4e3c-afe9-6b2117ecbfff,c59c0e86-2e5e-4533-afd5-034831c96b6d,10.51,"Grapes, Cabbage, Onion",True
+e8df51b8-170f-4312-b7f4-d67c0f2f6beb,2033c4c9-3c1c-46fa-847b-c2003ded93a5,7.78,"Tomato, Coriander, Ragi",True
+ce167924-8111-42bd-839d-587ec45d90b8,dbcf0c2f-3004-49ce-bf95-1550c645dc5d,11.99,"Pomegranate, Ginger, Mint",True
+0aa80edd-a830-44e4-8612-13ea02eff97e,fc61e551-39b0-4e1c-a738-4f95b724685a,23.42,"Green Capsicum, Green Chilli, Garlic",True
+582778a6-5d96-41de-af5a-938934cadf8e,b19bcc70-749e-4adf-bb35-2ec2d063f5ab,19.0,"Garlic, Rice, Cabbage",True
+9e40ccdd-a78c-44c7-94ad-93197c023f81,1b7e0ffb-2f3d-4092-9254-2174e49ad47d,24.19,"Mint, Carrot, Papaya",True
+c5ab7a23-7756-487a-aaad-8a2c05ae1473,94e91b9f-e0f3-4dbc-a22a-fb492b9bbed5,18.48,"Banana, Cabbage, Onion",True
+f0f07b91-641a-42cb-9786-daf994293142,606e100f-e4a4-4a00-9100-028603b996bc,17.78,"Onion, Mint, Garlic",True
+88b5130d-5994-443e-83b9-85e3d4b08a26,d2a05813-016c-48c2-a0e9-1d06f64811f6,16.01,"Green Chilli, Coriander, Rice",True
+334a3251-1a47-4fe4-90df-bf9ed98d179c,95545331-ca94-41b7-8594-e495117705a0,18.04,"Carrot, Papaya, Green Peas",True
+987f03c9-2977-4d13-baed-b45f1489b1c9,9b451cb4-f743-4d3f-816d-a76bda968155,20.21,"Coriander, Ginger, Ragi",True
+076605b4-e3ea-438d-bcb9-35c05fbc5b73,f1247134-bff8-4a82-9923-7b7ddcf8a8e2,11.18,"Green Peas, Rice, Ragi",True
+f6215a9e-4a61-4c3f-bede-b13437acf6a6,1c0796b7-e425-4c6a-b470-2cb7ae74f4e2,13.2,"Rice, Cabbage, Green Chilli",True
+8cf697ce-1498-418c-ac8a-31c7c3e8f492,50bdb802-6822-4f64-87b6-92ef8bc5d549,17.17,"Papaya, Coriander, Green Peas",True
+98f1c437-3b6a-45b1-8973-b4faab62f3ff,138b19df-c988-43e7-951c-fb9dda52f167,8.53,"Banana, Palak, Papaya",True
+5912eb7e-b3f2-45e6-b201-0c7388bb7947,2c350dbe-2cc2-4c88-a03c-a68fb06ae387,4.01,"Garlic, Ginger, Coriander",True
+04c11cce-effc-4832-a69a-7cb9989e3e08,af7e8dc1-2af4-40d9-8be9-186df509796d,1.69,"Potato, Pomegranate, Coriander",True
+ab43d8d3-6fc4-45da-be5c-19e0f2e5df49,d8b1aefd-a7a2-4621-9e0e-e03d2db7f6df,5.97,"Palak, Cabbage, Carrot",True
+b70b968a-91bc-48aa-bfcc-61cf84066d1f,e2db7302-d399-4016-affc-153bbcc41974,15.12,"Cabbage, Onion, Coriander",True
+6fe8f7bd-8c7a-4657-95c4-f428f8fedbf1,cc534bc4-3c3b-4b17-8257-3b59d6c2eb5e,4.61,"Ragi, Ginger, Grapes",True
+af678a08-a539-4b3f-812b-2a2d22f2f892,9b9899a0-0fd4-4c49-a9fc-9c0b34b62dc3,22.98,"Pomegranate, Coriander, Mint",True
+be397d18-80c9-482d-a55d-5ac3e1abdf09,97f0a995-6775-4245-aec0-56b97ccf3249,19.22,"Green Chilli, Garlic, Ginger",True
+a19b7055-93b1-4140-a1b9-4a1bcddf17be,fa79d226-af8a-4081-be9b-d6bac09bd1a4,14.11,"Papaya, Ginger, Palak",True
+1a17c418-0a63-4b09-bd2f-8a57550bd293,deb587ae-3a92-4b8d-8250-53de3d4bd97d,17.36,"Pomegranate, Tomato, Mint",True
+721c34ce-ecb9-48e8-bbce-3294381e1be4,f7c9b1e4-2815-475e-bdf2-960772bb42fb,20.86,"Coriander, Banana, Carrot",True
+f1d85b9c-af3e-4f7e-8648-bc2b9cd9f8f8,adc9cb32-8813-4c7d-9315-13bcbaf1677f,24.9,"Carrot, Rice, Green Chilli",True
+45414e25-4655-4f7d-aa36-bc7ddf0b0861,1d2547f1-6578-47b4-b4a4-570185644201,10.22,"Ragi, Banana, Cabbage",True
+fcf5a90d-fd16-49c4-b28e-729f58f2a93d,fafe30f9-9794-41d9-af71-de5e3faeddd4,11.09,"Palak, Potato, Ginger",True
+cc1ac55f-3cd2-4299-9ddf-0358d31a94ed,d71943ee-108a-4b1c-a85b-d66a4231fb04,21.6,"Carrot, Ginger, Ragi",True
+6e6a737f-4f6f-4558-9ed9-e00d17b7b09c,79af261d-2d26-4762-b060-cdf35c6475ce,24.25,"Papaya, Onion, Green Capsicum",True
+536fef50-305d-4b9c-aeda-e71b0be5cf26,12ef2652-9bb5-4163-89be-9178de5fbf14,7.22,"Cabbage, Green Capsicum, Onion",True
+60b1192a-82c6-4d17-96b5-60c6a9ebc66a,fd192e33-e784-45ca-9f63-518eecdefbeb,20.61,"Green Chilli, Mint, Cabbage",True
+741ad673-3989-4c09-953a-a2d9f09bcde3,6362910e-ae65-4b2d-9d2f-b7cedef89705,24.71,"Ragi, Palak, Green Peas",True
+735855cd-e84a-4f29-9425-4388a1858eb6,a93ec7db-1dc2-45d2-92b7-199a184e0a17,9.92,"Green Chilli, Mint, Tomato",True
+032a7145-99c9-4afa-823e-1f0d77ba43bd,20b568f3-d4d6-4c51-880a-0cf05f29bd10,18.93,"Grapes, Carrot, Onion",True
+ccccf036-db00-450b-8670-d4ba0efb03df,9d624643-6a9f-4b27-b785-e8c8a96c1101,15.45,"Papaya, Grapes, Green Chilli",True
+491d6710-4ea0-429d-887a-bdec9e549357,cd6a617b-fffe-4ae6-ad14-9a9164c88f07,12.26,"Tomato, Potato, Pomegranate",True
+42348c51-c408-4b91-8e12-0425b233cc55,4551d375-cd22-48dc-87b3-5da3bf0b007b,18.24,"Papaya, Onion, Ragi",True
+50861338-e61d-45ae-b7e4-3cae2e1e8629,3c19433d-efaa-4daf-8828-3d29610c4452,7.96,"Rice, Ragi, Mint",True
+b064b84a-fa0f-443b-9994-761564cef1fd,ee0245b3-65bc-47ca-b32e-02b0b4e77496,13.38,"Banana, Carrot, Ragi",True
+63c8e507-4eb2-40a9-8016-f12e7af9b414,ccab0184-e56c-4a38-a898-e676f339da1b,22.37,"Banana, Mint, Papaya",True
+6923de22-4eb3-4755-943a-b79bd8080890,d5df2476-d0c5-4b34-8270-f16a2efe1c2d,11.53,"Palak, Ginger, Cabbage",True
+0dc649d7-f0d7-4a05-bd7a-7e2a33430f8d,54fc4d7a-eb4c-457f-9f1f-e0167c228cf9,3.69,"Carrot, Ginger, Cabbage",True
+e19d4906-087f-4c59-a4d0-9f6ff6a7e10d,4b67a9d8-3a5b-4900-84fd-a67efbb88b7f,14.7,"Carrot, Banana, Ginger",True
+975ba9a7-6ac4-46ac-b7d2-7f20eb3a0773,cd5a064f-9747-4b08-886f-3c4fd0cf5a44,8.84,"Carrot, Grapes, Green Capsicum",True
+b67defba-bd61-42b1-87d0-c96c9bfa2525,a8611299-298c-416a-9f72-bf92ded589f7,9.73,"Ragi, Ginger, Carrot",True
+87b485d6-fd1c-41df-a979-abe1569a4114,115f523a-d2f9-48f3-9065-340ea073310d,21.36,"Ragi, Tomato, Palak",True
+9913ea9d-f93d-4515-b99f-ca6dba4d5fe1,6737f810-5e6b-4d03-b315-c31d1df4199f,23.16,"Ginger, Tomato, Green Peas",True
+979861ee-3317-4399-85a8-450766211c0e,3d454127-9211-4503-bc36-4818d7d9ce0e,4.83,"Tomato, Onion, Grapes",True
+2d1c7293-2aab-4207-ab2d-62fd2cd7405e,a3f01b2a-ddb3-4d55-b263-b07c775dd1da,9.51,"Ginger, Coriander, Mint",True
+aebef5d9-9fb8-4edd-b97c-3aa98a8dc316,7c9212ba-ba2e-42f0-8438-e76096a96dc7,5.2,"Potato, Onion, Palak",True
+c3cfafb4-fe29-47e8-a88b-7f295be814a1,efa6d4bb-d246-49c5-ab00-d99cf7d44a1a,11.89,"Palak, Green Capsicum, Grapes",True
+e0dd94ce-9782-42b6-9b45-f21c91729469,c664a261-3c61-4693-b1a2-540de150b251,8.16,"Rice, Pomegranate, Grapes",True
+82b00ecc-8ed3-431c-9577-b6b81f579236,f47f9e34-542e-4aa2-bb21-7fc85b72ec9e,24.63,"Potato, Tomato, Green Capsicum",True
+a452700b-bcae-474b-b52d-28b6d6859505,83d1914a-989e-4f20-b4af-a763211f5b27,8.3,"Carrot, Tomato, Pomegranate",True
+5cd0a720-0008-47c4-b684-2d3090f39597,858eb319-5ea8-49e0-9e8c-2cc86f7f246b,14.02,"Green Chilli, Grapes, Ginger",True
+36e7503e-e4d0-4372-bf59-f19d614c80b9,0a9365f3-50bf-434f-8a25-d82d0352b0a9,1.94,"Onion, Mint, Banana",True
+9537ca32-454c-4089-a752-fa7a55ad6891,d6dfc0b1-f9f5-4970-830a-b5f32148c5d2,4.21,"Tomato, Mint, Green Peas",True
+71b38914-1a6f-4ae4-a79f-0c887c4903da,a4f07f92-3935-487a-8d08-32acb720da27,11.76,"Carrot, Green Chilli, Banana",True
+559baecd-70dd-4f56-a2e1-20e8187cc4f4,6b4b210f-4d68-4a44-8dab-271cfa0a9aaa,10.8,"Coriander, Mint, Green Chilli",True
+f1957ded-4a3d-4fd1-b19f-14e60efd7834,8354a6bd-1e0c-4873-ba9b-1907f42db022,16.38,"Grapes, Rice, Green Capsicum",True
+4d13891d-a445-426b-8e6b-08ab02909854,ab4b2612-4079-40e5-91e2-cf4538e6d1cc,3.92,"Palak, Green Capsicum, Green Peas",True
+0b160f68-e708-40fc-8b79-7a63774a34f5,c46e1796-7099-4bca-b49e-d75a46aa7392,23.86,"Pomegranate, Papaya, Ragi",True
+ab41f60e-6796-4040-b1ad-6bdb9f62a1f5,8ff8f4a5-6adc-4e2d-acf6-044dd4e0e5bb,11.83,"Pomegranate, Papaya, Coriander",True
+dec266d2-a7fa-41e7-a675-9f42bc947c88,2ebd00b4-691a-4ebe-8c04-030a741e9a91,13.42,"Coriander, Papaya, Ragi",True
+8e9111b9-55be-4adc-a401-cc9cecf95280,fde46884-adb9-4c11-b350-5a22a455ecc7,3.3,"Onion, Grapes, Garlic",True
+073a3bfe-6f95-4fda-9311-ba1cd2322649,297887bf-be54-4e08-b5ac-9c1f8a60c6ad,12.07,"Rice, Green Capsicum, Mint",True
+ae863987-1f02-429f-8702-4a9ca220d112,2d3c29a8-64a7-4a4b-8416-1cc716dd7e41,24.01,"Papaya, Carrot, Mint",True
+7104a6a9-a565-4010-a9e7-9cc78aa6a96e,18cbc489-f924-4d7b-a401-b77bd8c4ebd0,7.32,"Papaya, Rice, Grapes",True
+11ddeaf3-66a9-4648-9176-c97bd9b51146,297f49f2-a80d-4a30-9dc2-539bc4832f7a,23.07,"Garlic, Banana, Mint",True
+d956a195-1e33-4bf7-8025-8419aed54698,295d0d37-cabb-449f-a35c-315c12e87b98,9.25,"Ragi, Garlic, Coriander",True
+025a50c9-91ce-4596-88d1-305f566a1c5a,d31dab8a-3529-419b-bcbc-6bec58d1647c,15.19,"Cabbage, Ginger, Coriander",True
+103bd673-5fac-4d44-9abc-b85551b0019d,70c26370-a9dd-46db-9a96-22801ad48490,8.78,"Garlic, Mint, Cabbage",True
+621432f7-5826-44e1-9f8a-c5233c581b05,ff296733-c72c-4ab7-87a5-bd2d86edb5a4,10.0,"Ginger, Coriander, Green Peas",True
+8f859f8a-f954-473b-b2c3-67c195237c24,9a8d39b9-45e4-4bb9-851c-8d20e7523689,6.82,"Cabbage, Rice, Onion",True
+03b7ae6d-a038-4db4-8c1e-7fc035b55b85,f84df46d-e323-4e22-bec3-ff2bd152ccd4,21.13,"Grapes, Potato, Mint",True
+fb1ecfa9-642f-48f2-b7d1-b2f06834f45b,da13e8b3-aaf6-4003-ab18-9f3edefd0d0c,5.12,"Green Peas, Rice, Papaya",True
+6c33e20e-a5e7-4cc6-b26d-0595484d8db9,2e3f0a6f-4790-4969-95a8-6b0cbf5b169e,24.29,"Coriander, Papaya, Green Chilli",True
+c6a7d3ce-dc43-4b1f-9ce8-130d962cfa83,94f11d79-25c7-4095-a758-decfdd5eaabc,22.74,"Green Capsicum, Ginger, Papaya",True
+fa988b5b-f621-49bc-97ab-00214517be59,ab82a9c8-9012-4c06-b8ee-149440135336,13.9,"Green Peas, Green Capsicum, Cabbage",True
+20d63db2-5006-484a-8c54-f8dcc6278c07,97125298-fec2-4da9-87a6-336595636994,14.53,"Carrot, Grapes, Rice",True
+d5aeff27-8a28-4010-aefa-30f543c59e4e,0686782c-c111-4be9-962f-a84b597fb591,12.06,"Grapes, Cabbage, Banana",True
+9a3ee620-3fb6-4fd4-8d91-db76a318c35d,c1704a44-5aa7-4d85-ba88-edbec5591985,23.37,"Banana, Potato, Garlic",True
+da7469cf-f637-4e3f-8040-f8d8ddb259a7,983fcee0-0e77-4bcb-817a-e993350bab88,24.87,"Ginger, Green Chilli, Tomato",True
+fbe46723-0901-4ea7-9bc5-8b731c4356b7,54f29052-4112-4ea9-bd9b-e9d79570a0bf,4.73,"Coriander, Pomegranate, Cabbage",True
+dc8daa43-3027-4f78-bed5-45573caa14d0,e2be6ff9-75ff-429d-9335-7fe88a71e8f5,22.79,"Tomato, Palak, Green Capsicum",True
+7c15baf9-2425-4e37-b0c2-7493916bbbe2,c96c2cf9-9234-449a-b8ff-c258c54bafe8,11.45,"Coriander, Green Chilli, Rice",True
+d2715a40-3223-429b-a96e-d2c9204943b1,a2d54c4f-f277-49f8-8efe-a1a95ab1eaf2,16.52,"Papaya, Onion, Carrot",True
+97d838df-84e5-4eb0-910f-c216c692e28b,b3c0a3b4-5762-4304-9c41-3f95762e7b43,13.61,"Green Chilli, Cabbage, Coriander",True
+e13aafcb-44f5-4810-bff5-92f165c0ae35,0df56e49-366e-4387-a5a7-2f3c7e58180d,7.15,"Banana, Green Peas, Onion",True
+be88c04b-3051-46b0-8145-0046616fabd9,1fab75d2-19aa-4cbe-bc0c-da5c5a3ff437,14.29,"Grapes, Ragi, Tomato",True
+1cc4207c-2d70-4663-bb99-93d6abd8e18b,43885dc0-4da8-43e8-814d-89bd2f300072,10.59,"Ginger, Palak, Tomato",True
+c538d323-4b74-4d7c-b4ec-02dfddd70fff,06ea035d-138d-47b9-af07-fa6ee1a66f5b,18.72,"Carrot, Mint, Cabbage",True
+948fbaaa-cb83-451a-a86b-2b19fb795e02,904c78bb-6e29-439c-a308-5f4b0df0acf4,20.62,"Green Peas, Papaya, Pomegranate",True
+e0dd43e8-cb01-47b8-a1fd-d1fb82c78d71,80f474dd-8393-4748-9ec9-5c7c1dcd9c8f,2.37,"Green Capsicum, Potato, Rice",True
+f618d256-ba80-4fe7-9f25-f73d3b504e6d,e29c070a-fd5f-40ea-ae6e-bb1fae5175bf,10.86,"Ragi, Pomegranate, Palak",True
+e18557a2-fa62-4ecc-a274-d1d3f0d0657f,d897d730-6fea-48d8-8eca-3b287c08ff94,21.76,"Potato, Mint, Palak",True
+65f1ecf5-5308-4a2f-8b19-4b7206169f68,9433764a-c62c-486d-b31d-1b266375510a,18.97,"Garlic, Mint, Green Peas",True
+90495f1e-9960-4db1-8625-0fd1483e2a8f,995836e8-8959-476b-9cfb-f1d040e62750,7.77,"Onion, Banana, Rice",True
+5e8f4101-6e11-449a-9ab2-ddefb20cec1c,8c76bf64-85e5-4a66-bc5c-3ee841c461b1,9.05,"Onion, Mint, Coriander",True
+1ef83fd6-6718-4cb0-9df1-08673594f2ce,0981b772-ff45-4809-9798-ea7799e6968f,5.42,"Papaya, Ginger, Rice",True
+1bd31325-5136-45d3-8fa0-978468a9b96a,22c82d70-baf1-4470-bfdc-b1a9bc5f419b,7.95,"Potato, Onion, Garlic",True
+0cda0e53-fdcb-49c2-8c18-b8296a9fe041,13b37ac6-34a8-4e80-baa6-01db2ec9646f,4.86,"Papaya, Potato, Cabbage",True
+f239c156-fb93-41c6-9950-410701ddc631,cab5ef4b-8589-4ae6-b82d-3215aa4a83b8,10.5,"Rice, Potato, Cabbage",True
+65fe2a76-4490-455c-9b99-c997a463c9a2,f07e4d0a-d6c0-470b-a666-2fbcb200169d,19.43,"Rice, Cabbage, Grapes",True
+1310acb9-0418-4094-b51a-f6a258612ebb,33844492-6f7e-4bcd-821b-d6686fd0d6a2,8.05,"Carrot, Tomato, Green Peas",True
+08847d9a-389c-4b81-8037-0a89c625d60f,4837746c-8912-46b7-a007-bd55d1f12b64,4.27,"Palak, Papaya, Green Capsicum",True
+fb3ede9e-a487-40f8-b43b-7615ba85daa9,ee7ddf25-8258-47ac-9643-f1f337abc674,4.38,"Onion, Papaya, Green Peas",True
+776264f9-3f5e-442e-91f2-36d1f75ad34f,d00420cd-eebe-4ae3-bb0d-713e8b524244,9.66,"Onion, Ragi, Coriander",True
+bcdcffec-574d-4c86-8ebf-1e95188df16c,c0e27365-5196-465f-959e-b585e87e7ad5,13.46,"Carrot, Green Capsicum, Cabbage",True
+15a8b4d9-a18a-4ea9-aaae-295fc040f432,0fa5e7a4-a3d7-4f9f-9e3c-b64ef46391c9,14.52,"Ginger, Papaya, Cabbage",True
+d76ddd51-cf24-4d2e-83dc-4f9e13a272e7,4687b625-4367-44c2-8324-06c12ed53082,10.86,"Pomegranate, Grapes, Banana",True
+110ddc55-29f0-44a6-b681-c739851d0f96,b235440e-a9df-4538-9ab5-ed39a6d71787,24.35,"Onion, Papaya, Ragi",True
+9cc0a982-dfd7-42a5-8972-c882f3c949ab,7d40ef63-e89f-4df5-8569-2c80085481ab,16.54,"Green Peas, Cabbage, Banana",True
+a9d549c0-55b3-4d5b-bbfe-f37ff33978ff,f343ebb2-5f9d-47c3-b022-adfd5d61f8dc,5.1,"Green Peas, Rice, Mint",True
+d14a5320-24ea-46f0-a60a-6b95aa85419a,ca3670b4-e588-4fc1-8fa2-7aab821cc13c,21.38,"Palak, Green Capsicum, Rice",True

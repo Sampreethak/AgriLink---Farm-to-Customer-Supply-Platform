@@ -1,0 +1,31 @@
+aggregator_id,user_id,hub_name,storage_capacity_tons
+ba2d01e4-3a7e-4c0d-8137-7120b6841437,44a93223-cfcf-463d-914e-084932d5033a,Sunitha SHG Homemaker Depot (Maddur),2.11
+c4ea3d6f-18e6-49df-bc31-d112c0493e39,e18cfc79-1bab-4643-b9d9-ec2da359e0cb,Lakshmi SHG Homemaker Depot (Mandya),1.61
+56f09afc-52e8-44b9-935e-09a1ef8c9e04,5862334c-102a-421e-b8cf-ad4e84efde9a,Shiva SHG Homemaker Depot (Srirangapatna),0.91
+3a2d7197-3e41-429c-a0b5-9f300c23588e,6faddf13-c939-4c3c-8832-21e2c5708f4e,Venkatesh SHG Homemaker Depot (Malavalli),1.57
+63155b9a-8933-4139-9d25-df8cd6fe56fb,30ff46c0-4f0a-4ca0-b38c-79b8f17798b9,Kavya SHG Homemaker Depot (Bengaluru (Kengeri)),1.85
+5d159684-4819-4ec8-b16a-cb6ccdadb133,f3f25540-7fce-46d3-9c91-ed92de824020,Pooja SHG Homemaker Depot (Pandavapura),2.11
+fd605002-ba1a-4be2-b51d-1d9acffbb831,6c2e7090-8602-4df1-bdf0-9c6410ac427a,Varun SHG Homemaker Depot (Bengaluru (JP Nagar)),0.92
+78837e0d-340a-45a9-bd86-be159b34c9f9,741492d5-704a-468c-b26b-c1c163e40f0f,Meghana SHG Homemaker Depot (Pandavapura),2.37
+bcd043b9-da8e-4bff-ac49-79b2cf35e487,927b542f-e3cb-44d5-8807-ec8b5f2e6a33,Girish SHG Homemaker Depot (Srirangapatna),1.91
+ed37d298-bb4a-4f5a-841b-f5b248b0f014,6ec97c20-5060-4cb6-977b-e22106b4c7a2,Sowmya SHG Homemaker Depot (Channapatna),2.05
+6a7a57b2-21fe-4a7b-9504-d3f6cd286ab7,dcf03d1b-f415-4c9d-8ad9-4f784b18f94d,Kishore SHG Homemaker Depot (Maddur),1.22
+ef11745d-37a4-4c4f-b20f-69e7e5440583,4e465036-3cdb-4687-b9a1-25ec9d79ef85,Gowramma SHG Homemaker Depot (Bengaluru (Indiranagar)),1.43
+ea9a0a84-1737-4413-aa44-17a31bab97fd,7a0af83e-e0b5-4477-bd53-9d969410d866,Vinay SHG Homemaker Depot (Bidadi),1.13
+adb1b8f7-07f9-4bc2-ab78-3e75318f182f,de99bbdb-0fbd-4365-8bd6-0612d03a361d,Suresh SHG Homemaker Depot (Bengaluru (Indiranagar)),0.53
+82fd9cc3-6a58-4c78-99f2-4d7db07b7ebd,a51eb37c-abe4-4211-bd74-e96a0f5d4f29,Aditya SHG Homemaker Depot (Bengaluru (Hebbal)),1.09
+ca4d243f-27c9-43b6-94aa-bc4d7b03e166,da896eb7-5cc7-4784-8389-a6f52cdb7a5d,Kavya SHG Homemaker Depot (Bengaluru (Hebbal)),1.64
+9aaadc9f-59c7-4558-833b-53c8d78f53ce,9a250216-f867-474d-9bf5-fa45e429d5b3,Sunitha SHG Homemaker Depot (Ramanagara),2.39
+0f424d6c-8664-4c02-895a-483448988bb9,db2400b1-5911-4794-838e-9014c98b59fc,Meghana SHG Homemaker Depot (Ramanagara),1.98
+3ffd875c-eaca-4b8e-a086-858d231b99a1,ebed3d77-3f31-49a5-bfa9-2417a0b1084c,Karthik SHG Homemaker Depot (Mandya),0.78
+774b7271-33cb-46e1-bd39-5c9c1d8e9027,a672bdfe-cb7d-4977-b61c-77217c63419d,Sneha SHG Homemaker Depot (Srirangapatna),2.48
+53c2f992-a9e8-4d97-a446-fab040527642,f876f85e-dd4a-404b-b539-3c190169f811,Corridor Highway Consolidation Hub - Bengaluru (Kengeri) #1,47.81
+4ecd0809-e5cd-49e2-b44a-5012eaadbbb7,4e70b714-74d2-41e5-8e02-3e4157b623ef,Corridor Highway Consolidation Hub - Mandya #2,43.7
+d085f947-1751-4bd0-ada7-fb0853587db7,04caa52d-56ef-442b-80b2-a52b833988c8,Corridor Highway Consolidation Hub - Bengaluru (Kengeri) #3,18.75
+ffad181b-106d-4966-bdde-2004c517446d,9cb1034a-8384-43c8-b0bc-d3b7a75c909f,Corridor Highway Consolidation Hub - Mandya #4,35.51
+de2b37a7-4ab7-4a9b-b1d1-bee88a21613b,2d834961-fcc6-477f-929b-be7f32d285ae,Corridor Highway Consolidation Hub - Malavalli #5,10.26
+b7b994ba-60e4-4890-896a-1d3209a418fd,68f4e697-d0d1-4fd0-ae20-9d77ab7abace,Corridor Highway Consolidation Hub - Pandavapura #6,31.18
+0269e07a-85c2-4b19-9f0e-2d0d82187cf6,5d495dd2-c8ca-4e3e-9207-17e3d1e0eec5,Corridor Highway Consolidation Hub - Bengaluru (Hebbal) #7,30.09
+2d9e2a53-97f2-4fb4-9ce0-347d1282d824,a616ce3d-96de-4a53-a404-a7cb2f6ca660,Corridor Highway Consolidation Hub - Bengaluru (Koramangala) #8,30.98
+6290c465-9594-4f67-b263-bf7a004ef64e,58903be1-07f5-4dd5-9158-1ce264dc65fe,Corridor Highway Consolidation Hub - Bengaluru (Kengeri) #9,20.1
+1e3ed027-4456-4f0b-8209-7103bca1008d,3ad0627f-7727-45b5-88b1-ab64a3309de5,Corridor Highway Consolidation Hub - Bengaluru (Indiranagar) #10,24.92

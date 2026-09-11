@@ -5,24 +5,32 @@ from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# Add ML engine to system path for recommendation predictor import
+# Add ML engine and pricing model to system path
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(os.path.join(base_dir, "ML_Recommendation_Engine"))
+sys.path.append(os.path.join(base_dir, "ml"))
+sys.path.append(os.path.join(base_dir, "ml_pricing_model"))
 
 try:
     from model.predictor import RecommendationPredictor
     predictor = RecommendationPredictor()
 except Exception as e:
-    print(f"ML Predictor load warning: {e}")
+    print(f"ML Recommendation Predictor load warning: {e}")
     predictor = None
+
+try:
+    from pricing_predictor import DynamicPricingPredictor
+    pricing_predictor = DynamicPricingPredictor()
+except Exception as e:
+    print(f"Dynamic Pricing Predictor load warning: {e}")
+    pricing_predictor = None
 
 SUPABASE_URL = "https://nxwhnbejvwxiuekhtmpm.supabase.co"
 SUPABASE_REF = "nxwhnbejvwxiuekhtmpm"
 
 app = FastAPI(
     title="AgriLink API - Farm-to-Customer Supply Platform",
-    description=f"FastAPI backend connected to Supabase PostgreSQL ({SUPABASE_URL}), Supabase Auth, Supabase Storage, and LightFM ML Recommendation Engine.",
-    version="1.0.0"
+    description=f"FastAPI backend connected to Supabase PostgreSQL ({SUPABASE_URL}), Mandya->Bengaluru Corridor Logistics, Multi-Model Customer Recommendation Engine, and APMC Dynamic Pricing Engine.",
+    version="2.0.0"
 )
 
 # Enable CORS for Flutter Web, iOS, Android, and Postman
@@ -176,8 +184,16 @@ def health_check():
         "supabase_url": SUPABASE_URL,
         "supabase_ref": SUPABASE_REF,
         "database": "Supabase PostgreSQL (Active)",
-        "ml_engine": "LightFM Matrix Factorization Model",
-        "ml_loaded": predictor is not None and predictor.model is not None
+        "corridor": "Mandya -> Bengaluru Agro-Supply Corridor",
+        "recommendation_engine": {
+            "status": "LOADED" if predictor is not None and predictor.data is not None else "STANDBY",
+            "models": ["Buy Again (Recency/Freq)", "FP-Growth (Association Rules)", "User-Based Collaborative Filtering (Cosine Sim)"]
+        },
+        "pricing_engine": {
+            "status": "LOADED" if pricing_predictor is not None and pricing_predictor.payload is not None else "STANDBY",
+            "model": "APMC Benchmark-Trained Random Forest Regressor",
+            "share_distribution": "Farmer (68%) | Aggregator (10%) | Delivery (14%) | Platform (8%)"
+        }
     }
 
 @app.get("/api/v1/categories")
@@ -228,17 +244,66 @@ def create_listing(item: ListingCreate):
         "rating_count": 1,
         "status": "ACTIVE"
     }
-    MOCK_LISTINGS.insert(0, new_item)
-    return new_item
+class InteractionCreate(BaseModel):
+    customer_id: str
+    listing_id: str
+    interaction_type: str = "VIEW"
+
+@app.post("/api/v1/recommendations/interact")
+def record_interaction(data: InteractionCreate):
+    if predictor:
+        res = predictor.log_interaction(data.customer_id, data.listing_id, data.interaction_type)
+        return res
+    return {"status": "ok", "message": "Interaction recorded"}
+
+@app.get("/api/v1/recommendations/customer-home/{buyer_id}")
+@app.get("/api/v1/customer-home/{buyer_id}")
+def get_customer_home(buyer_id: str, cart_crops: Optional[str] = None):
+    crops_list = [c.strip() for c in cart_crops.split(",")] if cart_crops else None
+    if predictor:
+        return predictor.get_customer_home_dashboard(buyer_id, cart_crops=crops_list)
+    return {
+        "customer_id": buyer_id,
+        "location": "North Bengaluru",
+        "sections": {
+            "buy_again": {"title": "BUY AGAIN", "items": MOCK_LISTINGS[:4]},
+            "picked_for_you": {"title": "PICKED FOR YOU", "items": MOCK_LISTINGS[:4]},
+            "you_may_also_want": {"title": "YOU MAY ALSO WANT", "items": MOCK_LISTINGS[:4]}
+        }
+    }
+
+@app.get("/api/v1/recommendations/buy-again/{buyer_id}")
+def get_buy_again(buyer_id: str, top_k: int = 4):
+    if predictor:
+        items = predictor.get_buy_again(buyer_id, top_k=top_k)
+        return {"buyer_id": buyer_id, "model": "Frequency + Recency", "count": len(items), "recommendations": items}
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/you-may-also-want/{buyer_id}")
+def get_you_may_also_want(buyer_id: str, top_k: int = 4, cart_crops: Optional[str] = None):
+    crops_list = [c.strip() for c in cart_crops.split(",")] if cart_crops else None
+    if predictor:
+        items = predictor.get_you_may_also_want(customer_id=buyer_id, cart_crops=crops_list, top_k=top_k)
+        return {"buyer_id": buyer_id, "model": "FP-Growth / Association Rules", "count": len(items), "recommendations": items}
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/picked-for-you/{buyer_id}")
+def get_picked_for_you(buyer_id: str, top_k: int = 4):
+    if predictor:
+        items = predictor.get_picked_for_you(buyer_id, top_k=top_k)
+        return {"buyer_id": buyer_id, "model": "User-Based Collaborative Filtering (Cosine Sim)", "count": len(items), "recommendations": items}
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
 
 @app.get("/api/v1/recommendations/{buyer_id}")
+@app.get("/api/v1/recommend/{buyer_id}")
+@app.get("/recommend/{buyer_id}")
 def get_recommendations(buyer_id: str, top_k: int = 10):
     if predictor:
         recs = predictor.recommend_for_customer(buyer_id, top_k=top_k)
         if recs:
             return {
                 "buyer_id": buyer_id,
-                "algorithm": "LightFM Hybrid Matrix Factorization",
+                "algorithm": "Multi-Model Collaborative Filtering & Co-occurrence",
                 "count": len(recs),
                 "recommendations": recs
             }
@@ -269,6 +334,77 @@ def create_order(order: OrderCreate):
         "message": f"Order recorded in Supabase PostgreSQL project ({SUPABASE_REF})."
     }
 
+# ==========================================
+# APMC-LINKED DYNAMIC PRICING & FAIR SHARE
+# ==========================================
+class PriceCalculationRequest(BaseModel):
+    commodity: str
+    variety: Optional[str] = "Hybrid / Nati"
+    grade: Optional[str] = "Grade A"
+    origin_district: Optional[str] = "Mandya"
+    distance_km: Optional[float] = 85.0
+    is_organic: Optional[bool] = False
+    custom_apmc_modal: Optional[float] = None
+
+@app.get("/api/v1/pricing/benchmarks")
+def get_apmc_benchmarks():
+    """Returns latest APMC government benchmark modal rates (Rs./kg) across Mandya-Bengaluru corridor markets."""
+    if pricing_predictor and pricing_predictor.payload:
+        benchmarks = pricing_predictor.payload.get("latest_apmc_benchmarks", {})
+        return {
+            "status": "success",
+            "source": "Karnataka APMC Mandi Aggregated Benchmarks",
+            "count": len(benchmarks),
+            "benchmarks_rs_per_kg": benchmarks
+        }
+    return {
+        "status": "fallback",
+        "source": "APMC Mandi Default Benchmarks",
+        "benchmarks_rs_per_kg": {
+            "Tomato": 25.0, "Potato": 22.0, "Onion": 24.0, "Carrot": 35.0,
+            "Cabbage": 16.0, "Green Peas": 55.0, "Green Capsicum": 40.0,
+            "Green Chilli": 45.0, "Palak": 25.0, "Coriander": 30.0,
+            "Mint": 25.0, "Ginger": 70.0, "Garlic": 110.0,
+            "Banana": 28.0, "Papaya": 22.0, "Pomegranate": 95.0, "Grapes": 65.0,
+            "Ragi": 38.0, "Rice": 52.0
+        }
+    }
+
+@app.post("/api/v1/pricing/calculate-fair-share")
+def calculate_fair_share(req: PriceCalculationRequest):
+    """Calculates fair consumer price and 4-way transparent share breakdown for Mandya-Bengaluru corridor."""
+    if pricing_predictor:
+        return pricing_predictor.calculate_price_and_shares(
+            commodity=req.commodity,
+            variety=req.variety or "Hybrid / Nati",
+            grade=req.grade or "Grade A",
+            origin_district=req.origin_district or "Mandya",
+            distance_km=req.distance_km or 85.0,
+            is_organic=req.is_organic or False,
+            custom_apmc_modal=req.custom_apmc_modal
+        )
+    raise HTTPException(status_code=500, detail="Pricing engine not loaded")
+
+@app.get("/api/v1/pricing/fair-share/{commodity}")
+def get_commodity_fair_share(
+    commodity: str,
+    grade: str = "Grade A",
+    origin: str = "Mandya",
+    distance_km: float = 85.0,
+    is_organic: bool = False
+):
+    """Quick lookup for transparent fair-share distribution of a single commodity."""
+    if pricing_predictor:
+        return pricing_predictor.calculate_price_and_shares(
+            commodity=commodity,
+            grade=grade,
+            origin_district=origin,
+            distance_km=distance_km,
+            is_organic=is_organic
+        )
+    raise HTTPException(status_code=500, detail="Pricing engine not loaded")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+

@@ -21,6 +21,9 @@
             <button class="nav-btn" onclick="switchTab('orders-tab', this)">
                 <i class="fa-solid fa-receipt"></i> My Orders
             </button>
+            <button class="nav-btn" onclick="switchTab('pricing-tab', this)">
+                <i class="fa-solid fa-scale-balanced"></i> Fair Pricing Engine
+            </button>
             <button class="nav-btn" onclick="switchTab('farmer-tab', this)">
                 <i class="fa-solid fa-tractor"></i> Farmer Portal
             </button>
@@ -48,31 +51,67 @@
                 <div class="user-selector-group">
                     <i class="fa-solid fa-user-check fa-xl" style="color: var(--primary);"></i>
                     <div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">DELIVERY LOCATION & USER CONTEXT</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: bold; letter-spacing: 0.5px;">ACTIVE CUSTOMER & LOCATION CONTEXT</div>
                         <select id="customer-select" class="select-control" onchange="onCustomerChange(this.value)">
-                            <option value="c793972c-ba33-4eb2-91db-83d7b26f19ca">Priya Sharma • Indiranagar, Bengaluru (Loyalty: 120 pts)</option>
-                            <option value="cust-2222-3333-4444">Rahul Verma • Kolar Town (Loyalty: 45 pts)</option>
-                            <option value="cold-start-new-user">Guest Customer • Express Delivery</option>
+                            <option value="d48b9f71-c110-4f5f-83da-7b65dbfbc328">Priya Reddy • Bengaluru (Vidyaranyapura) [Restaurant Kitchen - History Active]</option>
+                            <option value="7f9989a2-8055-4b10-9a65-75e420e3c6b5">Sunitha Kulkarni • Bengaluru (Vidyaranyapura) [Individual Resident - History Active]</option>
+                            <option value="b2b91161-1df6-45c6-be3e-5e9c0ec439b4">Darshan Patil • Bengaluru (Hebbal) [Manyata Tech Park Buyer - History Active]</option>
+                            <option value="e20bf76f-4f5b-4c6f-ae4e-d9d31a99c2da">Basavaraj Shetty • Bengaluru (Devanahalli) [Organic Store - History Active]</option>
+                            <option value="guest-new-user-cold-start">✨ Guest Customer / New Sign-up [Cold-Start Mode Active]</option>
                         </select>
                     </div>
                 </div>
-                <div class="status-indicator">
-                    <div class="dot"></div> Live Inventory Connected
+                <div class="status-indicator" id="ml-engine-badge">
+                    <div class="dot"></div> 3 ML Models Active (Background Engine)
                 </div>
             </div>
 
-            <!-- Section 1: Recommended For You -->
+            <!-- Active Shopping Cart Banner (Live FP-Growth Trigger) -->
+            <div id="cart-banner" style="background: #eef8f1; border: 1px solid #c3e6cb; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-weight: bold; color: var(--primary);"><i class="fa-solid fa-basket-shopping"></i> Live Cart Basket:</span>
+                    <span id="cart-items-display" style="margin-left: 0.75rem; color: #155724; font-weight: 500;">Cart is empty (Click 'Add to Cart' to trigger live FP-Growth recommendations)</span>
+                </div>
+                <button onclick="clearCart()" style="background: transparent; border: 1px solid #c3e6cb; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; color: #155724; font-weight: bold; font-size: 0.85rem;">
+                    <i class="fa-solid fa-trash-can"></i> Clear Cart
+                </button>
+            </div>
+
+            <!-- SECTION 1: 🔄 BUY AGAIN -->
             <div style="margin-bottom: 2.5rem;">
-                <div class="section-title">
-                    <i class="fa-solid fa-heart" style="color: var(--danger);"></i> Recommended For You
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fa-solid fa-rotate-right" style="color: #28a745;"></i> 🔄 Buy Again <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 1: Frequency & Recency Scoring)</span></span>
+                    <span style="font-size: 0.8rem; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Decay Score Engine</span>
                 </div>
-                <div id="ml-recommendations-grid" class="grid-cards">
-                    <!-- Dynamic Product Cards Inserted Here -->
+                <div id="buy-again-grid" class="grid-cards">
+                    <!-- Buy Again Cards Inserted Here -->
                 </div>
             </div>
 
-            <!-- Section 2: Farm Direct Listings -->
-            <div>
+            <!-- SECTION 2: ❤️ PICKED FOR YOU -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fa-solid fa-heart" style="color: #e53935;"></i> ❤️ Picked For You <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 3: User-Based Collaborative Filtering)</span></span>
+                    <span style="font-size: 0.8rem; background: #ffebee; color: #c62828; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Cosine Similarity Engine</span>
+                </div>
+                <div id="picked-for-you-grid" class="grid-cards">
+                    <!-- Picked For You Cards Inserted Here -->
+                </div>
+            </div>
+
+            <!-- SECTION 3: 🛒 YOU MAY ALSO WANT -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fa-solid fa-cart-plus" style="color: #f57c00;"></i> 🛒 You May Also Want <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 2: FP-Growth Market Basket Association)</span></span>
+                    <span style="font-size: 0.8rem; background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 20px; font-weight: bold;">High-Lift Co-Purchase Rules</span>
+                </div>
+                <div id="you-may-also-want-grid" class="grid-cards">
+                    <!-- You May Also Want Cards Inserted Here -->
+                </div>
+            </div>
+
+            <!-- SECTION 4: DIRECT FARM HARVEST CATALOGUE -->
+            <div style="margin-bottom: 2.5rem;">
                 <div class="section-title">
                     <i class="fa-solid fa-wheat-awn" style="color: var(--warning);"></i> Direct Farm Harvest Produce
                 </div>
@@ -235,6 +274,95 @@
                         <div style="font-size: 0.75rem; color: var(--text-muted);">Pending OTP</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB: FAIR PRICING & SHARE ENGINE ================= -->
+        <div id="pricing-tab" class="tab-content">
+            <div class="section-title">
+                <i class="fa-solid fa-scale-balanced" style="color: var(--primary);"></i> APMC-Linked Dynamic Fair Pricing & 4-Way Payout Engine
+            </div>
+
+            <div class="hero-banner" style="background: linear-gradient(135deg, #1b5e20, #2e7d32); margin-bottom: 1.5rem;">
+                <div class="hero-text">
+                    <h2 style="color: white; margin-bottom: 0.5rem;">Mandya ➔ Bengaluru Agro-Corridor Pricing Oracle</h2>
+                    <p style="color: #e8f5e9;">Trained on 15,500+ APMC government mandi market records to eliminate predatory middlemen and deliver guaranteed 68% direct payout to farmers.</p>
+                </div>
+            </div>
+
+            <!-- Interactive Pricing Simulator Card -->
+            <div class="query-editor-card" style="margin-bottom: 2rem;">
+                <div style="font-weight: bold; font-size: 1.05rem; margin-bottom: 1rem; color: var(--primary);">
+                    <i class="fa-solid fa-sliders"></i> Dynamic Fair Pricing Simulator
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.2rem;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Commodity:</label>
+                        <select id="pricing-commodity" class="select-control" style="width: 100%; margin-top: 4px;" onchange="calculateFairPrice()">
+                            <option value="Tomato">Tomato (₹25.77/kg APMC)</option>
+                            <option value="Potato">Potato (₹22.50/kg APMC)</option>
+                            <option value="Onion">Onion (₹30.92/kg APMC)</option>
+                            <option value="Carrot">Carrot (₹35.40/kg APMC)</option>
+                            <option value="Palak">Palak (₹17.48/kg APMC)</option>
+                            <option value="Ginger">Ginger (₹77.11/kg APMC)</option>
+                            <option value="Garlic">Garlic (₹101.03/kg APMC)</option>
+                            <option value="Banana">Banana (₹35.00/kg APMC)</option>
+                            <option value="Pomegranate">Pomegranate (₹98.20/kg APMC)</option>
+                            <option value="Ragi">Ragi (₹41.19/kg APMC)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Corridor Origin:</label>
+                        <select id="pricing-origin" class="select-control" style="width: 100%; margin-top: 4px;" onchange="calculateFairPrice()">
+                            <option value="Mandya">Mandya District (85 km)</option>
+                            <option value="Maddur">Maddur Hub (75 km)</option>
+                            <option value="Srirangapatna">Srirangapatna (115 km)</option>
+                            <option value="Ramanagara">Ramanagara Hub (50 km)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Quality Grade:</label>
+                        <select id="pricing-grade" class="select-control" style="width: 100%; margin-top: 4px;" onchange="calculateFairPrice()">
+                            <option value="Grade A+">Grade A+ (Export / Premium)</option>
+                            <option value="Grade A">Grade A (Standard Market)</option>
+                            <option value="Grade B">Grade B (Commercial Fair)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Farming Type:</label>
+                        <select id="pricing-organic" class="select-control" style="width: 100%; margin-top: 4px;" onchange="calculateFairPrice()">
+                            <option value="true">Organic Certified</option>
+                            <option value="false">Conventional Farm Fresh</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Live Evaluation Result Box -->
+                <div id="pricing-result-container" style="background: #f8fbf9; border: 1px solid #d4edda; border-radius: 10px; padding: 1.25rem;">
+                    <!-- Dynamically Rendered by app.js -->
+                </div>
+            </div>
+
+            <!-- APMC Mandi Benchmark Rates Table -->
+            <div class="section-title" style="font-size: 1.1rem; margin-top: 2rem;">
+                <i class="fa-solid fa-building-columns" style="color: var(--primary);"></i> APMC Mandi Benchmark Prices (Karnataka Corridor)
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Commodity</th>
+                            <th>APMC Mandi Modal (Rs./kg)</th>
+                            <th>AgriLink Fair Price (Rs./kg)</th>
+                            <th>Farmer Payout (68%)</th>
+                            <th>Traditional Middlemen Rate (32%)</th>
+                            <th>Farmer Income Increase</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apmc-benchmarks-tbody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
             </div>
         </div>
 

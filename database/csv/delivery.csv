@@ -1,0 +1,442 @@
+delivery_id,order_id,delivery_agent_name,delivery_status,tracking_code
+eba824a9-3a6e-408c-abf3-f7499e4f0176,7814a3bd-c0ac-41d6-b685-606257181026,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-80239
+b5b342d3-38b9-41c3-b613-5e81a1489620,4a1dab7f-3c5b-4fa4-8ed7-0f5a059fc0e3,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-45585
+4f7fbbe0-31a0-4960-9040-3784d3013fc2,27b46fc8-6edb-4474-b531-35db14badf58,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-54579
+f474f72e-45fa-47d4-a330-ff6780656d28,0bcad669-2664-4758-8b04-4b805b06a314,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-78233
+82b9a9dc-30bd-4ede-b84b-6c7526ca277d,4e86e1a1-4c7a-4fc1-9d2b-b62d3b095d20,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-42089
+e8266d89-e28d-4030-9b55-64580a2e8a8a,5aa628dd-45b5-493a-bb00-08e01ade80cd,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-71039
+89dfcfa1-7a4c-4c83-a456-423c69b40cdb,f54799ef-dfcd-4685-a317-b345d54879b3,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-72737
+379b678b-7f31-41cf-a02c-f71b3b496f0b,8fa74ae3-9cc0-4089-9ca7-b482474a3977,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-18658
+0cde2e75-b6f0-4fe1-8b99-0b0054049f8e,d1fc121c-6529-4a63-8684-450fdbba0a09,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-52914
+54d9032f-6b7a-49f8-864a-d01c0dd0e769,c00afd0d-5174-4b1a-bafa-39f2a3932611,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-55123
+78236804-5198-4e91-9ec6-afbeee69621a,bcae986d-14f3-4003-910f-d02054afd1af,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-66585
+9f9a462b-1dba-44bf-8b0c-c2782b03a10e,df1dbd28-6166-4183-a602-b35b9c0b745b,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-73792
+2437aaa1-61fb-4ab6-b3c7-834ec6a553b1,f55ee903-f697-41cd-8292-d8ac7cd97ff3,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-78997
+ad299869-07c4-48cb-8569-dc1d66f72f9b,e6a31d97-4e46-4b44-acdf-ed876d1f0d41,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-85778
+cdc7ca64-6922-4f78-810d-c25ba0362e66,c4368b4d-1065-4324-bfd1-73e63d4e55a7,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-21062
+6c2bc4ae-f73a-4abd-95bb-d80cd5bc2961,e631ebef-71b0-4b69-94dc-5231eb5dc94f,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-29025
+a71510f2-4a24-4e09-ba02-08c18ceade8c,7ef31c51-e64d-4294-b3a8-9e752da7096e,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-81776
+8781b185-9452-4f3a-9a5a-0ec086f61044,3be62aea-ef86-4fa3-ba6a-ead0ac4b981d,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-24528
+ea8d6e34-b9cb-4da7-a509-bc72db53a777,83d60ef6-5dc5-4211-b905-9f52d97eb607,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-38624
+e293ea6b-98bc-48d9-961d-f2b14e112513,c70d32c3-0a25-4c2a-a6cb-5d8a82fe3d3a,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-39602
+1b475169-4308-41a6-8e22-0f04c64b53df,f0e1f08a-d6a2-4e62-8482-c16c53fc5fd4,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-73766
+e0bb389d-d1ac-4c89-91ce-e9bb7cd26f7c,eb40eb10-64a5-4ac3-bf42-e750d33dc504,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-25491
+a74f2275-72f7-41af-bb63-d9d1a7393958,b2171627-358d-4be4-bf8b-baad599e36d5,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-69793
+fbe71172-7ad7-4371-90d1-4b3af36a7a8c,9d5ee820-6174-466f-bff8-e640955fa897,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-23102
+19165947-0e54-45f4-bb2b-9d490cd47570,cda6c357-2d90-4b95-85a8-31cecdc01b78,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-69037
+6b7866f3-93e4-4c10-8cef-c441caa5bd25,f04a7435-6978-4fe1-a898-73f15ee54820,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-70845
+8c5f261e-54d7-47b5-9467-330327c61560,2fa04a2e-9d82-45c6-b6e7-c5b00a1d6bbc,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-30715
+7da3c4ca-8b79-4ce8-9272-3d546025acab,62ebd67a-0e48-4cb0-97a8-e175c7d26faa,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-69636
+08d95a4b-0f46-4fbc-9d33-7ebc74d3ac2f,9888977b-ba25-4fed-bf70-f21f0160e70b,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-85775
+76f7c424-8787-4d56-b33d-d3c0e0078187,80406585-8dc7-41a2-96d4-946b1fdc44dc,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-74918
+a031dcf1-7eb4-4e22-9647-2c34b5c3fe7a,a27e5196-a6ba-4b69-b2d3-dcd6b02bc4f3,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-28169
+4da25e57-2fa5-409a-9c88-e2e8dbda0ee5,4e28bc50-6044-4de9-993f-65c92d878fa9,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-54000
+07d8f0db-23cd-4ff0-acb8-4a1b18e16aeb,00fd2a23-969a-4fa6-b06a-b97f5b40a31f,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-95070
+703aa675-ebcb-4edb-be04-4d9ba1e400d3,c607e91a-7598-4b13-94aa-bf3ae0b6ac65,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-70014
+f604ecb0-7624-4b16-a716-ab50809c4eca,f95eadc9-ff1d-48f2-8619-dc06c5990669,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-34780
+e0cb9b43-5e23-439b-97a8-26097e939ff2,d81ca4e8-6b59-4760-8c11-e322d747c4bf,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-69759
+ff3ab623-d304-4f12-9d61-0f9a39d6cf1e,ec8c9fb5-ea01-4eb2-8e04-0ed4abe9ff90,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-29055
+87ac4e49-3d0d-4340-85f9-9176a5fd93f9,e06b2f9f-4ea4-4481-b4ac-0c86bf889874,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-28274
+7158d123-e285-4803-bdb3-478885bb7cf1,d9fe8d82-5013-4ecc-952b-1502f3ea0a5c,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-77050
+53d3aee6-fb5f-4db3-9142-bcda72ef2c62,83f43cc7-68cf-4f5e-99e0-e6b8ed103577,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-28293
+0cbd3d4d-ec06-4a8a-9cf3-ced0c21ffcf1,90f0356f-f7d9-40ae-a4a9-fdd3cc8738fc,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-49834
+27d8b4e1-563b-45f8-8df8-87e6f89e27db,d620855b-71d0-408a-addf-93884ea8d20f,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-88497
+de460e89-4ad8-4ccc-9a46-53ed8dda1bc7,7b60910f-f045-49d0-9151-7a2f87edd3d7,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-35403
+65bbd0f2-4345-4fad-a3be-045ba710ecef,fd5745bb-9f29-4d36-9371-e4fae1f60bc1,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-78898
+4c20879f-b270-4d66-93c7-733f95460466,760fa665-1e4d-4e63-83ca-d8f821a65bbc,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-49935
+cbc87479-e685-471f-9327-96f00295768d,9e64afc0-a264-41eb-9f2f-5db005e16aa1,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-49537
+34032b09-04b7-4ac5-ae7e-a5e0957962b0,47a0e423-06e3-4cac-9ef2-aa37012a7dad,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-80402
+fac8be68-0ec1-438f-a638-276b2ada3ea3,89a72a8a-b648-4b88-91a6-99c229162c08,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-83024
+cb3a3dee-8c20-42a9-a728-79c4f01ac6ae,5faca890-f6fc-49ed-91d7-1b7f44cd338e,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-25626
+256cddac-cd4e-4ee5-9430-99df92f1c485,98afe395-166f-4c47-b788-8ede5e125e0d,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-72367
+73f5ccc3-f992-4680-90e7-cd501a69883b,ef4dbc74-3726-401c-8e83-debbe0026db6,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-99024
+dde0f7ad-a25b-4a2a-be17-8fc6b3d90731,af51b2a5-ba2a-405c-9973-887d3ef76992,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-50954
+679e1974-3322-44d0-91d9-7ff6263af1dd,ced5c039-98e0-4420-90a1-eb5bccd1a899,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-56041
+b4b3af1e-b928-48fa-a35d-17ef1fd0cac6,8c1f5b26-fbe7-4c67-9342-417dfa3180ff,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-31840
+3dc08267-f5b3-46e0-9891-e17edc733df0,24364876-ea4d-4261-bdb6-2c548d9827e8,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-96960
+c4900a2d-f472-453e-8a0b-65fc0b609e7f,22aae1cc-5017-4497-8bd4-5313f9ad6c84,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-29722
+cf8cdfd6-9af2-4034-b90c-a1e3921a9bfb,c8eb024e-15d7-41b4-abdc-010b77cd1b6c,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-96333
+a9ce189b-1380-4918-b8e1-ad0a255377d2,a9becdf1-e37e-4129-8fcb-58ed3ecf9efc,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-43004
+2c20bdbe-a56e-45d7-a6e7-0711e27e11c9,50405f75-1516-4b92-835c-f3ddfc627b44,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-94593
+ceb03c58-47a4-4c70-ae8c-f7469f44e0a9,196e0987-19f8-4036-9f8d-66a4a07f555b,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-92752
+95e1501a-e425-4d10-b088-cefd162d5ddd,add4456b-73f7-4371-af4f-1e47f938ed78,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-62515
+039f78df-6d93-47a7-8b81-42555e8688b2,081eb6c8-3a72-409c-a584-fb48c95c35cd,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-84762
+21266f31-8593-44cd-9520-362a68fe410e,c847fdae-6b70-4ff2-897c-43362b8ae2e3,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-39423
+0dd6ad84-4b3f-4965-a30d-c1af6c9337fd,e19a22b2-a8eb-4412-b25b-5f24df2aa20f,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-69110
+3753a28f-a0dd-4e3e-8314-9d6e79bbc088,3154f1f8-46d3-48f5-b10a-32edcfab88c4,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-56439
+f1cf800e-b0ae-473e-b1ba-b1194b4ef5d5,98c766ee-a589-494a-acae-838cb1558684,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-66744
+351229e6-3699-4edc-8777-23d8fa326b8d,3b67b0b4-80d4-4bac-85c8-598b4cb470e6,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-14700
+641851dc-c1ad-414f-b023-0b53e88c36cb,440fbcc8-f013-4ccd-8354-9704ec6876a7,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-45755
+8d1c8265-95ac-4513-912c-b89897417b84,6e7883ac-5c42-4c23-bad0-18c8a150caaf,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-92359
+189cb828-f1f3-4813-80d6-a081d76912eb,3ab256d5-57fa-498e-b98c-c88f24837d51,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-62742
+d024a203-f0c3-49cd-86a9-1c2aebf2089d,ea044190-ccb6-420d-861a-0b3f5344650c,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-83801
+0f850c1f-5117-4d2b-ac41-c3b84a37612e,d5270570-f983-46b7-8bb5-accd2a092230,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-29478
+81008cdd-0b69-4e4f-84d3-dda19e0b9bad,c3b30160-e075-43c2-9405-de46db4940e4,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-51149
+d5c29ea6-2c26-44b5-823f-9c6750338b96,8f203b0a-3e92-46ba-802f-661d7f705970,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-49688
+4343a83b-b94c-4857-b0b4-f38531191d54,d4472519-67a3-41da-8dd3-a18c0e8b7e58,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-72126
+28b7dbe7-c0ed-40f5-9811-c7b1ccf0f4c4,1babe19d-7b62-4dec-a83a-e71976edffa8,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-40396
+e5927682-82ab-4f99-a860-580912434608,58399cbc-8a10-49f6-a488-f5f3bc6c55f5,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-96108
+19934d76-7b98-4c50-a047-5941d0c03981,6dcf811e-74fc-44dc-af84-a4ecc0f8a05d,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-57026
+1cc0d46c-48e2-4982-86c8-4c2d1a2d67f7,e33f43a2-fd6c-495f-9fc2-095346f93264,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-69917
+3c399e24-70a2-4da8-86e3-684977a8e850,2bb684c4-da45-4b43-9e01-bb508333c353,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-36462
+54d5bcb2-1dd0-4a04-9655-ad8d1cfe69be,a79b894b-ed71-467f-9fab-3e86ac46c950,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-13901
+3981adb3-9255-40fa-9473-743774690a46,a610bd56-41f4-45a1-b2b1-39f68b85a811,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-64959
+ce0343f4-2324-4031-a339-0ed4b80d68e3,ec601616-3297-4522-bc6f-67df4c25ce07,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-49522
+ab307007-603e-46de-bf47-f3fde9c2ca44,03d426db-b5c4-4d2c-bc45-07e22a293fca,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-49054
+8214813e-89c2-49dd-b363-946e19640b15,bd2c53b0-cd7c-4f87-a885-b8bf69d098b4,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-22091
+92be6ca1-a477-4943-8364-b795205f24d5,efa74033-d604-48cc-8683-994aa9657d99,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-69993
+07ec303d-3cd5-4797-84da-5fb58cbbdc46,89676bc2-c639-4c15-8953-d6dcf00a768d,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-73691
+2240bc50-29a4-4702-a600-5dac67e0749e,6562c62a-5cf9-4884-83ad-c459fe607d36,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-29527
+9c594e6c-7bc7-41fd-a6e2-eb2973400da6,062225d5-54a4-47a0-b2cd-da15418f6013,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-94562
+3d850888-2933-4799-9d01-b26f9e470cd8,35cdf1e5-0e9c-4c76-8eb0-0acec0ec54fb,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-15896
+616338e3-96de-4add-81c7-ebb36d2e4e5a,a3d85e31-4978-4646-9ee7-6eb7f3615229,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-51948
+57295eef-5b18-4380-accb-1f6731f9bce0,6e6f723c-2b92-4c00-a819-18910c5542e5,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-98486
+0fee5945-25fd-42aa-ae81-ce1b1b80b710,76677d99-cd64-4f19-b4d6-f91763432ed1,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-45822
+7e60d6dc-45d3-47fa-a4a8-4876026a2e45,8cab8283-6c82-43ef-aee2-e433f84e4cad,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-37606
+f13a9328-6b94-479a-bde0-3bccdb4521b4,36fd085a-4932-4960-a6a9-322d07e298c8,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-56919
+a837cfe2-10f2-4523-be8b-1053b7d0c13d,d936fd8c-a047-4870-8383-a81ad934229e,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-46352
+d7b58da8-9b09-412a-8f65-9d266ecc0998,85928a15-65ef-43fd-b07b-0e956cdf7528,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-57378
+1a34d26e-7e9e-4634-8d95-1933a628dd4f,5f8c7034-827d-4a2b-b4b2-03e7f0fc72d1,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-92090
+f9ccd743-6229-4a92-a1a4-fd186889caa0,11e35812-83fc-4f82-beea-1eb511476536,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-67923
+92f60ce9-d2d5-4c57-b207-ea29ece228d4,bf73f7b2-c4d3-46b4-a513-ad683c076398,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-11610
+17610de5-4697-4886-8d5b-e4d319b9b86f,065b8f2d-8dd3-4752-8978-bd522d443206,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-86502
+ddfd3d63-7f6e-4be8-9393-7cdc021d3f3b,15a756df-464c-4ca3-afd0-7e5deb20a3c6,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-90753
+2a44b068-c3bc-4888-a764-d91527fd13ca,703961df-183a-4550-bf2a-6ff50b1ec154,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-56908
+8808651b-70eb-4950-b8ab-61fb84f1da36,11838048-06ca-4e39-9693-13f1b7608e0c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-12751
+5a5e9057-8561-4703-99db-2c0a662ae649,33baf3bd-08b7-47d4-8c70-83de5f515588,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-34856
+9a080e77-d4ba-4b32-8f1d-92927fd5c8b9,1cdc2616-8bde-4bce-84e7-44d5ee3cc32f,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-37425
+d0bbc509-81e6-4bec-b03e-5b6f8dc3b0c2,b5f5520c-d14c-440a-8642-c7d67440091f,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-40721
+b236cb16-384c-4229-910f-7b8ede7cf246,03b2cd0a-07aa-4f0e-9a50-475af60fc601,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-45785
+04151e5d-b15f-4ef8-aeff-d5bc07262419,f8fc19d8-1074-4309-9d69-74082a77ec38,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-34987
+bed83f61-1bb1-40f1-8200-26d94ece57c6,80bd9930-89e9-4dd1-aa8d-7525e584a6d2,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-40634
+6f8924c5-f579-459e-bee2-bb036d701a08,2756c2c7-3974-48d9-bca2-0253586b7098,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-54541
+40fae8c8-9731-4445-aec9-3bbda4559eac,e40c6d54-97db-4eac-8544-8ceafb02e3ee,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-34685
+0ca59468-25c7-47cc-bf2c-8af4f8f605ec,76b0fdc9-ecd5-4ad2-b8ba-a5d1a81031a1,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-17530
+32b55206-3232-462d-ad9b-4b78719b420f,9c8b19e4-bbe9-46ce-942b-d5597876dd64,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-36437
+6e540354-99ae-4352-98b9-28e545eb99a7,f8159a69-60cd-4745-abac-f4eb90d7f4c3,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-42654
+17df72d8-3fce-4954-83e0-63b23b4ec76d,fdeea3ab-25ba-40d6-8f6b-6b1b91d6fd24,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-52731
+e5affb15-d222-454b-bb8c-b51aea47365b,576001db-a8a1-4cca-ac5a-3c6a2d3c81b5,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-71707
+a90f76ed-118e-4bbe-951d-52f0ab4dffd5,c8a133a8-66f2-4e22-9994-df98fe68873e,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-61199
+f89a5089-c8cd-4ada-8335-e21371c60c7d,f3840c77-74c7-48f3-bdc6-e25689b5b52a,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-15768
+4ac02093-7458-40a4-9318-7b8a55b57ad6,88df8c67-a9a4-44bc-a669-5783aa9ab85e,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-58362
+6de74ede-cdb7-4028-88e8-fc6b21ecbf66,5b98abca-a0c8-4fa0-9b66-73498b3c86e0,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-68839
+5ad22719-425e-452d-87e6-e7e454e51670,28953df4-c62f-4a7a-931f-e055e58518c0,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-88390
+9c7fe0fc-4996-4164-8382-11824871e6c2,17417889-a07e-4c05-9789-d7eab3b86adf,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-67981
+e1549f53-80ae-4443-8160-724bb16c36e0,ef533122-914d-46d6-80ef-dad530d64c6a,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-65576
+5087463d-56b7-46e7-b5cd-f025300d3fb9,c2482b50-68a4-4047-b24b-2d13aff4f9b8,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-88011
+f01d0799-8a0d-4aea-b918-a40dfb7d8ec2,8f417fbf-f989-4234-a3f6-cfafa1cbfb67,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-43457
+b89ac1ab-02ee-4845-8d37-23a4e5d8d052,78c01abf-e2a4-4e54-b422-c94120d94f15,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-86829
+08823052-4045-4212-ba08-1ce4c260629d,74da64c9-1d66-4a3d-aba0-8ab468d02e78,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-78807
+193730d1-a3a8-4b94-bb45-40b95a066f4b,aa8b7ab7-bb4a-410b-ab7e-1b7e2d4a99ac,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-59509
+c1f55e5d-4b05-4c7d-a9ce-cc9160119edd,cbefdd04-ffd8-4c9d-a8a4-5e2015f10c85,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-17502
+aa54a8e7-27e4-4c1c-a111-64b3c347575a,7e3f2a2e-b5b8-46f6-9360-439d507ea13b,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-12179
+cd8d5860-6a72-40de-b86a-61976c4586ca,dcf3761a-00bb-4004-8058-333f603afd73,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-32027
+3ba0e4bd-a497-4eb4-9c1c-eb0defce21ad,e328a304-b62b-48d6-a601-924b88268553,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-80063
+fa55e8eb-b0a8-44fd-a8c5-af5500ccd8ae,6318a73b-c976-4e7e-88e1-2434ab456548,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-25218
+e91768d7-9add-45ae-b1dd-87c34269209d,9cfd9cb2-369e-4e73-8fb9-7ff637625f8f,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-28966
+ed04e375-2c96-4f76-bf96-b2050bc5d991,3bacce85-8db9-41a2-949a-1ef5ac9a5ae6,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-17708
+ad1827c4-4017-4c58-8483-543111f3a685,2244b034-d49a-4166-9ac7-50f255831628,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-61257
+1e06ec2f-bdf9-425d-af6b-fb3f820adf92,a2a4054b-1960-424a-8fcb-6aee9eebc4b0,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-85455
+f38f3cae-308c-4a5a-b204-8e4b6bde3203,34f2d204-5c94-4cdf-8619-e078a72fc7db,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-42112
+9852fddc-eb8b-415b-b17c-82ebe651c538,ce6414d7-898b-43c9-bedd-b1e54579738d,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-94070
+ac7d3d03-6d62-4bf0-9e1e-4459729e3d3b,8b664691-0d5b-42bd-b209-aade089d039a,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-88525
+fb2f5e34-ad64-49a1-9e7b-13bb1cf0ccf0,069fb7ef-711b-4eec-9efe-cb0107709635,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-65450
+15eb67bc-9dcb-4bf9-8e2b-ab4238c5dc60,431600f8-ad49-4815-b8bb-84423448812d,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-82069
+a6a1f1be-2c63-4a3a-ab2a-a9cab0216dc2,97f42667-f68f-48a3-bd0f-839a3f5fc50c,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-66836
+a8d9c8ce-9ca2-45af-b15b-a677f14dbbb5,d0792eb5-274b-46af-bbdb-fec3c977dc43,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-79006
+6cec5a7b-58db-4764-a53c-a4d3f9f6a726,2b37cdcb-11bf-4b6f-bee6-92785c70e849,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-28700
+83e42501-8761-4374-b538-d41e2ba8dd3b,cd97173d-624e-46f3-a9ed-37cec7af225c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-41462
+fddefacc-1377-4b3a-af4f-4d7c4c3336ed,580b4b92-cea1-452b-89d2-1c178d642d55,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-42011
+6c13ebeb-d327-4aee-8ae7-cab50a94944a,13e4f83d-a176-47fd-bbbe-3f9cef1eaef4,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-59688
+bae38dfa-7c56-4e70-a4a8-952b91bd27ef,41a81e05-c062-4ba0-bb73-4ca73fa262fa,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-70339
+f39babff-eda8-4c7f-b984-acf60d85c1c1,3cf8173d-5e5b-4ea5-9351-8967b25222c1,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-45321
+488f0e47-fe70-4fe8-b944-74d3c00b1a0c,9826c83a-34fa-41ed-80d0-122c2ee31021,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-52583
+90819cd6-74db-4e5e-8683-69ba46772b97,ef5ad98f-4d06-40ab-ae8b-1a9670b7a129,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-77009
+cbfc1069-802b-4cc6-bf73-fd166eeb7037,c98e34a2-d2c5-477f-99d9-3d885b96deaa,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-78809
+c3e4cb3d-a273-4afc-98f5-8bde7c006cf4,84edddfc-2cae-42dd-9c0b-01db98247ebc,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-53815
+e9235605-91e0-45d9-b468-d5b3cbd0c266,dd722324-e5d9-44a7-bf05-f07861dfc5e0,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-68427
+55da7e85-6805-4901-a6e8-cdd03b354f08,caf9fdab-6961-4678-82ca-6dce2bd12517,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-73284
+e30f0d8f-31d5-46d9-8058-3163066fd45f,915bc420-c5ad-4a14-b9ad-57a66d669ab2,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-45585
+b00b7865-88f9-40a0-a3a2-473f35cd18d1,8f262b62-f5d0-407a-8aa2-251a02e6fe61,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-45446
+0e695a12-4f5d-4f3b-acb2-f7c24df9146c,6aa2312b-f922-4a85-896f-921b5068f51d,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-43552
+6cb26918-6dfd-4633-8128-3c62702ca5b5,2e12dd24-845c-4439-99d2-9de6c1c482f2,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-74293
+fc6b31ea-50a0-45cb-baf1-5b26cb078831,795fb6ba-1ee7-49c0-9512-80df4fe62e9f,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-54353
+fd6c4288-0f73-4395-b2ef-da9cd6ce5a67,9686cc56-5cae-437b-bc66-b78bc6c6a1ff,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-99707
+7c442d76-0d8f-4aab-9eb7-b0587125b8d2,06dead06-ac94-4d5f-97b8-352f559c650d,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-20009
+98c3989f-0976-40b4-ad16-b6927acd5c35,b296f773-36da-479c-a72b-891fedc8580c,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-88871
+4cf91517-4807-4454-8f71-ba4786084006,21c25483-2a3c-48b2-b110-f35e2a9fcf1d,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-28264
+8d78f907-107d-4f97-9fcc-7f1fbd9ac9ee,ab335575-7305-4fee-a761-cbc09c10f182,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-72498
+7fbac8a7-df6c-4a56-acda-6852d366dd6d,aacc5d14-a3bd-4892-84e5-fa9843ca735a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-61955
+f28d8df7-b4f6-4ea5-8339-948d2abc6b62,c119f829-990a-43c2-af26-1af30ffa369a,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-83307
+b142f1a5-4070-4fbd-bc01-af0ef8efe5d8,a5ed4a86-a0f3-46ea-a2e1-c80c99d5a5e1,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-37775
+7929b61d-5112-4ef8-b741-de08847b9ade,8a4a9b90-fefe-444b-808f-0b4ed2c03f66,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-62184
+fa902e2f-c87a-4b84-a98a-e984db65fd56,84e6d154-0f72-48f6-a6ae-ea902c5f1f04,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-92044
+0fd24f2c-2e25-41b5-b44a-501f51c75d4a,f9244966-3f6c-4c83-9885-ae0417aa796d,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-84304
+6c4951ac-9f71-4a83-95aa-b4378d1a26b9,cad1ecef-06ff-4a8b-92af-558bf12e0922,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-95235
+fad7f118-65db-4e93-9705-65302380f097,ed6568c1-9d37-447c-aa31-c4eb2d7c3eab,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-99463
+e318cabd-6717-4dd2-b350-ae15b9c6dd95,726ade74-8b41-449a-98e9-f6b1f2efe8d7,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-21248
+cb2bb26b-54c3-45c3-92d4-eb6a56975507,2aa2ab54-5edf-4761-a73e-d3a5511fb47d,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-88784
+3a2c0433-fb0a-463c-bd59-ea7f66c26755,183f78b8-f923-4ee1-9b0c-c9abe0626e6f,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-17044
+0144b19c-aab3-4f06-a540-b4807a3d8757,22c18c23-1e69-48e5-9282-0c9ee14dcf64,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-97551
+a26cd06e-a252-41a1-9bff-3139f6f9c1b9,c35954fe-244f-450e-8959-9102bee4490a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-14782
+303fa819-59d5-4fb0-95b8-aea5bbeaba74,e60e9670-e2bd-48bd-b5ee-7f3f3f0c3359,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-81102
+c188f0fc-df63-4a2a-bbcd-f1d08adcce5f,8a93cdad-ca38-4747-a875-37db393c5af9,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-23606
+e9c77f11-6dc3-43b4-bdfa-482a4f2c7fd0,e1767f77-74ff-4f6b-b79f-ee8dc2c17b5d,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-55955
+1c6334c9-c513-4ad3-bc4a-41a32dfb6960,d649cebb-9bd8-424a-b0aa-83d31e6e8b55,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-41697
+b4c8a222-52eb-456b-9660-86e0e50691a3,68cd49d5-a558-4d53-9968-2be6e85e4a2f,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-60122
+e58f89e7-731d-4b5f-be83-84073c8f2248,0a3b12e5-fcbe-4046-b271-b6c4e77549b9,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-37259
+e6c89bdb-11f8-4271-9bc0-4cf30a77f767,e0688c39-d429-4043-b998-019b0eeae2b0,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-73427
+da01099c-a0e9-4284-a18d-98da0fdd9796,903ea817-d4cb-4bce-97c2-5ab0f4be1dc5,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-67155
+118dfb33-e8b6-42e0-8136-5270546614b6,d5705a58-1a8c-4202-b043-13a394a3d01c,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-31921
+eb46befa-29d4-4379-8231-b25a88ae4eaa,467017f7-775c-476a-b806-08937042db3c,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-83615
+702e2df1-b43e-462d-a579-5c84901e3862,9a7d5400-f6d6-4817-a093-3b5c9bd62bac,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-26265
+62c644a8-db8f-4d67-bcaa-02c849edfc4f,151abcd9-e57e-4278-b97c-0c7a27295273,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-51574
+74a88be6-acb4-476c-9907-63236789f2fe,b75c7ee7-25e3-46fe-a4f4-1271d3d1cf5e,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-67105
+62ebcffb-d628-4227-99e3-20ff4754aab3,574e13cc-5bee-42af-b200-f69a6cc153e8,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-97586
+f5773d9b-69b3-43a4-bcbd-94f718352c10,15e2cc81-e9b4-4432-be43-6456154d9cf8,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-77361
+db047d99-ef7a-4a70-9759-113187cf96d6,0aebca87-7f80-4e18-b59b-9a703941dc0e,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-70418
+641a5438-94bb-446b-9549-bf8797209a5b,0247eeba-bf41-42f7-9e31-c837e57cd1f0,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-95016
+b0a9eb05-bc6b-49a0-b9d3-29d70d9ca5bd,29697adf-c1a8-44be-b9c1-5024db2eec4a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-85396
+e3d571e3-c070-49da-9db6-7d410e9f8251,33404f44-0b0f-4d8d-a483-033e9840c2d4,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-69666
+8acf7858-475d-48ea-9121-eed6b1cc9f49,423e40a1-890b-4e79-8e81-cdf0b23f86ee,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-15921
+83e6a3a5-36bd-4504-9a99-f800bdbf8857,c943d1dc-5781-4870-9cfc-aedd12aa3435,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-63781
+ecda7fb1-81e7-4e16-b5f8-8072706961b0,d8f1f3de-5550-4d9a-a1bb-b58035a9461c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-85958
+5367e584-94c4-43c0-a240-1d8334e74a66,e54c8389-9317-4d08-9b2a-021fbd3b4afb,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-38485
+143cb2a8-b03c-402f-869d-4a2909d971dc,47393b39-27b0-4451-8423-8d99553a6854,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-56482
+4880bbfc-f278-4dd1-ac11-01a8c22908a8,e59fa9c1-80b4-499a-864d-c9a0c603c091,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-49976
+8ead5af3-f748-46eb-91bd-0799302e6301,52cb1fe9-c4c0-4306-8aba-8b878dec426a,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-13627
+5dcf99e7-6f3f-4486-9a71-be69a8dbf0aa,74fa0611-c41c-47bc-8c74-a446e3e4fc79,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-70661
+f66eb124-4005-415e-9630-06018291872b,f1a21c17-08ff-454b-a460-4ec026b6092c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-18800
+e4770a3d-2270-4451-a4fd-2e453c96a7a2,0615e5a2-37a8-42c6-aeb3-8585e8cb5179,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-90315
+2c54fd98-f0bb-4c89-b80b-b6b453a30bb6,a6465aa0-b88f-4c3a-b90f-228df5afa56a,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-61043
+f80b836c-f6d8-4853-a301-57a6b5fd4b0b,6ebdd573-56fe-4d54-989d-e4c57cffa8e5,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-95974
+d92c0723-a16d-4163-bba7-cc1703b22499,ff8b1078-0f97-4088-89be-6ab70ee199b3,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-87182
+99eb9020-d569-400e-bd81-0c94600b06e8,d8b96bd4-00a9-4a00-a4be-c74f116e6697,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-18437
+aaaceea9-56c0-4e41-99fb-860fea5a3be4,a110b5c3-9346-44ba-8367-89db15268050,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-35204
+dd64b6f5-b562-44fb-a71d-1eeffcdba68a,1d140449-e58c-4de9-9c38-ae967ef5743f,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-18802
+38203b45-069e-4530-8cde-ff078ad9b282,3778f970-74c0-4d67-9be0-74cada8320c0,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-80047
+fd52be2c-78f7-4876-803b-d8d8a0c3b52c,aa565149-bae7-4338-8425-aae1906afb0f,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-74691
+2bb6f073-669c-485c-abeb-e0545212daae,6a5a5a5e-120c-4a52-a67d-41f900e0f8f7,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-89709
+df2a1402-2c18-4613-bccb-a42a124fd294,24274a9e-2eb3-4fb8-9760-d2e0526d2664,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-16000
+291d89d1-a47a-4e81-948e-54ed44fc180c,d34837d5-cca3-4e3b-8faf-4095b3249d62,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-95674
+5c7ee35a-c70d-41f2-bbb6-eee1178d74dc,1f86d66f-48f2-447b-8a0d-497413715b70,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-67708
+1c79d4d8-5f6c-43b7-8373-8363efc4d4dd,35c072bf-917c-4ebb-a294-4d8527ccc2bf,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-54068
+a2493c9a-92ca-435e-bd10-8897c7637335,43a54b0e-0bcb-4354-97cc-95f9b4f94655,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-11990
+a94bc16f-cf3e-4227-af3a-65b1712fcc68,9e0abb5e-97b8-457c-9fba-67e030975266,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-14850
+9892bd70-352e-4b22-b67f-e395461b55cc,ce46bb7b-6bc6-43c4-b9e5-18ef922ed0ae,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-25000
+ba3d06d8-8963-4af0-9f2f-8a3779075232,5d7bb3da-7b45-44e3-a9c8-fdf851b71be2,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-41061
+7c083654-c943-4073-8db4-6be1cbcfd8f0,20b479ce-3717-4851-8443-efbc33aea7c3,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-23924
+682c3d95-385d-47d8-a906-8d765dcc1881,a0b32f57-576c-4803-bd9e-2e7c357ffb3c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-89574
+d844a5f0-8e20-458b-986e-9223b72d8898,346c215b-e492-4f6f-b0b2-76805b976551,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-20445
+e5136e8b-ca5b-41df-aec6-8228b3eae0ab,b70c1fbf-7421-424d-a8e5-804338c4e9cf,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-76194
+51340335-39f8-478b-8fd8-7967103d7bf2,384f2651-0401-4392-ade3-680c7583f38e,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-27351
+f8a282c1-d288-47da-b2b5-97bb457a9480,1d1390b7-7cc6-497c-aa37-8b447cc49c79,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-63592
+7101393e-7c5d-4c31-ba64-ba7db94e553b,98a7e837-9f57-4135-93f0-ceff0c16f77c,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-85999
+484815d2-96b9-4aa4-a0f7-cdc7fd66ae9f,62b88eca-6255-44e1-af49-eeeefa70d2d1,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-47728
+afdc1c96-053b-466a-922a-1f184853c007,90628f07-81f2-490f-8db5-084a96ddda37,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-68249
+b168e193-332c-464a-99ec-f2ff85537667,3da4b63f-fa16-4bb2-9de8-3f0878f73011,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-86853
+19524ec7-07da-4abb-b289-5dc7f17549da,9857b2c1-382f-475a-938a-270a96360d7e,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-37334
+884fae58-67a7-480d-9b1f-40297625809b,66fc773f-c5eb-4518-b0d4-1c7e7d2dc29d,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-74117
+85ef715f-d781-48ff-9c73-1218e7d1668c,6709e61d-2689-4ee8-9849-8b7131f2c44b,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-12767
+6015d079-6d79-4ab7-bd51-b8d66263c330,5eeedf75-7b81-46d4-9588-5397b67dba16,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-47105
+d21dcf7b-26d5-4aa0-a57c-26c6d13ef24f,6b456429-0d74-4d03-8bdb-bf4e9b8c3e55,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-29902
+d4adb842-0108-4c44-8df1-3c2b001a4271,e4e67db8-10a6-46a7-b695-25ca1c3da7a3,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-46511
+aa9f2b7d-53db-4c69-9dad-8acbc27f97ab,ab7fe385-b86e-4ddd-a143-915d49f9b159,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-24280
+01f5cb2c-6c5c-4b24-8631-946b82a54901,76c650cf-6146-45f5-bbf4-d8f56580e5c9,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-63983
+6843566b-915e-4498-a1ec-de8101820a16,e4d89454-6be5-4705-bdea-55b1a414021f,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-23768
+772c744e-8d8c-4f6f-82f7-b61bd1d172d6,65f590e0-4b90-4678-94f8-426f1cb0fa9d,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-11213
+87ad962c-4259-46d1-9278-f7d1428cb770,efb27aa7-e059-44a8-a7b0-2aeea729284a,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-53276
+19a31978-22c7-4159-b5c3-530662c4513d,f47c812b-268f-4d2d-b989-7cdae848e22e,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-87916
+d6ab2125-e27d-4003-8598-671fba807154,80d650af-2206-426e-be9c-df94aef75301,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-33373
+14e4a193-2b6f-4f0a-9d47-f1fd4ff628aa,5003b985-c0e4-4a28-b973-78132b9ce94c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-27953
+c9c62bee-a17b-489d-94b9-0e38c0915fb2,77f084c3-e075-4a03-9e0c-c1b994dafd0c,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-31773
+d69b17e2-f99b-4d70-9743-047f139e9bd9,7149d7e4-1c25-4f24-9d26-13b5f5ea02b4,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-60129
+adbd034c-66d5-4dae-a36a-391043197f1f,57a85b54-5eef-40e5-9861-0ff7f4a51a0d,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-15756
+7537609b-e6e8-43c8-b8e2-dbe39fa651bc,75255a30-1028-495f-895e-b0efc80805d9,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-93555
+e7f2b7bd-56cf-406c-ae6d-a3a0a67cab60,5a0e5df5-f960-4775-bf24-3ffde6e5e430,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-18513
+67fd6531-dffa-46d7-bff5-8d4a79dda7ee,26ec8293-95c7-49ee-9537-7ad800583ce5,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-21555
+49b62218-e1e7-4686-9770-45f69cd5ecc2,a7d6ade0-e617-414f-bda7-04fe6d7250b3,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-33214
+6700279f-7e15-479f-b8fd-8be9676968a6,420ad81f-7d30-4ab9-acec-a006a36a6acf,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-45251
+50688c33-a7ab-4a5f-9450-0a68e5a287f8,88c00375-8306-451c-bdc4-af7b25d639ab,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-81667
+65b169e4-4b6c-42f5-8cd2-4a2b767a49a6,13e6bb4e-dd21-44ce-82f9-2e2a48ce0b90,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-65179
+72029bcc-6413-4247-a5fd-26bc3bd4496c,bab41f8c-6b63-424e-900d-d07b1fe56271,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-10110
+dbc2c1fe-ea4a-4c3d-842d-cfd9f9b0738c,31e05370-19ed-4f7d-9323-14a3afb30415,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-71906
+3de5aca8-bcd0-4ba6-9ccc-71bc919a8744,fb2be265-0591-4fea-9c63-3ce0da1f8608,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-88534
+2c0d039a-7636-4ad4-b2c6-2abb05b6d55e,3172225e-907f-4ee5-a50c-1fba98522183,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-11602
+83c68f8e-11d4-40e9-a740-3a03978578c3,f732af62-81e6-448b-b741-9b47d39b7622,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-29711
+13aa1ccd-3d1b-474f-82e4-c8b178c09ca3,bee18a79-834c-4288-a50e-073dfaf7581d,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-52550
+04aaf85e-561c-4c09-ad9a-275a0a19a3e0,eb4484b7-bdff-4631-8614-f30ec7e6a178,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-77191
+d97d0f64-15b7-4e82-b748-eab1dc0e6db7,89bbff34-abbb-4bba-a632-8cccd9cdebdf,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-34341
+a566cb32-84a1-40f1-bd27-06f297be298c,d3d1dd73-2c48-4590-8478-8d30e417ef6c,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-83093
+861241eb-2c1a-498a-80b1-fdbdc2059640,944f878e-4153-466e-a50f-bdc3bfd164b5,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-59189
+037822f6-fe33-4c51-a825-ec59815584cf,923dc5bc-31b0-4ac7-bdd6-b69e6df59eec,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-33281
+38a32a22-cdf4-41b5-87be-7d3c8531ebae,2dde7699-1e92-4d71-8b48-05aadbff57f5,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-89929
+2bbb388b-8a72-4e96-ae62-406dec5a9589,3b6a4791-506e-48bb-86bf-a04847124fca,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-27386
+f2e437ee-a229-4e10-af0b-6e35003b99d3,fe5426d7-a4b8-4e9d-9094-5a2208270f69,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-71631
+452ddabf-0e96-4ffd-9f2e-d7233844f4c6,9f2e8bcd-6e7b-4413-85e6-83e9a6df61f5,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-66175
+4ee5a3e7-4bbe-4a5c-9b36-68971a4c33bd,2ee8ab04-1d64-4937-a2a0-8a3e7beca5c1,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-54884
+ca58fe65-0d7b-439d-86f2-623dddf7c049,8917ccc2-fc76-445d-84d2-a10e745dfcdd,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-98247
+c297db3b-3079-4086-946e-d5039df47f9b,3f0adaea-c2be-4b93-bdfe-c7ca4000b7c4,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-91062
+47a9783f-40aa-4bea-b522-ef2e8907a6e0,69c01fe4-f9a4-4213-9bd4-d76f7cf02909,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-46479
+406c8ab2-23da-4776-80f4-f19712583a31,d54ddb73-39f7-445a-a480-9521972087ad,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-76508
+4a0106dd-089d-4071-80d3-94839e7643ea,1dc1c3bb-6191-472d-9d0c-641cc3412e39,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-27373
+f8ce57fb-9cdc-4b69-bc73-8152709e3d16,7256124d-3074-4bfa-afc6-c07b29946be4,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-87193
+e9214604-3d10-4d7f-a843-03896bb7d9d6,940b8651-a74a-41c4-89d0-cde54d60a5ed,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-10854
+4b8252bb-40c1-4374-ae1c-d8a1d55c5f62,a9fca044-831d-41cc-af1d-80f08237727a,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-50265
+97319eaf-7107-4501-8149-b4e40d22e33f,2e01fac1-3e49-4372-b46c-7a2daac96aa5,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-39979
+6440d5c7-d30f-4c25-b4ac-bc788915ccea,0bde2583-28a1-49d0-9553-f53a4ef1b4c0,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-37342
+db92fb54-6e34-4eca-ab30-578ff2b1eace,1564f1da-7509-46ff-886f-9f1f0ddf9869,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-16029
+bd76c16c-7b86-4fd0-9db1-b79106216a71,10d53ad6-b744-43f9-929d-0c32410dddca,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-29715
+73a63043-ebcd-49ee-9230-8cb5cfa65d27,8a7e1213-789d-40d0-b261-7e4228e89287,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-34135
+3d665b52-3a6e-4145-8cf1-fde0c4f88e0a,56585fec-bc74-4e27-86a3-219ae46d3a0e,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-67305
+d59267a8-deb4-4b1e-acef-1ab83e126499,949761d0-bf3d-4d88-aa08-9f7650b04208,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-19571
+97ed695d-1ed7-4486-9568-f86ef3ea2ccc,469c0c45-b0e8-4b05-99f5-3a30718172cd,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-30002
+d1b31ced-0751-4f80-8ca1-04c25c2400e5,9199f0fa-6a52-41a5-99f8-f10185cd63ea,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-36952
+67c2aaf1-1d5f-44e2-90ec-be62a425ea54,dbaebb24-00cf-4f42-b5cd-da36f7509b2b,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-95459
+c15e4022-30c9-4f12-b75a-fd13e75a1fc3,424317c5-ee26-4a11-8856-f82ed294cb63,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-90944
+7dd46cec-2240-4de9-9323-b4ebc85474ab,6accae49-6263-4fdb-a557-69582298e015,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-13735
+da566fbf-974f-479a-9f85-944a115bb927,220cd897-b6cb-450d-8666-3f2f70b79501,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-74592
+36de8d14-aee5-4d3d-9f71-8d582ba6daf9,8ef1dee3-8fe1-4479-864a-7ad30f28cf0d,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-96665
+a205a474-6fd8-479b-bedd-887db68997c3,39590b38-3d59-4c5e-a0e1-e2c9d6a4b51f,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-63170
+6c1492af-56ce-4c97-a74a-f1510f09ddd3,a2141487-a9db-4f27-9c98-04e696e8d0b1,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-48759
+a209aa85-87e6-46a4-b3a8-7c543102c731,5f7b0dd9-c50d-4dde-82fe-82aa30c1947d,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-59082
+c78a9a96-e40e-4935-9cbb-ea6794921c14,1a4e84d9-39ef-4ee7-ac55-de21da28f2a8,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-17762
+ff218682-ddbd-43da-86de-29772b4f47ba,2d8c41a9-d793-4596-aecc-2c8dba22acdd,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-11411
+50c20ef0-d6d5-4f3d-9d56-acb3d57ddab2,61fd415f-5ce0-46b4-b680-5a2e1392ae6d,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-89077
+3d53018b-24a5-4b8e-a5e7-20a83fda2ef4,7f0bc705-d545-4703-8b76-386c47777f73,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-97498
+1957b4a5-17a1-4e73-956c-749bc638f5bd,08eb04e6-d725-45fb-9e11-fbf20e8bce5d,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-43228
+02ea3bb8-11a3-48ef-a61d-39d2d1b0bb3f,1b6b93b2-86e8-4623-b85c-4b30ca707b59,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-21648
+fd36d837-c54b-422b-a8d0-19d06c759a28,6a184827-2714-42aa-a2d4-e7cac5f11822,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-32091
+f0669b34-a5d0-4555-9dd4-321ef30788ab,5126eef8-2f82-42b9-852b-e7a17ae38ae5,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-90402
+32648846-131d-4763-a28f-299b33dbc357,9db1f859-713b-4ef7-9b51-32c95ed563dc,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-57706
+5d85be99-9dfb-4819-a0dc-33c6de3c83b7,32410ef3-843d-450b-bbf9-da4961ca0d57,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-55657
+d41138b0-142a-4e2c-9016-aa4fb1d1f60b,d4d0730e-8e13-432a-bf34-587afc0a27f1,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-18573
+0d890839-96b9-4c58-83a1-32b2bad7668f,a36a5d02-80d5-48af-8b64-c95d0777bd7d,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-80728
+5b987afc-2071-4e7d-bb4c-9b256246da97,0961c4be-51ed-4d57-92f6-9491ed206fb7,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-99830
+6aac93c2-e7ce-486a-a88f-1f94b5917d71,510f0163-c039-4366-99e4-8859cbf0ef13,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-83023
+ab4e7f0c-4444-4753-bb0a-760f635f6ac5,4658b1f9-a599-4069-a5b1-9eb528a7ead3,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-29510
+a74bd3bb-d256-423d-aa12-d8ded95eac19,61b89425-a8b6-4574-bac1-9bdf4b2b8e5e,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-34686
+995899ce-fd25-4117-945e-b5d77e598e7f,953e1548-6b94-4381-9b76-0a97732da46a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-52141
+f11cfd58-f7e1-4239-a234-61762e487913,21a80e08-1713-4d3e-af0e-c36f32036ed2,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-76633
+49325dde-7fcb-4aaa-a1ba-f2a4ca28c276,b99ca377-3398-49d7-9919-2a03ce3db62f,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-33207
+85da84a2-8ac6-4a22-9f3e-08c28a3009c1,0b51f9a2-c692-4455-a1de-071b58706a59,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-46449
+7711758d-70b8-4015-b395-ea9133ae08d7,1d0e81b1-6068-4419-a8a0-4a126431c3b1,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-24220
+3aa8e66b-75ef-4550-982e-070c31bf6c7e,b9d33a43-ce2f-43cb-a8e9-0edb1681f535,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-67140
+15510007-62eb-45dd-84cd-550ec59f5ca4,7989ab80-21b0-45d5-8cfd-8014c0c4959a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-61290
+214e2be9-6a34-42c3-8a79-1201d3f779d9,7c0f7e87-e4da-41bf-92d3-86042b0190c5,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-52160
+a044b131-8984-4efc-9ef1-31ae695b9abb,c46efe80-8736-4762-a16e-1267865b9597,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-99506
+69056f4e-c83f-4d5c-9d39-c8c4530439fe,f4c69be1-0185-462e-9c6a-4279612842bd,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-26387
+cc4f4f53-bb71-41f3-9722-99e915317c44,aa9c986d-fec1-40ed-bba8-111cd7fdd270,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-94410
+b83f0c4f-a643-4cd1-b896-7bb15a65a3e8,bbc74c85-4f58-4cc3-ae55-31f214d8212f,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-60589
+4fd47b38-6bfa-4578-a834-edfa045a49ce,fc2671cd-e589-4217-9fe7-71c8bce069b2,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-11136
+2a15e5e2-e1b7-44b8-9a99-0affda50f993,f3eac322-d110-4d73-838d-9237f7aa2b52,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-79770
+d6bebc45-1cba-438c-9077-3841400cbfe6,51691405-0ec8-4ee4-b372-09156305ab35,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-67794
+e42b7e4d-f0d3-4d2d-a281-35d0d1e30a5c,7a93a558-78b3-4684-bba0-db73e78decfd,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-51755
+3f3a066d-d553-44d9-abd8-7ac47dd0f676,7b6f189d-9543-4ada-ad34-051c898e1cfc,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-82401
+7cb8328c-53ac-42f4-ad6f-c50605f461db,b321ab06-42ab-49b2-a242-11e6b162479c,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-25987
+10375d43-0087-461a-b612-47303ed70365,4033a21c-6168-4fd2-8be7-817c5babc5e0,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-47757
+c08e2d1a-a266-4d43-b306-1280deee1555,3fa3eccf-879d-4e34-bae6-8feb5f2f02e8,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-31137
+a662ee46-19ca-45f7-a6f4-fa6e1f19e668,9ba5f4c7-c8bc-4a64-88fd-b931560bd123,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-70941
+a4216d6c-bbdc-42bf-9024-ad732ea800fd,2db0a672-5572-4a32-b964-61e0ea65b094,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-12841
+4b523b3c-4c18-4f82-b6e0-9fbee80087ba,ad6f7ee5-f180-43ef-939e-623399558c75,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-47921
+eecb60db-3891-4f65-a484-c04b05b700df,9e0c6617-c431-48d8-a99d-59f41a551ba3,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-58439
+3385e0fe-9ab9-40b5-8ac3-36d4b3897a3f,060753cc-0605-40de-ba19-c668c73798c3,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-89873
+bfa20a97-88ac-4d12-9c83-db717998ea4c,5dadc1e2-5d89-4c44-bb20-272d824dc833,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-56683
+f2f3b27d-8ae4-426b-af70-2acf31cde8b0,c35a5d30-b913-4225-a512-050d8831d9be,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-49082
+1369c7b6-c43d-40a3-9c4a-a21f379e8de0,fe7ee577-217b-46ab-81c7-4afcd0019936,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-26241
+f486bbf6-fdee-441e-a9b5-af02aeb3db02,2e9d34f8-9296-4052-8714-dfafa73caab5,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-17321
+a6405110-cdc7-4306-9296-809b91257619,15d4e3fd-a3c0-4710-b08a-cd06e131005c,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-94124
+742db0cd-c560-42d6-aa11-0b02217f6cdb,a173dd54-b7a0-4f0c-b242-97c6e05f8bb8,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-28045
+2c6ab14a-2f52-4656-a997-7407715b4f1f,945219df-68b4-460d-b338-af1e42a4729c,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-55794
+245e30b9-cebb-4fcd-ba6c-4f7e1b28f4f9,9708c672-fb8d-4216-82ee-8e5fe8e74adf,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-53841
+22ce08f2-f3ef-4e7c-99a3-fea4c67579d5,10c7bc39-d4cc-4eef-98ef-4c7afd6e532a,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-57308
+8cd36ffd-7b48-43ff-9072-8a180b64869d,6e5cc990-130e-4c29-8080-bfb912454503,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-90788
+76f9b42e-4c24-43d4-b0d5-781b411bdef7,16823d38-7fd7-43bc-a6ba-0fbe58ddf661,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-95672
+2487e936-2ffc-4b3b-b8d9-90c179c7a745,ef294909-c583-4618-978c-f302eaaa6ff2,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-62106
+672baf99-1b84-4e57-a085-85dadc4941dc,3fa64f87-5d62-4f64-9f6a-035ff3bec4f6,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-67061
+0d0f6164-11da-4e54-ba1c-45dc54178999,1dce667a-f088-4f2a-95cf-cdb553aebb83,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-98166
+214cc9ed-67c4-4c4b-b6ed-344432cb9bc1,0d874db3-52c7-4cb5-8831-3afb3c433ae8,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-28287
+19a43440-444f-468a-ac6f-76814abb6c57,5c08a717-4129-4e2d-b88d-a2ff2d073167,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-85631
+22ffdb72-365c-4fde-9c84-968f6d13e326,2d32f9ae-a5c7-4a1f-ac24-159693e36d6a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-12125
+645f65bc-a118-42cb-adb0-23a5bd4e3cf1,60c924dc-f2d7-4058-a917-3a63bdb67de6,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-60299
+faba1695-88ad-4094-9e48-6859a0817100,f721c4ec-d454-49c3-a0b7-371ca10ef9e6,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-14501
+1142cff5-917f-4d05-9767-0c48b17b0714,437be0bf-27d2-4832-b7ce-a2cf2135de71,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-77729
+997057a8-8f38-4758-8485-3ba759de685f,326e31c6-cfa5-4864-af33-b471474fa7b5,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-68283
+e37bef49-9b04-4da0-871e-926c378aac41,960c40df-03c5-470a-943a-b09206b1b54f,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-13160
+2eb5ca35-c959-4969-a549-ba4b9238a25a,649ffd4c-ddc3-48e3-9936-4efc133bfd3e,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-41939
+61c0f31c-89e0-407d-a0aa-e231ea8f2123,eff3674c-5bc1-4374-84d2-0be9502fb7d2,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-39536
+b460f22a-8086-4314-9bc6-357ddc23c673,a2235afd-5ae4-462c-b15f-bb7b113c4786,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-88509
+88364f3a-3b8a-43b4-9bd6-122c24e73a28,70b45847-3e1e-4cdb-82f7-874502f16485,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-71592
+bcb91236-f89f-46ff-ae4d-1c55a64b24f2,082b9792-1353-4b43-abdf-1125a75e91a3,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-84188
+c2765ab3-659e-440a-b661-d71a3985ecce,1b4ba633-8dc1-47f7-b3dc-fde2901ae9cc,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-48202
+b3252c23-8840-4437-9d95-fe3c55c61b80,9d03a238-e400-48eb-8858-60cf0bd57fa3,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-18722
+a3ab3e19-3f91-4d96-a299-2b356cbb9602,e0c9432d-08a4-4c0e-a032-a89e72650588,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-80152
+0e1d9ce8-541b-472a-89c6-a37b5840e91c,5d5b9044-92c0-4596-ab27-2a27176534c5,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-13008
+0b015a88-5e8b-44a8-a67b-61bbe2d3bf73,98fc5a27-099a-4328-9c9a-99fddfdc6c58,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-37969
+d3ec5388-becb-4645-9508-8407111f6658,22d51bbd-cb2c-41e4-a85e-794d0d9672fd,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-42606
+3bea916d-99d5-44a4-9385-31ae6cd578e3,8212ad41-2156-41ce-a93d-bb6565ea4282,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-43413
+668efab8-539d-4e1f-9908-04585f31867f,2215ba60-3bf9-4470-9a71-50fbc8bfcb58,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-28564
+102073d8-2f6b-42eb-8024-b17aaf9eef63,90c51d48-90b7-4105-ba86-30e28b7df93d,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-26270
+5930c937-9af2-4f58-9237-42943e485411,1043ff36-b662-4cc3-80a6-0ddb39c405a6,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-32956
+a5a0b8cf-1b88-4eb9-9eff-478aa9ec59d6,30e3bb11-4416-4888-ac85-e7ccef5f70af,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-75949
+76cbf8a9-c0cc-42c8-99cd-a1e4705f621e,2d1d81bd-10b8-4169-9538-58f18dfc52d0,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-61951
+f87cde05-8874-426c-88e0-a1b266eacc1d,fbc74f63-5893-4084-af41-9225fa6ed741,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-16962
+a8e5077f-f970-43f5-ad80-4f986e03db04,6ea58d52-2ce9-4bfa-aa71-0293c755ea96,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-11449
+b7f98eef-3b74-4c95-9024-8293f302a2f6,6a545e3c-8dd0-4829-8637-d8081ae85ff2,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-86758
+d524ccbf-7496-4e33-b0b6-f64a8e4bd955,fec7e7a3-4c29-42cf-95d5-8fbbf06d12d0,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-90854
+cb15584a-686a-4858-b93b-fb4796d1ef1f,e8fb719b-da4a-4c1d-a78b-0dabaced4d03,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-24973
+76c927b2-76c6-4b1f-9a0a-ed1c5583e68a,55634905-a884-4074-8c57-c52422ccffbc,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-12913
+35ec6ff8-a43d-4e92-8d28-e575d3cdeb4f,9996f718-bfd4-442e-a5e4-f14fd1ab8acc,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-49201
+dcca1b90-1270-46bb-bef5-3c3328b1e6fe,f677654a-c44d-4bfd-9763-f9e621273951,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-66374
+6be2b930-ed59-48ba-bca3-4bfd2e271473,14392b64-4541-428d-868b-ebcdf0467d6e,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-27495
+51e0b666-b3f2-45c1-b1b8-9b5a96234b46,61a90b0d-6e6b-4776-a5a3-b47700ff5ae3,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-90312
+c875966e-7e1f-45b7-8354-eefbf53a5ad9,f5493b83-732e-4711-92d1-d53059cd2154,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-41546
+9e6a5e6c-bada-482c-9f2a-93f3e58f1863,2c0ad1f0-5099-47ad-9418-929c1af0c791,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-55231
+9d3f0491-34cb-4b34-9661-d7fe98194fd7,de98fd6a-0e73-4446-8a57-235a5ed070c4,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-22218
+00cbe08e-3a65-4b6d-a3e7-2cd56eac1e75,971195af-ddbf-4f71-a024-4d701f6cc1ce,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-79582
+a44db14c-fe60-4ec4-8a44-bff7b4fee2a4,aeae0f94-9eb7-4911-9ecf-d9ce2bacdd65,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-68886
+b5a1052f-056c-45a1-a0b4-8d380d2355d7,9f7af0e9-248d-4116-9e9e-99203f837f00,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-12142
+f027f109-c137-4487-87b6-1d7ac0fc5097,7a212c58-65c2-4a49-a630-9e012809c5be,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-53093
+3ed81e41-4a72-439d-a89a-be44e8b9f288,23675223-3d94-4c1e-ace9-28c5f74e91e7,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-19991
+5fb0f54f-9c07-4e1e-a075-5ef3832a9248,16876575-71e5-4849-a14f-2ecd8aa8c001,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-91309
+4178fa8b-93dc-44d1-9742-6d9062bf2e5e,53d48642-9b8d-469a-9e5b-cfb6450eafe0,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-70011
+631e4fd4-fd51-47c8-b18a-ba1dadcb6911,9bbfc518-a37d-43de-870a-15afdc7a3ec6,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-72053
+72c6749a-3005-484b-b614-214be3b03b81,252b2beb-8c8d-4428-8249-8f2bce4d7687,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-54556
+a3563fd9-f2a4-4836-b5c7-ef9764a1ad78,d5d4d936-ba32-4beb-8318-2a00a86f49f2,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-26217
+aa6e3c0f-15c8-4cbc-a645-92b7ebd86d05,87140754-6dd5-4fbc-b02e-48713cf48a17,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-82399
+ad2c7f1e-0bcc-4973-8b85-daf194610765,93ae1259-d5b2-4ac9-8eaa-10f8187c7fbc,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-57333
+d5ea14c3-0fd8-49da-8998-99544ea2ec51,e2aab7d2-9f1c-4f05-8a66-aec76acecc6c,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-63465
+e7fee458-2618-4832-96f1-ab990602932c,25526c95-b76a-472b-9e1c-69a7cbcf55aa,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-35056
+7cf0795c-f001-4341-9456-c61697f86976,32deb9a3-3a63-4af6-908a-4c376d92916a,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-58333
+484a826a-d4c3-4784-8da0-4e48c78f9cc3,c9e2f3cc-b853-45bb-9a9e-083fc7572818,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-70128
+8868b7f0-1eb9-427b-92a0-63a89945a1c5,d4eff6c6-1664-43cf-9a82-4414f16be27c,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-94570
+0e183ff0-2ef3-4e79-8ffb-4040e6c67b45,da8f07a2-a970-4f97-9cac-b6aa1664cd6f,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-92250
+0cfa01d8-b4ea-451e-b69d-ba2b7abfcc6a,d78466cf-3f33-4138-9c50-1817823ddcf8,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-12153
+b8c01354-87d3-4e6c-b1e8-4109c20af121,463c57d9-755c-4e67-875b-ca304a7b91e8,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-25568
+a0ed6240-1caf-458e-a658-996b4a653940,fabbc3ee-2605-40bb-852a-f8ba0c57a113,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-31534
+c5499191-16e6-473a-a2ec-615a2f7ac3ff,a2981716-5e3c-4136-b332-3a8252c336f5,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-59556
+e025cdd3-ece9-404e-9016-d6b3b71634fc,162bba37-1c87-4997-b09d-2d7766667bc0,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-69382
+81fd2bbb-46e1-4b2a-8793-6c2bdd364cce,3598142e-8aa3-47d4-8696-413963e8bfc0,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-16924
+f09ba157-92ea-427d-9003-3371dcff659e,3ff7e5b3-13fe-48c6-b686-8694930453d0,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-77889
+981b5c93-8710-41b1-9ab9-7cc459cb10ee,8b25fc63-30a1-4106-8cd7-66d667070cec,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-20830
+f89094cd-2ced-4fdf-a5fa-3840cccb99c7,a543fa46-4db4-43b4-867a-7ec2a4b7175f,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-29391
+06a652db-e88e-4a5e-8e9d-b559b3ad3e27,3a0fc7da-9afa-4ffc-aad6-30881a05fd11,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-42192
+045ae511-ee77-48cf-b90a-bc4a7f919e2c,1a9d3810-4b90-4ee0-9276-d86a2a859ed3,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-88918
+3f3ac38f-9825-49c1-8341-ed25919d2582,7904c52b-03e6-4197-bb56-07373f8eafef,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-72081
+5dcefad2-7f8b-4cc7-bd81-45d89dbf6f5f,7138487d-94f7-4b35-a0ac-bf67cd2126ac,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-70550
+88db0ac0-85f4-45b0-a44b-47150fa47792,9a122840-249e-4b8a-97ae-c667b57aa781,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-58283
+3546c6b2-d28c-4434-89a4-ec371640ffea,398ae1b9-c94c-46bf-afc5-4d33f21b8272,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-78971
+0b33699d-5a8c-46cf-a26b-3c9e214c3781,b171104a-2a1e-4291-8d52-256d989dce4b,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-14555
+fe08b60f-dbe9-45fa-931c-33a0d2970c7d,820dd23e-7b25-4a66-80c5-77f7b52e97e2,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-82055
+f73e3aeb-ddea-42f0-892d-58d3e5f312ff,306d248f-bc58-4129-b439-d1c018347110,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-27553
+fb6aefee-b5b8-49fc-a68f-0d29e2d70697,18eb9189-83a2-4383-90ae-7f67773a4550,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-88900
+d4570651-12e3-42ec-a5f6-6e8434c88922,d9702a38-3c1e-4140-8519-ccc5497a5f6e,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-16076
+1f11bf4a-75d7-421f-94bf-105ab3225a03,3d563eda-a0fb-474b-a24e-152c4cdafd6f,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-76725
+72d1702d-98ee-4f29-be1e-f261390ba9aa,e75913aa-18c6-4777-b002-3814305dce9d,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-41119
+ec3f9e8f-0e30-4fb7-9d02-093bc76fd158,35259f09-cb7e-480c-bde7-be50e91899ef,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-58266
+8578e3ce-c552-49ed-aac7-5375f1e1a4e4,8715d5ed-21ad-40ec-aba4-05143064d1bd,Sahakarnagar Local QuickRider,DELIVERED,BLR-NORTH-57996
+47b0975a-56b7-4185-b331-95c129ccee45,c79da530-2bff-441a-8c3e-9bd038064164,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-83913
+cf49bb7d-9984-4fda-83f3-ce93a092bf77,91d0fa43-13b8-4f28-b891-d7e34d123360,North Bangalore FreshVan Logistics,DELIVERED,BLR-NORTH-96148
+e1240727-0d37-429c-86c4-f5b0942ae6ba,b1191a01-ad14-4a7e-b045-3e3e4090ecfb,Devanahalli Farm Direct Fleet,DELIVERED,BLR-NORTH-85092
+ed5fe3e4-4518-452f-b5b2-fd25df466a74,6a6651ad-af00-4902-8495-4c08851fc605,Manyata Express Cargo Rider,DELIVERED,BLR-NORTH-92056
+1ea0f652-ab0c-4b03-9c10-c7245c21ad9c,2861207c-bca7-4036-930a-17b8080a33e9,AgriLink Express (Hebbal-Yelahanka Corridor),DELIVERED,BLR-NORTH-18679

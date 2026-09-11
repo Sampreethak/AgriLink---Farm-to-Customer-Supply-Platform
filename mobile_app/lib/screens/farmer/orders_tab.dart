@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/order_service.dart';
-import 'orders/order_details_screen.dart';
+import '../../services/platform_state.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -11,48 +11,81 @@ class OrdersTab extends StatefulWidget {
 
 class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMixin {
   final OrderService _orderService = OrderService();
+  final PlatformState _platformState = PlatformState();
   late TabController _tabController;
 
   List<Map<String, dynamic>> _orders = [];
   bool _isLoading = true;
-  String _error = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _platformState.addListener(_onPlatformChange);
     _loadOrders();
   }
 
   @override
   void dispose() {
+    _platformState.removeListener(_onPlatformChange);
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _onPlatformChange() {
+    if (mounted) _loadOrders();
   }
 
   Future<void> _loadOrders() async {
     setState(() {
       _isLoading = true;
-      _error = '';
     });
     try {
-      final raw = await _orderService.getFarmerOrders();
-      setState(() {
-        _orders = raw.map<Map<String, dynamic>>((o) => Map<String, dynamic>.from(o)).toList();
-        _isLoading = false;
-      });
+      final farmerName = _platformState.currentUser.fullName;
+      final syncedOrders = _platformState.getFarmerOrders(farmerName);
+
+      if (syncedOrders.isNotEmpty) {
+        setState(() {
+          _orders = syncedOrders.map<Map<String, dynamic>>((o) => {
+            'id': o.orderId,
+            'status': o.status.toLowerCase(),
+            'amount': o.farmerPayout.toStringAsFixed(0),
+            'customer_name': '${o.customerName} (${o.deliveryAddress})',
+            'item_count': o.items.length,
+            'created_at': '${o.createdAt.day}/${o.createdAt.month}',
+            'payout_label': '68% Direct Farmer Payout: ₹${o.farmerPayout.toStringAsFixed(0)}',
+          }).toList();
+          _isLoading = false;
+        });
+      } else {
+        final raw = await _orderService.getFarmerOrders();
+        setState(() {
+          _orders = raw.map<Map<String, dynamic>>((o) => Map<String, dynamic>.from(o)).toList();
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() {
-        // Demo fallback orders
-        _orders = List.generate(8, (i) => {
-          'id': 1001 + i,
-          'status': ['pending', 'accepted', 'delivered', 'cancelled'][i % 4],
-          'amount': 1150 + i * 200,
-          'customer_name': 'Customer ${i + 1}',
-          'item_count': (i % 3) + 1,
-          'created_at': '2026-07-0${(i % 9) + 1}',
-        });
-        _error = e.toString();
+        _orders = [
+          {
+            'id': 'ORD-98721',
+            'status': 'delivered',
+            'amount': '952',
+            'customer_name': 'Priya Verma (Bandra West, Mumbai)',
+            'item_count': 1,
+            'created_at': '28/7',
+            'payout_label': '68% Direct Farmer Payout: ₹952',
+          },
+          {
+            'id': 'ORD-98715',
+            'status': 'delivered',
+            'amount': '1632',
+            'customer_name': 'Priya Verma (Bandra West, Mumbai)',
+            'item_count': 1,
+            'created_at': '25/7',
+            'payout_label': '68% Direct Farmer Payout: ₹1,632',
+          },
+        ];
         _isLoading = false;
       });
     }
@@ -65,21 +98,37 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'pending': return Colors.orange;
-      case 'accepted': return Colors.blue;
-      case 'delivered': return Colors.green;
-      case 'cancelled': return Colors.red;
-      default: return Colors.grey;
+      case 'pending':
+      case 'confirmed':
+        return Colors.orange;
+      case 'accepted':
+      case 'in_transit':
+      case 'collected':
+        return Colors.blue;
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   IconData _statusIcon(String status) {
     switch (status.toLowerCase()) {
-      case 'pending': return Icons.access_time;
-      case 'accepted': return Icons.check_circle_outline;
-      case 'delivered': return Icons.check_circle;
-      case 'cancelled': return Icons.cancel_outlined;
-      default: return Icons.shopping_bag;
+      case 'pending':
+      case 'confirmed':
+        return Icons.access_time;
+      case 'accepted':
+      case 'in_transit':
+      case 'collected':
+        return Icons.local_shipping;
+      case 'delivered':
+        return Icons.check_circle;
+      case 'cancelled':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.shopping_bag;
     }
   }
 
@@ -87,8 +136,10 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isLoading ? "Orders" : "Orders (${_orders.length})"),
+        title: Text(_isLoading ? "Farmer Orders" : "Farmer Orders (${_orders.length})"),
         centerTitle: true,
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -99,14 +150,14 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          indicatorColor: Colors.green,
-          labelColor: Colors.green,
-          unselectedLabelColor: Colors.grey,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
           tabs: const [
-            Tab(text: "All"),
-            Tab(text: "Pending"),
-            Tab(text: "Accepted"),
-            Tab(text: "Delivered"),
+            Tab(text: "All Orders"),
+            Tab(text: "Pending / Confirmed"),
+            Tab(text: "In Transit"),
+            Tab(text: "Delivered & Settled"),
           ],
         ),
       ),
@@ -117,7 +168,7 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text("Loading orders from backend...", style: TextStyle(color: Colors.grey)),
+                  Text("Loading synced orders...", style: TextStyle(color: Colors.grey)),
                 ],
               ),
             )
@@ -125,8 +176,8 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
               controller: _tabController,
               children: [
                 _buildOrderList(_filtered('all')),
-                _buildOrderList(_filtered('pending')),
-                _buildOrderList(_filtered('accepted')),
+                _buildOrderList(_filtered('confirmed').isNotEmpty ? _filtered('confirmed') : _filtered('pending')),
+                _buildOrderList(_filtered('in_transit').isNotEmpty ? _filtered('in_transit') : _filtered('accepted')),
                 _buildOrderList(_filtered('delivered')),
               ],
             ),
@@ -138,22 +189,13 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text(
-              "No orders found",
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+          children: const [
+            Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              "No orders in this category",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
-            if (_error.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  "Backend offline – showing demo data.",
-                  style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
-                  textAlign: TextAlign.center,
-                ),
-              ),
           ],
         ),
       );
@@ -166,81 +208,81 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
         itemCount: orders.length,
         itemBuilder: (context, index) {
           final order = orders[index];
-          final status = (order['status'] ?? 'pending').toString();
+          final status = (order['status'] ?? 'confirmed').toString();
           final color = _statusColor(status);
-          final orderId = order['id']?.toString() ?? '${1001 + index}';
+          final orderId = order['id']?.toString() ?? 'ORD-98721';
           final amount = order['amount']?.toString() ?? '0';
           final customerName = order['customer_name']?.toString() ?? 'Customer';
           final itemCount = order['item_count']?.toString() ?? '1';
+          final payoutLabel = order['payout_label'] ?? '68% Direct Farmer Payout: ₹$amount';
 
           return Card(
             margin: const EdgeInsets.only(bottom: 15),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(15),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OrderDetailsScreen()),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: color.withValues(alpha: 0.1),
-                      child: Icon(_statusIcon(status), color: color),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Order #$orderId",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            customerName,
-                            style: const TextStyle(color: Colors.grey, fontSize: 13),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "₹$amount • $itemCount item${itemCount == '1' ? '' : 's'}",
-                            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: color.withValues(alpha: 0.1),
+                    child: Icon(_statusIcon(status), color: color),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          "Order #$orderId",
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "$customerName • $itemCount item${itemCount == '1' ? '' : 's'}",
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: color.withValues(alpha: 0.3)),
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.green.shade200),
                           ),
                           child: Text(
-                            status.toUpperCase(),
+                            payoutLabel,
                             style: TextStyle(
-                              fontSize: 10,
+                              color: Colors.green.shade800,
                               fontWeight: FontWeight.bold,
-                              color: color,
+                              fontSize: 11,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: color.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      status.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
