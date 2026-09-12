@@ -9,4 +9,4 @@ venv/
 .env
 .env.*
 
-*.log
+*.log~$*.docx 
