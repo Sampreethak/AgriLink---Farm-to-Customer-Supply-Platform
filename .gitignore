@@ -1,2 +1,12 @@
-node_modules/ 
-backend_nodejs/node_modules/  __pycache__/  *.pyc  .env 
+node_modules/
+backend_nodejs/node_modules/
+
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+.env
+.env.*
+
+*.log
