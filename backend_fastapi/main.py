@@ -176,6 +176,8 @@ MOCK_LISTINGS = [
     }
 ]
 
+@app.get("/")
+@app.get("/health")
 @app.get("/api/v1/health")
 def health_check():
     return {
@@ -197,6 +199,7 @@ def health_check():
     }
 
 @app.get("/api/v1/categories")
+@app.get("/api/v1/products/categories")
 def get_categories():
     return [
         {"id": 1, "name": "Vegetables", "icon": "eco"},
@@ -207,6 +210,7 @@ def get_categories():
     ]
 
 @app.get("/api/v1/listings")
+@app.get("/api/v1/products")
 def get_listings(category_id: Optional[int] = None, search: Optional[str] = None):
     results = MOCK_LISTINGS
     if category_id:
@@ -214,9 +218,10 @@ def get_listings(category_id: Optional[int] = None, search: Optional[str] = None
     if search:
         s = search.lower()
         results = [l for l in results if s in l["title"].lower() or s in l["crop_name"].lower()]
-    return results
+    return {"products": results, "total": len(results)}
 
 @app.get("/api/v1/listings/{listing_id}")
+@app.get("/api/v1/products/{listing_id}")
 def get_listing_detail(listing_id: int):
     listing = next((l for l in MOCK_LISTINGS if l["id"] == listing_id), None)
     if not listing:
@@ -224,6 +229,7 @@ def get_listing_detail(listing_id: int):
     return listing
 
 @app.post("/api/v1/listings")
+@app.post("/api/v1/products")
 def create_listing(item: ListingCreate):
     new_id = max([l["id"] for l in MOCK_LISTINGS], default=100) + 1
     new_item = {
