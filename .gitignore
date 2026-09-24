@@ -1,12 +1,33 @@
+# Node dependencies
 node_modules/
 backend_nodejs/node_modules/
 
+# Python cache & virtual environments
 __pycache__/
 *.pyc
 venv/
 .venv/
 
+# Environment variables & secrets (Corporate Security standard)
 .env
 .env.*
+*.env
+.env.local
+.env.development
+.env.staging
+.env.production
+!.env.example
+secrets/
+*.pem
+*.key
+serviceAccountKey.json
 
-*.log~$*.docx 
+# Flutter / Dart build artifacts
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+
+# Logs & temp files
+*.log
+~$*.docx

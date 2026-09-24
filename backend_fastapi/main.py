@@ -24,12 +24,25 @@ except Exception as e:
     print(f"Dynamic Pricing Predictor load warning: {e}")
     pricing_predictor = None
 
-SUPABASE_URL = "https://nxwhnbejvwxiuekhtmpm.supabase.co"
-SUPABASE_REF = "nxwhnbejvwxiuekhtmpm"
+try:
+    from dotenv import load_dotenv
+    # Load .env file from the current directory or workspace root
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.exists(env_path):
+        load_dotenv(env_path)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
+
+# Retrieve environment-injected Supabase configurations
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://nxwhnbejvwxiuekhtmpm.supabase.co")
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "sb_publishable__NSFd-NXvWsSDms7aE1tJQ_uziQLZO7")
+SUPABASE_REF = os.getenv("SUPABASE_REF", "nxwhnbejvwxiuekhtmpm")
 
 app = FastAPI(
     title="AgriLink API - Farm-to-Customer Supply Platform",
-    description=f"FastAPI backend connected to Supabase PostgreSQL ({SUPABASE_URL}), Mandya->Bengaluru Corridor Logistics, Multi-Model Customer Recommendation Engine, and APMC Dynamic Pricing Engine.",
+    description=f"Enterprise FastAPI backend connected to Supabase PostgreSQL ({SUPABASE_REF}), Mandya->Bengaluru Corridor Logistics, Multi-Model Customer Recommendation Engine, and APMC Dynamic Pricing Engine.",
     version="2.0.0"
 )
 
