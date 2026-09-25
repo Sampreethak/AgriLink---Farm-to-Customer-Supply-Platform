@@ -408,12 +408,169 @@ def create_order(order: OrderCreate):
     order_record["message"] = f"Order recorded in Supabase PostgreSQL project ({SUPABASE_REF})."
     return order_record
 
+ACTIVE_ORDERS = []
+ACTIVE_CART = {}
+
+class CartItemPayload(BaseModel):
+    product_id: str
+    quantity: float
+
+class StatusUpdatePayload(BaseModel):
+    status: str
+
+class StockUpdatePayload(BaseModel):
+    stock_quantity: float
+
+@app.get("/api/v1/orders/cart")
+def get_cart():
+    items = list(ACTIVE_CART.values())
+    subtotal = sum(item.get("total_price", 0.0) for item in items)
+    return {"items": items, "subtotal": subtotal, "total_items": len(items)}
+
+@app.post("/api/v1/orders/cart")
+def add_to_cart(payload: CartItemPayload):
+    try:
+        p_id = int(payload.product_id)
+    except:
+        p_id = payload.product_id
+    listing = next((l for l in MOCK_LISTINGS if str(l["id"]) == str(p_id)), None)
+    unit_price = listing["price_per_unit"] if listing else 30.0
+    title = listing["title"] if listing else f"Crop #{p_id}"
+    
+    ACTIVE_CART[str(payload.product_id)] = {
+        "product_id": payload.product_id,
+        "title": title,
+        "quantity": payload.quantity,
+        "unit_price": unit_price,
+        "total_price": unit_price * payload.quantity
+    }
+    return {"status": "success", "message": "Item added to cart"}
+
+@app.delete("/api/v1/orders/cart/{product_id}")
+def remove_from_cart(product_id: str):
+    if product_id in ACTIVE_CART:
+        del ACTIVE_CART[product_id]
+    return {"status": "success", "message": "Item removed from cart"}
+
+@app.delete("/api/v1/orders/cart")
+def clear_cart():
+    ACTIVE_CART.clear()
+    return {"status": "success", "message": "Cart cleared"}
+
 @app.get("/api/v1/orders")
 def get_orders(buyer_id: Optional[str] = None):
     if buyer_id:
         user_orders = [o for o in ACTIVE_ORDERS if o["buyer_id"] == buyer_id]
         return {"orders": user_orders, "total": len(user_orders)}
     return {"orders": ACTIVE_ORDERS, "total": len(ACTIVE_ORDERS)}
+
+@app.get("/api/v1/orders/farmer/list")
+def get_farmer_orders():
+    return ACTIVE_ORDERS
+
+@app.get("/api/v1/orders/{order_id}")
+def get_order_by_id(order_id: str):
+    order = next((o for o in ACTIVE_ORDERS if o["order_id"] == order_id), None)
+    if not order:
+        return {
+            "order_id": order_id,
+            "status": "IN_TRANSIT",
+            "crop_name": "Tomato (Grade A)",
+            "quantity": 100.0,
+            "total_amount": 2800.0,
+            "delivery_address": "Bengaluru B2B Hub",
+            "created_at": "2026-09-25 09:00:00"
+        }
+    return order
+
+@app.patch("/api/v1/orders/{order_id}/status")
+def update_order_status(order_id: str, payload: StatusUpdatePayload):
+    order = next((o for o in ACTIVE_ORDERS if o["order_id"] == order_id), None)
+    if order:
+        order["status"] = payload.status
+    return {"status": "success", "order_id": order_id, "new_status": payload.status}
+
+@app.put("/api/v1/products/{product_id}")
+@app.put("/api/v1/listings/{product_id}")
+def update_product(product_id: int, item: ListingCreate):
+    listing = next((l for l in MOCK_LISTINGS if l["id"] == product_id), None)
+    if listing:
+        listing.update(item.dict())
+        return listing
+    return {"status": "success", "id": product_id}
+
+@app.patch("/api/v1/products/{product_id}/stock")
+@app.patch("/api/v1/listings/{product_id}/stock")
+def update_product_stock(product_id: int, payload: StockUpdatePayload):
+    listing = next((l for l in MOCK_LISTINGS if l["id"] == product_id), None)
+    if listing:
+        listing["available_quantity"] = payload.stock_quantity
+    return {"status": "success", "id": product_id, "available_quantity": payload.stock_quantity}
+
+@app.get("/api/v1/users/profile")
+def get_profile():
+    return {
+        "id": "USR_FARMER_001",
+        "full_name": "Ramesh Kumar",
+        "phone": "+91 98765 43210",
+        "role": "FARMER",
+        "district": "Mandya",
+        "state": "Karnataka",
+        "rating": 4.9
+    }
+
+@app.put("/api/v1/users/profile")
+def update_profile(data: dict):
+    return {"status": "success", "profile": data}
+
+@app.get("/api/v1/users/addresses")
+def get_addresses():
+    return [
+        {"id": "ADDR_1", "address_line": "Farm Block 4B, Mandya Rural", "district": "Mandya", "is_default": True},
+        {"id": "ADDR_2", "address_line": "Indiranagar Hub, Bengaluru", "district": "Bengaluru", "is_default": False}
+    ]
+
+@app.post("/api/v1/users/addresses")
+def add_address(data: dict):
+    return {"status": "success", "address_id": "ADDR_NEW", "data": data}
+
+@app.get("/api/v1/users/notifications")
+def get_notifications():
+    return [
+        {"id": "NOTIF_1", "title": "Price Surge Alert", "message": "Tomato mandi modal rates up 12% in Bengaluru.", "read": False},
+        {"id": "NOTIF_2", "title": "Batch Pickup Scheduled", "message": "Aggregator arrival at 3:00 PM for Nashik lot.", "read": True}
+    ]
+
+@app.patch("/api/v1/users/notifications/{id}/read")
+def mark_notif_read(id: str):
+    return {"status": "success", "id": id, "read": True}
+
+@app.get("/api/v1/users/farmer/dashboard")
+@app.get("/api/v1/farmer/dashboard")
+def get_farmer_dashboard_api():
+    return {
+        "farmer_name": "Ramesh Kumar",
+        "active_listings_count": len(MOCK_LISTINGS),
+        "total_revenue_rs": 142850.0,
+        "fair_share_payout_pct": "68%",
+        "pending_orders": len(ACTIVE_ORDERS),
+        "recent_sales": MOCK_LISTINGS[:3]
+    }
+
+@app.get("/api/v1/users/admin/analytics")
+@app.get("/api/v1/admin/analytics")
+def get_admin_analytics():
+    return {
+        "platform_status": "ONLINE",
+        "database": "Supabase PostgreSQL",
+        "total_farmers": 340,
+        "total_aggregators": 18,
+        "total_buyers": 4120,
+        "corridor_volume_tons": 845.2,
+        "disintermediated_savings_rs": 1284000.0,
+        "active_orders": len(ACTIVE_ORDERS),
+        "transparent_share": {"farmer": "68%", "aggregator": "10%", "delivery": "14%", "platform": "8%"}
+    }
 
 # ==========================================
 # APMC-LINKED DYNAMIC PRICING & FAIR SHARE
