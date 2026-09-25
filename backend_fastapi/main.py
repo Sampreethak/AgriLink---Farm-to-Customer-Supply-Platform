@@ -241,6 +241,22 @@ def get_listing_detail(listing_id: int):
         raise HTTPException(status_code=404, detail="Crop listing not found")
     return listing
 
+def sync_to_supabase(table_name: str, payload: dict):
+    """Attempts to synchronize records with Supabase PostgREST cloud tables."""
+    try:
+        import requests
+        headers = {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": f"Bearer {SUPABASE_ANON_KEY}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        }
+        res = requests.post(f"{SUPABASE_URL}/rest/v1/{table_name}", headers=headers, json=payload, timeout=3)
+        return res.status_code in [200, 201]
+    except Exception as e:
+        print(f"Supabase sync warning for {table_name}: {e}")
+        return False
+
 @app.post("/api/v1/listings")
 @app.post("/api/v1/products")
 def create_listing(item: ListingCreate):
@@ -262,6 +278,24 @@ def create_listing(item: ListingCreate):
         "rating_avg": 5.0,
         "rating_count": 1,
         "status": "ACTIVE"
+    }
+    # Dynamic live storage
+    MOCK_LISTINGS.insert(0, new_item)
+    
+    # Sync with Supabase cloud database
+    supabase_synced = sync_to_supabase("seller_listing", {
+        "title": item.title,
+        "category_id": item.category_id,
+        "price_per_unit": item.price_per_unit,
+        "available_quantity": item.available_quantity,
+        "status": "ACTIVE"
+    })
+    
+    return {
+        "status": "CREATED",
+        "message": "Crop listing published dynamically",
+        "supabase_synced": supabase_synced,
+        "listing": new_item
     }
 class InteractionCreate(BaseModel):
     customer_id: str
@@ -334,24 +368,52 @@ def get_recommendations(buyer_id: str, top_k: int = 10):
         "recommendations": MOCK_LISTINGS[:top_k]
     }
 
+ACTIVE_ORDERS = []
+
 @app.post("/api/v1/orders")
 def create_order(order: OrderCreate):
+    import time
     listing = next((l for l in MOCK_LISTINGS if l["id"] == order.listing_id), None)
     unit_price = listing["price_per_unit"] if listing else 30.0
     total = unit_price * order.quantity
+    order_id = f"ORD-SB-{int(time.time())}"
     
-    return {
-        "order_id": "ORD-SUPABASE-98721",
+    order_record = {
+        "order_id": order_id,
         "status": "PAID",
         "buyer_id": order.buyer_id,
         "listing_id": order.listing_id,
+        "crop_name": listing["crop_name"] if listing else "Produce",
         "quantity": order.quantity,
+        "unit_price": unit_price,
         "total_amount": total,
         "payment_method": order.payment_method,
-        "razorpay_payment_id": "pay_RzrP8871923",
+        "razorpay_payment_id": f"pay_{int(time.time() * 1000)}",
         "delivery_address": order.delivery_address,
-        "message": f"Order recorded in Supabase PostgreSQL project ({SUPABASE_REF})."
+        "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
+    
+    ACTIVE_ORDERS.insert(0, order_record)
+    
+    # Sync with Supabase cloud database
+    supabase_synced = sync_to_supabase("order_item", {
+        "listing_id": order.listing_id,
+        "quantity": order.quantity,
+        "unit_price": unit_price,
+        "total_price": total,
+        "status": "PAID"
+    })
+    
+    order_record["supabase_synced"] = supabase_synced
+    order_record["message"] = f"Order recorded in Supabase PostgreSQL project ({SUPABASE_REF})."
+    return order_record
+
+@app.get("/api/v1/orders")
+def get_orders(buyer_id: Optional[str] = None):
+    if buyer_id:
+        user_orders = [o for o in ACTIVE_ORDERS if o["buyer_id"] == buyer_id]
+        return {"orders": user_orders, "total": len(user_orders)}
+    return {"orders": ACTIVE_ORDERS, "total": len(ACTIVE_ORDERS)}
 
 # ==========================================
 # APMC-LINKED DYNAMIC PRICING & FAIR SHARE
