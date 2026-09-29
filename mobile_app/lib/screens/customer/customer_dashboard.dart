@@ -5,6 +5,8 @@ import 'cart_tab.dart';
 import 'orders_tab.dart';
 import 'profile_tab.dart';
 
+import '../chatbot/agritalk_chat_screen.dart';
+
 class CustomerDashboard extends StatefulWidget {
   final int initialIndex;
   const CustomerDashboard({super.key, this.initialIndex = 0});
@@ -54,6 +56,18 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
     final cartBadgeCount = _customerState.cartCount;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        heroTag: "customer_agritalk_fab",
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AgriTalkChatScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFF2E7D32),
+        tooltip: "AgriTalk AI",
+        child: const Icon(Icons.smart_toy, color: Colors.white),
+      ),
       body: pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,

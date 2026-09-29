@@ -4,6 +4,7 @@ import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
+import '../../core/validators.dart';
 import 'otp_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -153,12 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _nameController,
                   hintText: langProvider.translate('full_name'),
                   prefixIcon: Icons.person,
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return "Please enter your full name";
-                    }
-                    return null;
-                  },
+                  validator: Validators.validateName,
                 ),
                 const SizedBox(height: 16),
                 VoiceInputField(
@@ -166,12 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: langProvider.translate('email'),
                   prefixIcon: Icons.email,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return "Please enter your email";
-                    }
-                    return null;
-                  },
+                  validator: Validators.validateEmail,
                 ),
                 const SizedBox(height: 16),
                 VoiceInputField(
@@ -179,15 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: langProvider.translate('phone_number'),
                   prefixIcon: Icons.phone,
                   keyboardType: TextInputType.phone,
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return "Please enter your phone number";
-                    }
-                    if (val.trim().length < 10) {
-                      return "Enter a valid 10-digit number";
-                    }
-                    return null;
-                  },
+                  validator: Validators.validatePhone,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -214,17 +197,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return "Please enter a password";
-                    }
-                    if (val.length < 6) {
-                      return "Password must be at least 6 characters";
-                    }
-                    return null;
-                  },
+                  validator: Validators.validatePassword,
                   decoration: const InputDecoration(
-                    hintText: "Password",
+                    hintText: 'Password (Min 8 chars, A-Z, 0-9, @#\u0024)',
                     prefixIcon: Icon(Icons.lock),
                   ),
                 ),
@@ -235,6 +210,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return "Please confirm your password";
+                    }
+                    if (val != _passwordController.text) {
+                      return "Passwords do not match";
                     }
                     return null;
                   },

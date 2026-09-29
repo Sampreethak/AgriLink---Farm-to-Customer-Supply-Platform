@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-
+import '../../core/colors.dart';
+import '../chatbot/agritalk_chat_screen.dart';
 import 'home_tab.dart';
 import 'orders_tab.dart';
 import 'products_tab.dart';
@@ -32,6 +32,19 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: "farmer_agritalk_fab",
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AgriTalkChatScreen()),
+          );
+        },
+        backgroundColor: AppColors.primaryGreen,
+        icon: const Icon(Icons.smart_toy, color: Colors.white),
+        label: const Text("AgriTalk AI", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
 
       body: IndexedStack(
 
