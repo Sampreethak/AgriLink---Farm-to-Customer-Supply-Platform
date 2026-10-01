@@ -1,0 +1,381 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 960" width="100%" height="100%" style="background:#090d16; font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1527"/>
+      <stop offset="50%" stop-color="#090d16"/>
+      <stop offset="100%" stop-color="#050811"/>
+    </linearGradient>
+
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+
+    <linearGradient id="fairShareGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(16, 185, 129, 0.2)"/>
+      <stop offset="100%" stop-color="rgba(6, 182, 212, 0.15)"/>
+    </linearGradient>
+
+    <!-- Column Header Colors -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7e22ce"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#fb7185"/>
+    </linearGradient>
+
+    <!-- Filters for Glow & Depth -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Markers for Flow Arrows -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34d399" />
+    </marker>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1600" height="960" fill="url(#bgGrad)" rx="20"/>
+  <rect x="15" y="15" width="1570" height="930" fill="none" stroke="#1e293b" stroke-width="1.5" rx="16"/>
+
+  <!-- ==================== HEADER SECTION ==================== -->
+  <g transform="translate(45, 45)">
+    <!-- Logo Icon -->
+    <rect x="0" y="0" width="52" height="52" rx="14" fill="#059669" filter="url(#glowBlue)"/>
+    <text x="26" y="34" font-size="26" text-anchor="middle" fill="#ffffff">🌱</text>
+    
+    <!-- Header Titles -->
+    <text x="68" y="26" font-size="24" font-weight="800" fill="url(#titleGrad)" letter-spacing="-0.5">AgriLink — Full Technical Approach &amp; System Architecture</text>
+    <text x="68" y="46" font-size="13.5" font-weight="500" fill="#94a3b8">AI-Orchestrated Farm-to-Consumer Supply Network with Blockchain Fair-Share Economics | Smart India Hackathon (SIH 2026)</text>
+    
+    <!-- SIH Badge -->
+    <rect x="1310" y="8" width="195" height="34" rx="17" fill="rgba(56, 189, 248, 0.12)" stroke="#38bdf8" stroke-width="1.2"/>
+    <circle cx="1328" cy="25" r="4.5" fill="#22c55e"/>
+    <text x="1342" y="29.5" font-size="11.5" font-weight="700" fill="#38bdf8" letter-spacing="0.8">SIH 2026 BLUEPRINT</text>
+  </g>
+
+  <!-- ==================== PROCESS STAGE BREADCRUMB BAR ==================== -->
+  <g transform="translate(45, 120)">
+    <rect width="1510" height="42" rx="10" fill="rgba(30, 41, 59, 0.6)" stroke="#334155" stroke-width="1"/>
+    
+    <!-- Stage 1 -->
+    <text x="110" y="26" font-size="12" font-weight="700" fill="#34d399" text-anchor="middle">1. Farmer Pre-Declaration</text>
+    <text x="260" y="26" font-size="14" fill="#64748b" text-anchor="middle">→</text>
+    
+    <!-- Stage 2 -->
+    <text x="410" y="26" font-size="12" font-weight="700" fill="#38bdf8" text-anchor="middle">2. Hub Digital Weighment &amp; QC</text>
+    <text x="560" y="26" font-size="14" fill="#64748b" text-anchor="middle">→</text>
+    
+    <!-- Stage 3 -->
+    <text x="730" y="26" font-size="12" font-weight="700" fill="#c084fc" text-anchor="middle">3. AI APMC Pricing &amp; Merkle Lock</text>
+    <text x="895" y="26" font-size="14" fill="#64748b" text-anchor="middle">→</text>
+    
+    <!-- Stage 4 -->
+    <text x="1050" y="26" font-size="12" font-weight="700" fill="#fbbf24" text-anchor="middle">4. Electric Fleet Corridor (85 km)</text>
+    <text x="1210" y="26" font-size="14" fill="#64748b" text-anchor="middle">→</text>
+    
+    <!-- Stage 5 -->
+    <text x="1370" y="26" font-size="12" font-weight="700" fill="#4ade80" text-anchor="middle">5. Buyer OTP &amp; 68% Instant Payout</text>
+  </g>
+
+  <!-- ==================== 5 MAIN ARCHITECTURAL COLUMNS ==================== -->
+
+  <!-- ================= COLUMN 1: CLIENT LAYER ================= -->
+  <g transform="translate(45, 180)">
+    <rect width="285" height="600" rx="16" fill="rgba(15, 23, 42, 0.85)" stroke="#1e293b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="285" height="52" rx="16" fill="url(#blueGrad)" opacity="0.15"/>
+    <text x="18" y="32" font-size="13" font-weight="800" fill="#38bdf8" letter-spacing="0.5">1. CLIENT LAYER (FLUTTER)</text>
+    
+    <!-- Card 1.1: Farmer App -->
+    <g transform="translate(14, 62)">
+      <rect width="257" height="118" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">👨‍🌾 Farmer Mobile App</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• 72h Harvest Pre-Declaration</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Kannada/Hindi Voice Listing</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Real-time APMC Price Guidance</text>
+      <text x="12" y="98" font-size="10.5" fill="#4ade80">• Instant 68% UPI Payout Dashboard</text>
+    </g>
+
+    <!-- Card 1.2: Aggregator App -->
+    <g transform="translate(14, 192)">
+      <rect width="257" height="118" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🏢 Aggregator Hub App</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Optical QC Assay (Grade A/B/C)</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Digital Bluetooth Weighment</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Batch QR Code Generation</text>
+      <text x="12" y="98" font-size="10.5" fill="#fbbf24">• Crate Consolidation &amp; Dispatch</text>
+    </g>
+
+    <!-- Card 1.3: Buyer App -->
+    <g transform="translate(14, 322)">
+      <rect width="257" height="122" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🛒 Consumer &amp; Institutional App</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Retail Consumers (Personalized AI)</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Hostel &amp; Hospital Standing Quotas</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Pseudo-Relevance Feedback Search</text>
+      <text x="12" y="98" font-size="10.5" fill="#38bdf8">• QR Farm Provenance Audit</text>
+    </g>
+
+    <!-- Card 1.4: Delivery App -->
+    <g transform="translate(14, 456)">
+      <rect width="257" height="118" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🚚 Delivery Partner App</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Capacitated VRP GPS Route</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Cold-chain Live Temperature Log</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Rural-to-Urban Corridor Handoff</text>
+      <text x="12" y="98" font-size="10.5" fill="#c084fc">• Buyer Delivery OTP Match</text>
+    </g>
+  </g>
+
+  <!-- ================= COLUMN 2: BACKEND ORCHESTRATION ================= -->
+  <g transform="translate(350, 180)">
+    <rect width="285" height="600" rx="16" fill="rgba(15, 23, 42, 0.85)" stroke="#1e293b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="285" height="52" rx="16" fill="url(#amberGrad)" opacity="0.15"/>
+    <text x="18" y="32" font-size="13" font-weight="800" fill="#fbbf24" letter-spacing="0.5">2. FASTAPI GATEWAY &amp; CORE</text>
+
+    <!-- Card 2.1: API Gateway -->
+    <g transform="translate(14, 62)">
+      <rect width="257" height="126" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🌐 Async API Gateway</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• JWT Authentication &amp; RBAC</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Rate Limiting &amp; Request Validation</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• WebSocket Realtime Telemetry</text>
+      <text x="12" y="98" font-size="10.5" fill="#fbbf24">• OpenAPI 3.0 REST Endpoints</text>
+    </g>
+
+    <!-- Card 2.2: Dynamic Pricing Engine -->
+    <g transform="translate(14, 200)">
+      <rect width="257" height="136" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">💰 APMC Pricing Calculator</text>
+      <rect x="10" y="34" width="237" height="24" rx="4" fill="#0f172a"/>
+      <text x="128" y="50" font-size="9" font-family="'JetBrains Mono', monospace" fill="#38bdf8" text-anchor="middle">P_cons = [APMC × (1+α) + C_dist] / (1-M)</text>
+      <text x="12" y="78" font-size="10.5" fill="#94a3b8">• Agmarknet Live Mandi Ingestion</text>
+      <text x="12" y="96" font-size="10.5" fill="#94a3b8">• Grade Multiplier (+15% Grade A)</text>
+      <text x="12" y="114" font-size="10.5" fill="#34d399">• Guaranteed 68% Farm-Gate Floor</text>
+    </g>
+
+    <!-- Card 2.3: Order & Matching -->
+    <g transform="translate(14, 348)">
+      <rect width="257" height="110" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">📦 Order &amp; Booking State</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Multi-crate Batch Allocation</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Recurring Standing Order Engine</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Non-Custodial Escrow Trigger</text>
+    </g>
+
+    <!-- Card 2.4: Vernacular Alerts -->
+    <g transform="translate(14, 470)">
+      <rect width="257" height="104" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">📲 Vernacular Alert Service</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Kannada/Hindi/English SMS &amp; IVR</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Pickup Arrival Geofence Alerts</text>
+      <text x="12" y="80" font-size="10.5" fill="#4ade80">• Instant UPI Settlement Notifier</text>
+    </g>
+  </g>
+
+  <!-- ================= COLUMN 3: AI / ML ENGINES ================= -->
+  <g transform="translate(655, 180)">
+    <rect width="285" height="600" rx="16" fill="rgba(15, 23, 42, 0.85)" stroke="#1e293b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="285" height="52" rx="16" fill="url(#purpleGrad)" opacity="0.15"/>
+    <text x="18" y="32" font-size="13" font-weight="800" fill="#c084fc" letter-spacing="0.5">3. AI / ML INTELLIGENCE</text>
+
+    <!-- Card 3.1: Farmer Engine -->
+    <g transform="translate(14, 62)">
+      <rect width="257" height="126" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🌾 Farmer Crop &amp; Price AI</text>
+      <text x="12" y="44" font-size="10.5" fill="#4ade80">Random Forest + Prophet Model</text>
+      <text x="12" y="64" font-size="10.5" fill="#94a3b8">• APMC Price Trend Forecasting</text>
+      <text x="12" y="82" font-size="10.5" fill="#94a3b8">• Optimal Harvest Window Planner</text>
+      <text x="12" y="100" font-size="10.5" fill="#94a3b8">• Eliminates Post-Harvest Gluts</text>
+    </g>
+
+    <!-- Card 3.2: Aggregator Logistics Engine -->
+    <g transform="translate(14, 200)">
+      <rect width="257" height="126" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🗺️ Aggregator Fleet VRP</text>
+      <text x="12" y="44" font-size="10.5" fill="#fbbf24">K-Means + Capacitated VRP</text>
+      <text x="12" y="64" font-size="10.5" fill="#94a3b8">• Spatial Village Cluster Aggregation</text>
+      <text x="12" y="82" font-size="10.5" fill="#94a3b8">• Multi-Stop Route Optimization</text>
+      <text x="12" y="100" font-size="10.5" fill="#38bdf8">• Cuts Empty Deadheads by 38%</text>
+    </g>
+
+    <!-- Card 3.3: Customer Tri-Model Recommender -->
+    <g transform="translate(14, 338)">
+      <rect width="257" height="136" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🎯 Customer Tri-Model Recs</text>
+      <text x="12" y="44" font-size="10" fill="#c084fc">Hybrid LightFM + FP-Growth</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• <b>Model 1:</b> Recency-Frequency</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• <b>Model 2:</b> Cosine Collab Filtering</text>
+      <text x="12" y="98" font-size="10.5" fill="#94a3b8">• <b>Model 3:</b> Market Basket FP-Growth</text>
+      <text x="12" y="116" font-size="10.5" fill="#34d399">• +28% Average Order Value (AOV)</text>
+    </g>
+
+    <!-- Card 3.4: Vernacular NLP & PRF -->
+    <g transform="translate(14, 486)">
+      <rect width="257" height="88" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="12" y="22" font-size="12" font-weight="700" fill="#ffffff">🎙️ Search NLP &amp; PRF Engine</text>
+      <text x="12" y="42" font-size="10.5" fill="#94a3b8">• Pseudo-Relevance Feedback (PRF)</text>
+      <text x="12" y="60" font-size="10.5" fill="#94a3b8">• Phonetic Dialect Query Match</text>
+    </g>
+  </g>
+
+  <!-- ================= COLUMN 4: BLOCKCHAIN & FAIR SHARE ================= -->
+  <g transform="translate(960, 180)">
+    <rect width="285" height="600" rx="16" fill="rgba(15, 23, 42, 0.85)" stroke="#1e293b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="285" height="52" rx="16" fill="url(#emeraldGrad)" opacity="0.15"/>
+    <text x="18" y="32" font-size="13" font-weight="800" fill="#34d399" letter-spacing="0.5">4. WEB3 ESCROW &amp; AUDIT</text>
+
+    <!-- Card 4.1: Merkle Anchor -->
+    <g transform="translate(14, 62)">
+      <rect width="257" height="114" rx="10" fill="#1e293b" stroke="#34d399" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🔒 SHA-256 Merkle Anchor</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Daily APMC Benchmark Anchoring</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Hub Quality Assay Immutability</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Zero Middleman Price Deductions</text>
+      <text x="12" y="98" font-size="10.5" fill="#34d399">• Polygon L2 Sub-Cent Gas ($0.001)</text>
+    </g>
+
+    <!-- Card 4.2: Fair Share Model (68-10-14-8) -->
+    <g transform="translate(14, 188)">
+      <rect width="257" height="175" rx="12" fill="url(#fairShareGrad)" stroke="#10b981" stroke-width="1.5"/>
+      <text x="12" y="24" font-size="12" font-weight="800" fill="#6ee7b7" letter-spacing="0.5">⚖️ 68-10-14-8 FAIR-SHARE SPLIT</text>
+      
+      <g transform="translate(10, 36)">
+        <rect width="237" height="26" rx="6" fill="#0f172a"/>
+        <text x="10" y="17" font-size="11" fill="#ffffff">👨‍🌾 Farmer Direct Payout</text>
+        <text x="227" y="17" font-size="12" font-weight="800" fill="#4ade80" text-anchor="end">68.0%</text>
+      </g>
+      <g transform="translate(10, 68)">
+        <rect width="237" height="26" rx="6" fill="#0f172a"/>
+        <text x="10" y="17" font-size="11" fill="#ffffff">🏢 Rural Hub (Weigh &amp; Assay)</text>
+        <text x="227" y="17" font-size="12" font-weight="800" fill="#fbbf24" text-anchor="end">10.0%</text>
+      </g>
+      <g transform="translate(10, 100)">
+        <rect width="237" height="26" rx="6" fill="#0f172a"/>
+        <text x="10" y="17" font-size="11" fill="#ffffff">⚡ EV Logistics &amp; Cold-Chain</text>
+        <text x="227" y="17" font-size="12" font-weight="800" fill="#38bdf8" text-anchor="end">14.0%</text>
+      </g>
+      <g transform="translate(10, 132)">
+        <rect width="237" height="26" rx="6" fill="#0f172a"/>
+        <text x="10" y="17" font-size="11" fill="#ffffff">🌐 Platform Operations</text>
+        <text x="227" y="17" font-size="12" font-weight="800" fill="#c084fc" text-anchor="end">8.0%</text>
+      </g>
+    </g>
+
+    <!-- Card 4.3: Smart Contract Escrow -->
+    <g transform="translate(14, 375)">
+      <rect width="257" height="100" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">📜 Smart Contract Escrow</text>
+      <text x="12" y="44" font-size="10.5" fill="#94a3b8">• Non-custodial payment vault</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Buyer pre-auth locked at checkout</text>
+      <text x="12" y="80" font-size="10.5" fill="#4ade80">• Driver OTP match triggers 4-way split</text>
+    </g>
+
+    <!-- Card 4.4: QR Traceability -->
+    <g transform="translate(14, 487)">
+      <rect width="257" height="87" rx="10" fill="#1e293b" stroke="#a855f7" stroke-width="1.2"/>
+      <text x="12" y="22" font-size="12" font-weight="700" fill="#ffffff">🔍 On-Chain QR Provenance</text>
+      <text x="12" y="42" font-size="10.5" fill="#94a3b8">• Consumer crate scan reveals farm GPS</text>
+      <text x="12" y="60" font-size="10.5" fill="#94a3b8">• Harvest timestamp &amp; organic cert</text>
+    </g>
+  </g>
+
+  <!-- ================= COLUMN 5: PHYSICAL LOGISTICS ================= -->
+  <g transform="translate(1265, 180)">
+    <rect width="290" height="600" rx="16" fill="rgba(15, 23, 42, 0.85)" stroke="#1e293b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="290" height="52" rx="16" fill="url(#roseGrad)" opacity="0.15"/>
+    <text x="18" y="32" font-size="13" font-weight="800" fill="#fb7185" letter-spacing="0.5">5. CORRIDOR FULFILLMENT</text>
+
+    <!-- Step 5.1: Catchment -->
+    <g transform="translate(14, 62)">
+      <rect width="262" height="114" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🌾 Rural Catchment (Mandya)</text>
+      <text x="12" y="44" font-size="10.5" fill="#4ade80">15 – 30 km Hub Radius</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Sub-45 min farm gate collection</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Direct pre-cooling staging</text>
+      <text x="12" y="98" font-size="10.5" fill="#94a3b8">• Zero APMC mandi delay queues</text>
+    </g>
+
+    <!-- Step 5.2: Hub Consolidation -->
+    <g transform="translate(14, 188)">
+      <rect width="262" height="114" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🏢 Rural Micro-Hub</text>
+      <text x="12" y="44" font-size="10.5" fill="#fbbf24">Mandya Consolidation Center</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Optical grading &amp; electronic scale</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Standardized ventilated crates</text>
+      <text x="12" y="98" font-size="10.5" fill="#94a3b8">• Manifest consolidation for corridor</text>
+    </g>
+
+    <!-- Step 5.3: EV Corridor -->
+    <g transform="translate(14, 314)">
+      <rect width="262" height="124" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">⚡ High-Speed EV Corridor</text>
+      <text x="12" y="44" font-size="10.5" fill="#38bdf8">Mandya ➔ Bengaluru (85 km)</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Clean Electric 3-Wheeler Fleet</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• Active temperature cold-chain</text>
+      <text x="12" y="98" font-size="10.5" fill="#4ade80">• <b>Transit Spoilage: &lt; 4%</b> (vs 28%)</text>
+      <text x="12" y="114" font-size="10.5" fill="#38bdf8">• 42% Lower Carbon Footprint</text>
+    </g>
+
+    <!-- Step 5.4: Urban Last Mile -->
+    <g transform="translate(14, 450)">
+      <rect width="262" height="124" rx="10" fill="#1e293b" stroke="#fb7185" stroke-width="1.2"/>
+      <text x="12" y="24" font-size="13" font-weight="700" fill="#ffffff">🏠 Urban Last-Mile Drop</text>
+      <text x="12" y="44" font-size="10.5" fill="#fb7185">5 – 10 km Hyperlocal Delivery</text>
+      <text x="12" y="62" font-size="10.5" fill="#94a3b8">• Retail Residences</text>
+      <text x="12" y="80" font-size="10.5" fill="#94a3b8">• College Hostel &amp; PG Messes</text>
+      <text x="12" y="98" font-size="10.5" fill="#94a3b8">• Hospital Kitchens &amp; Canteens</text>
+      <text x="12" y="114" font-size="10.5" fill="#4ade80">• OTP Delivery Proof Verification</text>
+    </g>
+  </g>
+
+  <!-- ==================== BOTTOM PERSISTENCE & DATA FOOTER ==================== -->
+  <g transform="translate(45, 800)">
+    <rect width="1510" height="120" rx="14" fill="#0f172a" stroke="#1e293b" stroke-width="1.5"/>
+    
+    <!-- Left Box: Supabase -->
+    <g transform="translate(24, 18)">
+      <rect width="700" height="84" rx="10" fill="rgba(30, 41, 59, 0.5)" stroke="#334155" stroke-width="1"/>
+      <circle cx="36" cy="42" r="20" fill="rgba(16, 185, 129, 0.15)"/>
+      <text x="36" y="48" font-size="20" text-anchor="middle" fill="#34d399">🗄️</text>
+      <text x="70" y="32" font-size="13" font-weight="700" fill="#f1f5f9">Clustered Persistence Tier: Supabase PostgreSQL + PostGIS Spatial Engine</text>
+      <text x="70" y="52" font-size="11" fill="#94a3b8">• Relational schema: Users (RBAC), Farm Acreage, Grade Listings, Realtime Order State</text>
+      <text x="70" y="68" font-size="11" fill="#94a3b8">• Spatial geofencing &amp; distance decay matrices for hyper-local route optimization</text>
+    </g>
+
+    <!-- Right Box: Microeconomic Outcome -->
+    <g transform="translate(754, 18)">
+      <rect width="732" height="84" rx="10" fill="rgba(30, 41, 59, 0.5)" stroke="#334155" stroke-width="1"/>
+      <circle cx="36" cy="42" r="20" fill="rgba(56, 189, 248, 0.15)"/>
+      <text x="36" y="48" font-size="20" text-anchor="middle" fill="#38bdf8">📊</text>
+      <text x="70" y="32" font-size="13" font-weight="700" fill="#f1f5f9">Microeconomic Impact &amp; Nash Equilibrium (SIH Pilot Metric)</text>
+      <text x="70" y="52" font-size="11" fill="#4ade80">• <b>+35% to +48%</b> Smallholder Farmer Realized Net Income via Direct Farm-Gate Escrow</text>
+      <text x="70" y="68" font-size="11" fill="#38bdf8">• <b>-18% to -24%</b> Consumer Retail Price Reduction | <b>&lt;4%</b> Post-Harvest Spoilage (vs 28%)</text>
+    </g>
+  </g>
+
+</svg>

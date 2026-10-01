@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriLink - End-to-End Technical Architecture (SIH 2026)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #080c17;
+    --bg-card: #0f172a;
+    --border: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-green: #22c55e;
+    --accent-emerald: #10b981;
+    --accent-purple: #c084fc;
+    --accent-amber: #fbbf24;
+    --accent-rose: #fb7185;
+    --accent-indigo: #818cf8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .canvas {
+    width: 1620px;
+    background: radial-gradient(circle at 50% 0%, #132247 0%, #080c17 75%);
+    border: 1.5px solid #1e293b;
+    border-radius: 24px;
+    padding: 36px 40px;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 50px rgba(56, 189, 248, 0.08);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .logo-badge {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #10b981, #0284c7);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+  }
+
+  .title h1 {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #ffffff 0%, #93c5fd 60%, #6ee7b7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .title p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 3px;
+  }
+
+  .sih-badge {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1.2px solid rgba(56, 189, 248, 0.35);
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sih-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-green);
+  }
+
+  /* Process Flow Bar */
+  .flow-indicators {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 12px;
+    margin-bottom: 22px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .flow-step span.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-blue);
+  }
+
+  .flow-arrow {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  /* 5 Column Grid Layout */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  /* Tier Column */
+  .tier-col {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    position: relative;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .tier-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .tier-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .tier-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  .tier-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* Cards inside Columns */
+  .node-card {
+    background: rgba(30, 41, 59, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 11px 13px;
+    position: relative;
+  }
+
+  .node-card.highlight-green {
+    border-left: 3.5px solid var(--accent-green);
+    background: linear-gradient(90deg, rgba(34, 197, 94, 0.09) 0%, rgba(30, 41, 59, 0.6) 100%);
+  }
+
+  .node-card.highlight-blue {
+    border-left: 3.5px solid var(--accent-blue);
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.09) 0%, rgba(30, 41, 59, 0.6) 100%);
+  }
+
+  .node-card.highlight-purple {
+    border-left: 3.5px solid var(--accent-purple);
+    background: linear-gradient(90deg, rgba(192, 132, 252, 0.09) 0%, rgba(30, 41, 59, 0.6) 100%);
+  }
+
+  .node-card.highlight-amber {
+    border-left: 3.5px solid var(--accent-amber);
+    background: linear-gradient(90deg, rgba(251, 191, 36, 0.09) 0%, rgba(30, 41, 59, 0.6) 100%);
+  }
+
+  .node-card.highlight-rose {
+    border-left: 3.5px solid var(--accent-rose);
+    background: linear-gradient(90deg, rgba(251, 113, 133, 0.09) 0%, rgba(30, 41, 59, 0.6) 100%);
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .card-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.09);
+    color: #94a3b8;
+  }
+
+  .card-desc {
+    font-size: 10.5px;
+    color: #cbd5e1;
+    line-height: 1.45;
+  }
+
+  .card-desc ul {
+    list-style: none;
+    margin-top: 3px;
+  }
+
+  .card-desc li {
+    position: relative;
+    padding-left: 11px;
+    margin-bottom: 2.5px;
+  }
+
+  .card-desc li::before {
+    content: '•';
+    position: absolute;
+    left: 1px;
+    color: var(--accent-blue);
+  }
+
+  /* Fair Share Ribbon Box */
+  .fair-share-banner {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(6, 182, 212, 0.18));
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .fair-share-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #6ee7b7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .share-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+
+  .share-item {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 4px 7px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+  }
+
+  .share-val {
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Bottom Architecture Tier */
+  .bottom-tier {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+  }
+
+  .bottom-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .bottom-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .bottom-content h3 {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 3px;
+  }
+
+  .bottom-content p {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas" id="architecture-canvas">
+  
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <div class="logo-badge">🌱</div>
+      <div class="title">
+        <h1>AgriLink — Full Technical Approach & System Architecture</h1>
+        <p>AI-Orchestrated Farm-to-Consumer Agri-Supply Network | Smart India Hackathon (SIH 2026)</p>
+      </div>
+    </div>
+    <div class="sih-badge">
+      SIH 2026 Architecture Blueprint
+    </div>
+  </div>
+
+  <!-- Flow Bar -->
+  <div class="flow-indicators">
+    <div class="flow-step"><span class="dot"></span><span>1. Farm Pre-Declaration</span></div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step"><span class="dot"></span><span>2. Digital Hub QC Assay</span></div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step"><span class="dot"></span><span>3. AI Pricing & Merkle Lock</span></div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step"><span class="dot"></span><span>4. EV Corridor Transit (85km)</span></div>
+    <div class="flow-arrow">➔</div>
+    <div class="flow-step"><span class="dot"></span><span>5. Buyer OTP & 68% Instant Split</span></div>
+  </div>
+
+  <!-- 5 Columns -->
+  <div class="grid-container">
+
+    <!-- Column 1: Client Layer -->
+    <div class="tier-col">
+      <div class="tier-header">
+        <div class="tier-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">📱</div>
+        <div>
+          <div class="tier-title" style="color: var(--accent-blue);">1. Client Layer</div>
+          <div class="tier-sub">Flutter Cross-Platform</div>
+        </div>
+      </div>
+
+      <div class="node-card highlight-green">
+        <div class="card-head">
+          <span class="card-title">👨‍🌾 Farmer App</span>
+          <span class="card-tag">Flutter</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Harvest Pre-declaration (72h)</li>
+            <li>Kannada/Hindi voice crop listing</li>
+            <li>APMC price guidance & UPI payout</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-amber">
+        <div class="card-head">
+          <span class="card-title">🏢 Aggregator App</span>
+          <span class="card-tag">PACS Hub</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Digital weighment & optical assay</li>
+            <li>Grade A/B/C QR certificate</li>
+            <li>Crate consolidation & dispatch</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-blue">
+        <div class="card-head">
+          <span class="card-title">🛒 Buyer / B2B App</span>
+          <span class="card-tag">Retail / B2B</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Retail, Hostel & Hospital quotas</li>
+            <li>Voice search with PRF expansion</li>
+            <li>QR-based farm origin provenance</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-purple">
+        <div class="card-head">
+          <span class="card-title">🚚 Delivery Partner</span>
+          <span class="card-tag">EV Fleet</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Turn-by-turn Capacitated VRP</li>
+            <li>Crate custody & cold-chain log</li>
+            <li>Buyer OTP proof-of-delivery</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Backend Orchestration -->
+    <div class="tier-col">
+      <div class="tier-header">
+        <div class="tier-icon" style="background: rgba(251, 191, 36, 0.15); color: var(--accent-amber);">⚡</div>
+        <div>
+          <div class="tier-title" style="color: var(--accent-amber);">2. Backend API</div>
+          <div class="tier-sub">FastAPI Microservices</div>
+        </div>
+      </div>
+
+      <div class="node-card highlight-amber">
+        <div class="card-head">
+          <span class="card-title">🌐 API Gateway</span>
+          <span class="card-tag">FastAPI</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>JWT Auth & Role-Based Access</li>
+            <li>Rate limiting & WebSocket streams</li>
+            <li>RESTful OpenAPI 3.0 Endpoints</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-blue">
+        <div class="card-head">
+          <span class="card-title">💰 Dynamic Pricing</span>
+          <span class="card-tag">APMC Core</span>
+        </div>
+        <div class="card-desc">
+          <div style="font-family:'JetBrains Mono'; font-size:8.5px; color:#93c5fd; margin-bottom:3px;">
+            P = [APMC × (1+α) + C] / (1-M)
+          </div>
+          <ul>
+            <li>Live Agmarknet modal price feed</li>
+            <li>Grade multiplier (+15% Grade A)</li>
+            <li>Guaranteed 68% farmer floor</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-green">
+        <div class="card-head">
+          <span class="card-title">📦 Order Lifecycle</span>
+          <span class="card-tag">State</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Standing orders (Hostels/Hospitals)</li>
+            <li>Multi-crate batch allocation</li>
+            <li>Automated escrow lock on checkout</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-purple">
+        <div class="card-head">
+          <span class="card-title">📲 Vernacular Alert</span>
+          <span class="card-tag">SMS / Push</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Regional language SMS triggers</li>
+            <li>Pickup slot arrival countdowns</li>
+            <li>Instant credit settlement receipts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 3: AI & ML Tier -->
+    <div class="tier-col">
+      <div class="tier-header">
+        <div class="tier-icon" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">🧠</div>
+        <div>
+          <div class="tier-title" style="color: var(--accent-purple);">3. AI / ML Engines</div>
+          <div class="tier-sub">3 Stakeholders ➔ 3 Models</div>
+        </div>
+      </div>
+
+      <div class="node-card highlight-green">
+        <div class="card-head">
+          <span class="card-title">📈 Farmer Engine</span>
+          <span class="card-tag">Prophet / RF</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li><b>Random Forest + Prophet</b> model</li>
+            <li>APMC price peak forecasting</li>
+            <li>Prevents gluts & guides harvest</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-amber">
+        <div class="card-head">
+          <span class="card-title">🗺️ Aggregator Engine</span>
+          <span class="card-tag">Spatial VRP</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li><b>K-Means Spatial Clustering</b></li>
+            <li>Capacitated Vehicle Routing (VRP)</li>
+            <li>Cuts empty deadheads by 38%</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-purple">
+        <div class="card-head">
+          <span class="card-title">🎯 Customer Recs</span>
+          <span class="card-tag">Tri-Model</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li><b>M1:</b> Recency-Frequency (Buy Again)</li>
+            <li><b>M2:</b> Cosine Collab Filtering</li>
+            <li><b>M3:</b> FP-Growth Market Basket</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-blue">
+        <div class="card-head">
+          <span class="card-title">🎙️ Search & NLP</span>
+          <span class="card-tag">PRF Engine</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Pseudo-Relevance Feedback (PRF)</li>
+            <li>Phonetic vernacular query parsing</li>
+            <li>Bipartite graph link analysis</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 4: Blockchain & Web3 -->
+    <div class="tier-col">
+      <div class="tier-header">
+        <div class="tier-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">⛓️</div>
+        <div>
+          <div class="tier-title" style="color: var(--accent-emerald);">4. Web3 Ledger</div>
+          <div class="tier-sub">Polygon L2 Contracts</div>
+        </div>
+      </div>
+
+      <div class="node-card highlight-green">
+        <div class="card-head">
+          <span class="card-title">🔒 Merkle Price Lock</span>
+          <span class="card-tag">SHA-256</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Anchors APMC modal price quote</li>
+            <li>Immutable assay grade record</li>
+            <li>Zero middleman price skimming</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-blue">
+        <div class="card-head">
+          <span class="card-title">📜 Smart Vault Escrow</span>
+          <span class="card-tag">Vault</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Pre-auth locked at checkout</li>
+            <li>Driver OTP match triggers release</li>
+            <li>Instant automated multi-split</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 68-10-14-8 Fair Share Model Box -->
+      <div class="fair-share-banner">
+        <div class="fair-share-title">
+          <span>⚖️</span> Fair-Share Split (68-10-14-8)
+        </div>
+        <div class="share-grid">
+          <div class="share-item">
+            <span>👨‍🌾 Farmer</span>
+            <span class="share-val" style="color:#4ade80;">68.0%</span>
+          </div>
+          <div class="share-item">
+            <span>🏢 Hub QC</span>
+            <span class="share-val" style="color:#fbbf24;">10.0%</span>
+          </div>
+          <div class="share-item">
+            <span>⚡ Logistics</span>
+            <span class="share-val" style="color:#38bdf8;">14.0%</span>
+          </div>
+          <div class="share-item">
+            <span>🌐 Platform</span>
+            <span class="share-val" style="color:#c084fc;">8.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="node-card highlight-purple">
+        <div class="card-head">
+          <span class="card-title">🔍 QR Provenance</span>
+          <span class="card-tag">Audit</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Crate QR links to batch hash</li>
+            <li>Verifies farm GPS & harvest time</li>
+            <li>Empowers consumer trust</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 5: Physical Logistics -->
+    <div class="tier-col">
+      <div class="tier-header">
+        <div class="tier-icon" style="background: rgba(251, 113, 133, 0.15); color: var(--accent-rose);">🚚</div>
+        <div>
+          <div class="tier-title" style="color: var(--accent-rose);">5. Fulfillment</div>
+          <div class="tier-sub">Corridor Logistics</div>
+        </div>
+      </div>
+
+      <div class="node-card highlight-green">
+        <div class="card-head">
+          <span class="card-title">🌾 Rural Catchment</span>
+          <span class="card-tag">15–30 km</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Mandya village cluster</li>
+            <li>Sub-45 min farm gate drop</li>
+            <li>Eliminates mandi queue waste</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-amber">
+        <div class="card-head">
+          <span class="card-title">🏢 Rural Micro-Hub</span>
+          <span class="card-tag">Grading</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Pre-cooling chamber storage</li>
+            <li>Digital weighment & sorting</li>
+            <li>Standardized crate tagging</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-blue">
+        <div class="card-head">
+          <span class="card-title">⚡ EV Transit Line</span>
+          <span class="card-tag">85 km Line</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Mandya ➔ Bengaluru Highway</li>
+            <li>Active cold-chain monitoring</li>
+            <li>Transit spoilage: &lt; 4% (vs 28%)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="node-card highlight-rose">
+        <div class="card-head">
+          <span class="card-title">🏠 Urban Drop-off</span>
+          <span class="card-tag">5–10 km</span>
+        </div>
+        <div class="card-desc">
+          <ul>
+            <li>Electric 3W last-mile delivery</li>
+            <li>Retail homes & hostel canteens</li>
+            <li>OTP handoff release</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Tier: Persistence & Geodata Infrastructure -->
+  <div class="bottom-tier">
+    <div class="bottom-box">
+      <div class="bottom-icon">🗄️</div>
+      <div class="bottom-content">
+        <h3>Primary Persistence Tier: Supabase PostgreSQL + PostGIS Cluster</h3>
+        <p>Stores Users (RBAC), Farm Acreage, Grade Listings, Realtime Order State, and Geospatial Catchment Geofences with Sub-Millisecond PostGIS Spatial Queries.</p>
+      </div>
+    </div>
+    <div class="bottom-box">
+      <div class="bottom-icon">📊</div>
+      <div class="bottom-content">
+        <h3>Microeconomic Nash Equilibrium & Post-Harvest Impact</h3>
+        <p>Increases smallholder farmer net earnings by <b>+35% to +48%</b>, lowers consumer retail prices by <b>-18% to -24%</b>, and compresses post-harvest spoilage from 28% to <b>&lt;4%</b>.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
