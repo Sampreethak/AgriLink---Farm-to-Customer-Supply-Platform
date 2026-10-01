@@ -349,6 +349,30 @@ class PlatformState extends ChangeNotifier {
         .fold(0.0, (sum, o) => sum + o.deliveryPayout);
   }
 
+  // ---------------------------------------------------------------------------
+  // 🌾 DYNAMIC FARMER PRODUCE LISTINGS
+  // ---------------------------------------------------------------------------
+  final List<Map<String, dynamic>> _customFarmerProducts = [];
+  List<Map<String, dynamic>> get customFarmerProducts => List.unmodifiable(_customFarmerProducts);
+
+  void addFarmerProduct(Map<String, dynamic> product) {
+    _customFarmerProducts.insert(0, product);
+    notifyListeners();
+  }
+
+  void removeFarmerProduct(String productId) {
+    _customFarmerProducts.removeWhere((p) => p['id']?.toString() == productId);
+    notifyListeners();
+  }
+
+  List<Map<String, dynamic>> getProductsForFarmer(String farmerName) {
+    final clean = farmerName.trim().toLowerCase();
+    return _customFarmerProducts.where((p) {
+      final f = (p['farmer'] ?? p['farmer_name'] ?? '').toString().toLowerCase();
+      return f == clean || f.contains(clean) || clean.contains(f);
+    }).toList();
+  }
+
   /// Update order delivery lifecycle status
   void updateOrderStatus(String orderId, String newStatus, {String? driverName}) {
     for (final order in _allOrders) {

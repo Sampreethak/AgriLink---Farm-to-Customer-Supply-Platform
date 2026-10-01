@@ -41,8 +41,10 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
       _isLoading = true;
     });
     try {
-      final farmerName = _platformState.currentUser.fullName;
+      final user = _platformState.currentUser;
+      final farmerName = user.fullName;
       final syncedOrders = _platformState.getFarmerOrders(farmerName);
+      final isSeedAccount = farmerName.toLowerCase().contains("ramesh") || user.id == "11111111-1111-1111-1111-111111111111";
 
       if (syncedOrders.isNotEmpty) {
         setState(() {
@@ -57,35 +59,21 @@ class _OrdersTabState extends State<OrdersTab> with SingleTickerProviderStateMix
           }).toList();
           _isLoading = false;
         });
-      } else {
+      } else if (isSeedAccount) {
         final raw = await _orderService.getFarmerOrders();
         setState(() {
           _orders = raw.map<Map<String, dynamic>>((o) => Map<String, dynamic>.from(o)).toList();
           _isLoading = false;
         });
+      } else {
+        setState(() {
+          _orders = [];
+          _isLoading = false;
+        });
       }
     } catch (e) {
       setState(() {
-        _orders = [
-          {
-            'id': 'ORD-98721',
-            'status': 'delivered',
-            'amount': '952',
-            'customer_name': 'Priya Verma (Bandra West, Mumbai)',
-            'item_count': 1,
-            'created_at': '28/7',
-            'payout_label': '68% Direct Farmer Payout: ₹952',
-          },
-          {
-            'id': 'ORD-98715',
-            'status': 'delivered',
-            'amount': '1632',
-            'customer_name': 'Priya Verma (Bandra West, Mumbai)',
-            'item_count': 1,
-            'created_at': '25/7',
-            'payout_label': '68% Direct Farmer Payout: ₹1,632',
-          },
-        ];
+        _orders = [];
         _isLoading = false;
       });
     }

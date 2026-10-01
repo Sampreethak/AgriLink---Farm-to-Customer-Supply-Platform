@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/product_service.dart';
+import '../../services/platform_state.dart';
 import 'products/add_product_screen.dart';
 import 'products/edit_product_screen.dart';
 import 'products/product_details_screen.dart';
@@ -36,38 +37,53 @@ class _ProductsTabState extends State<ProductsTab> {
       _error = '';
     });
     try {
+      final currentFarmer = PlatformState().currentUser;
+      final localProducts = PlatformState().getProductsForFarmer(currentFarmer.fullName);
+      
       final data = await _productService.getProducts(limit: 50);
       final raw = data['products'] as List<dynamic>? ?? [];
+      
+      final apiProducts = raw.where((p) {
+        final fName = (p['farmer_name'] ?? '').toString().toLowerCase();
+        final cName = currentFarmer.fullName.toLowerCase();
+        // Match active farmer or load seed for Ramesh Kumar
+        return fName == cName || (cName.contains("ramesh") && fName.contains("ramesh"));
+      }).map<Map<String, dynamic>>((p) {
+        final category = (p['category'] ?? 'default').toString();
+        return {
+          'id': p['id']?.toString() ?? '',
+          'name': p['name'] ?? 'Unknown Crop',
+          'price': '₹${p['price'] ?? 0}/${p['unit'] ?? 'kg'}',
+          'stock': '${p['stock_quantity'] ?? 0} ${p['unit'] ?? 'kg'} available',
+          'category': category,
+          'emoji': _categoryEmoji[category] ?? _categoryEmoji['default']!,
+          'farmer': p['farmer_name'] ?? currentFarmer.fullName,
+          'status': (p['stock_quantity'] ?? 0) > 0 ? 'Available' : 'Out of Stock',
+        };
+      }).toList();
+
+      final combined = [...localProducts, ...apiProducts];
+      
+      // Deduplicate by name/id
+      final seen = <String>{};
+      final uniqueList = <Map<String, dynamic>>[];
+      for (final p in combined) {
+        final key = (p['name'] ?? p['id']).toString();
+        if (!seen.contains(key)) {
+          seen.add(key);
+          uniqueList.add(p);
+        }
+      }
+
       setState(() {
-        _products = raw.map<Map<String, dynamic>>((p) {
-          final category = (p['category'] ?? 'default').toString();
-          return {
-            'id': p['id']?.toString() ?? '',
-            'name': p['name'] ?? 'Unknown Crop',
-            'price': '₹${p['price'] ?? 0}/${p['unit'] ?? 'kg'}',
-            'stock': '${p['stock_quantity'] ?? 0} ${p['unit'] ?? 'kg'} available',
-            'category': category,
-            'emoji': _categoryEmoji[category] ?? _categoryEmoji['default']!,
-            'farmer': p['farmer_name'] ?? 'You',
-            'status': (p['stock_quantity'] ?? 0) > 0 ? 'Available' : 'Out of Stock',
-          };
-        }).toList();
+        _products = uniqueList;
         _isLoading = false;
       });
     } catch (e) {
+      final currentFarmer = PlatformState().currentUser;
+      final localProducts = PlatformState().getProductsForFarmer(currentFarmer.fullName);
       setState(() {
-        // Demo fallback data
-        _products = List.generate(5, (i) => {
-          'id': 'demo-$i',
-          'name': 'Tomato ${i + 1}',
-          'price': '₹${40 + i * 5}/kg',
-          'stock': '${10 + i * 5} kg available',
-          'category': 'Vegetables',
-          'emoji': '🍅',
-          'farmer': 'You',
-          'status': 'Available',
-        });
-        _error = e.toString();
+        _products = localProducts;
         _isLoading = false;
       });
     }

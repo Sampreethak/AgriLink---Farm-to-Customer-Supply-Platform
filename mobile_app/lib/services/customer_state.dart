@@ -69,7 +69,7 @@ class CustomerState extends ChangeNotifier {
     _orders.clear();
     final lowerEmail = user.email.toLowerCase();
 
-    if (lowerEmail.contains("amit") || lowerEmail.contains("hostel") || lowerEmail.contains("pg")) {
+    if (lowerEmail == "amit.buyer@agrilink.com" || lowerEmail == "cust1005@agrilink.com") {
       // Amit Roy (Hostel & PG Mess Buyer) past orders
       _orders.addAll([
         CustomerOrderModel(
@@ -108,26 +108,8 @@ class CustomerState extends ChangeNotifier {
           status: "DELIVERED",
           address: "St. John Hostel Mess, Block B, Pune / Kolar",
         ),
-        CustomerOrderModel(
-          orderId: "ORD-98631",
-          items: [
-            CartItemModel(
-              id: "101",
-              name: "Fresh Red Tomatoes (Nashik Special)",
-              priceNum: 28.0,
-              priceStr: "₹28/kg",
-              imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600",
-              farmer: "Ramesh Kumar",
-              qty: 60,
-            ),
-          ],
-          totalAmount: 1720.0,
-          date: "Delivered July 22, 2026",
-          status: "DELIVERED",
-          address: "St. John Hostel Mess, Block B, Pune / Kolar",
-        ),
       ]);
-    } else if (lowerEmail.contains("sneha") || lowerEmail.contains("hospital") || lowerEmail.contains("clinic")) {
+    } else if (lowerEmail == "sneha.buyer@agrilink.com" || lowerEmail == "cust1004@agrilink.com") {
       // Sneha Kapoor (Hospital Dietary Buyer) past orders
       _orders.addAll([
         CustomerOrderModel(
@@ -148,45 +130,9 @@ class CustomerState extends ChangeNotifier {
           status: "DELIVERED",
           address: "Fortis Care Hospital Dietary Wing, Delhi NCR / Bengaluru",
         ),
-        CustomerOrderModel(
-          orderId: "ORD-98495",
-          items: [
-            CartItemModel(
-              id: "106",
-              name: "Organic Himachal Honey",
-              priceNum: 380.0,
-              priceStr: "₹380/kg",
-              imageUrl: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600",
-              farmer: "Anita Sharma",
-              qty: 15,
-            ),
-          ],
-          totalAmount: 5740.0,
-          date: "Delivered July 23, 2026",
-          status: "DELIVERED",
-          address: "Fortis Care Hospital Dietary Wing, Delhi NCR / Bengaluru",
-        ),
-        CustomerOrderModel(
-          orderId: "ORD-98480",
-          items: [
-            CartItemModel(
-              id: "102",
-              name: "Organic Red Onions",
-              priceNum: 22.5,
-              priceStr: "₹22.5/kg",
-              imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?w=600",
-              farmer: "Ramesh Kumar",
-              qty: 25,
-            ),
-          ],
-          totalAmount: 602.5,
-          date: "Delivered July 21, 2026",
-          status: "DELIVERED",
-          address: "Fortis Care Hospital Dietary Wing, Delhi NCR / Bengaluru",
-        ),
       ]);
-    } else if (lowerEmail.contains("rajesh") || lowerEmail.contains("corp") || lowerEmail.contains("wholesale")) {
-      // Rajesh Joshi (Corporate & Wholesaler Buyer) past orders
+    } else if (lowerEmail == "rajesh.buyer@agrilink.com") {
+      // Rajesh Joshi (Corporate Buyer) past orders
       _orders.addAll([
         CustomerOrderModel(
           orderId: "ORD-98301",
@@ -206,27 +152,9 @@ class CustomerState extends ChangeNotifier {
           status: "DELIVERED",
           address: "Central Agro Wholesaler Yard, Ahmedabad / Bengaluru",
         ),
-        CustomerOrderModel(
-          orderId: "ORD-98290",
-          items: [
-            CartItemModel(
-              id: "107",
-              name: "Organic Basmati Rice 1121",
-              priceNum: 95.0,
-              priceStr: "₹95/kg",
-              imageUrl: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600",
-              farmer: "Vikram Singh",
-              qty: 400,
-            ),
-          ],
-          totalAmount: 38040.0,
-          date: "Delivered July 22, 2026",
-          status: "DELIVERED",
-          address: "Central Agro Wholesaler Yard, Ahmedabad / Bengaluru",
-        ),
       ]);
-    } else {
-      // Default: Priya Verma / Individual Customer past orders from database seed
+    } else if (lowerEmail == "priya.buyer@agrilink.com" || user.id == "99999999-9999-9999-9999-999999999999") {
+      // Priya Verma / Seed Dataset account
       _orders.addAll([
         CustomerOrderModel(
           orderId: "ORD-98721",
@@ -246,90 +174,17 @@ class CustomerState extends ChangeNotifier {
           status: "DELIVERED",
           address: "Flat 402, Sunshine Heights, Bandra West, Mumbai",
         ),
-        CustomerOrderModel(
-          orderId: "ORD-98715",
-          items: [
-            CartItemModel(
-              id: "105",
-              name: "Shimla Royal Delicious Apples",
-              priceNum: 120.0,
-              priceStr: "₹120/kg",
-              imageUrl: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600",
-              farmer: "Anita Sharma",
-              qty: 20,
-            ),
-          ],
-          totalAmount: 2440.0,
-          date: "Delivered July 25, 2026",
-          status: "DELIVERED",
-          address: "Flat 402, Sunshine Heights, Bandra West, Mumbai",
-        ),
-        CustomerOrderModel(
-          orderId: "ORD-98702",
-          items: [
-            CartItemModel(
-              id: "102",
-              name: "Organic Red Onions",
-              priceNum: 22.5,
-              priceStr: "₹22.5/kg",
-              imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?w=600",
-              farmer: "Ramesh Kumar",
-              qty: 30,
-            ),
-          ],
-          totalAmount: 715.0,
-          date: "Delivered July 20, 2026",
-          status: "DELIVERED",
-          address: "Flat 402, Sunshine Heights, Bandra West, Mumbai",
-        ),
       ]);
     }
-
+    // New registered users start with fresh, empty orders list!
     notifyListeners();
   }
 
   // Cart Items State: key is produce name
   final Map<String, CartItemModel> _cart = {};
 
-  // Placed Orders History
-  final List<CustomerOrderModel> _orders = [
-    CustomerOrderModel(
-      orderId: "ORD-98721",
-      items: [
-        CartItemModel(
-          id: "101",
-          name: "Fresh Red Tomatoes (Nashik Special)",
-          priceNum: 28.0,
-          priceStr: "₹28/kg",
-          imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600",
-          farmer: "Ramesh Kumar",
-          qty: 50,
-        ),
-      ],
-      totalAmount: 1440.0,
-      date: "Delivered July 28, 2026",
-      status: "DELIVERED",
-      address: "Flat 402, Sunshine Heights, Bandra West, Mumbai",
-    ),
-    CustomerOrderModel(
-      orderId: "ORD-98715",
-      items: [
-        CartItemModel(
-          id: "105",
-          name: "Shimla Royal Delicious Apples",
-          priceNum: 120.0,
-          priceStr: "₹120/kg",
-          imageUrl: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600",
-          farmer: "Anita Sharma",
-          qty: 20,
-        ),
-      ],
-      totalAmount: 2440.0,
-      date: "Delivered July 25, 2026",
-      status: "DELIVERED",
-      address: "Flat 402, Sunshine Heights, Bandra West, Mumbai",
-    ),
-  ];
+  // Placed Orders History (fresh for new users, populated on demand)
+  final List<CustomerOrderModel> _orders = [];
 
   Map<String, CartItemModel> get cart => _cart;
   List<CustomerOrderModel> get orders => List.unmodifiable(_orders);

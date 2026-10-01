@@ -53,12 +53,21 @@ class AuthService {
       return null;
     }
 
-    // Lookup user by phone in registry, or fallback to first matching user
-    final cleanPhone = phone.replaceAll(RegExp(r'\s+'), '');
-    AppUserModel matchedUser = UserRegistry.users.firstWhere(
-      (u) => u.phone.replaceAll(RegExp(r'\s+'), '') == cleanPhone,
-      orElse: () => UserRegistry.users.first,
-    );
+    // Lookup user by phone in registry, or create a new user profile
+    AppUserModel? matchedUser = UserRegistry.findByPhone(phone);
+    if (matchedUser == null) {
+      final cleanPhone = phone.replaceAll(RegExp(r'\s+'), '');
+      matchedUser = AppUserModel(
+        id: "usr-${DateTime.now().millisecondsSinceEpoch}",
+        email: "$cleanPhone@agrilink.com",
+        fullName: "AgriLink Member",
+        role: "customer",
+        customerType: "Individual Customer",
+        region: "Bengaluru / Mandya Corridor",
+        phone: phone,
+      );
+      UserRegistry.registerUser(matchedUser);
+    }
 
     await _storageService.saveToken("mock-jwt-token-verified");
     await _storageService.saveUserData(
@@ -97,35 +106,65 @@ class AuthService {
     required String phone,
     required String role,
     String? email,
+    String? region,
+    String? customerType,
     String? password,
   }) async {
-    final newId = "usr-${DateTime.now().millisecondsSinceEpoch}";
+    final cleanRole = role.toLowerCase();
+    final newId = "usr-$cleanRole-${DateTime.now().millisecondsSinceEpoch}";
+    
+    final computedCustomerType = customerType != null && customerType.isNotEmpty
+        ? customerType
+        : (cleanRole == 'farmer'
+            ? 'Farmer (Producer)'
+            : (cleanRole == 'aggregator'
+                ? 'Aggregator Hub'
+                : (cleanRole == 'delivery' ? 'Delivery Partner' : (cleanRole == 'admin' ? 'Admin' : 'Individual Customer'))));
+
     final user = AppUserModel(
       id: newId,
-      email: email ?? "$phone@agrilink.com",
+      email: (email != null && email.isNotEmpty) ? email : "${phone.replaceAll(RegExp(r'[^\d]'), '')}@agrilink.com",
       fullName: fullName,
-      role: role.toLowerCase(),
-      customerType: role == 'farmer'
-          ? 'Farmer (Producer)'
-          : (role == 'aggregator'
-              ? 'Aggregator Hub'
-              : (role == 'delivery' ? 'Delivery Partner' : 'Individual Customer')),
-      region: 'Bengaluru / Mandya Corridor',
+      role: cleanRole,
+      customerType: computedCustomerType,
+      region: (region != null && region.isNotEmpty) ? region : 'Bengaluru / Mandya Corridor',
       phone: phone,
     );
 
-    await _storageService.saveToken("mock-jwt-token-preview");
+    // 1. Add to in-app user registry
+    UserRegistry.registerUser(user);
+
+    // 2. Persist in local storage
+    await _storageService.saveToken("jwt-token-${user.id}");
     await _storageService.saveUserData(
       name: fullName,
       phone: phone,
-      role: role,
+      role: cleanRole,
       id: newId,
     );
 
+    // 3. Set active state across platform
     PlatformState().setCurrentUser(user);
     if (user.role == 'customer') {
       CustomerState().setProfile(user);
     }
+
+    // 4. Sync new user registration with FastAPI backend
+    try {
+      await _dio.post('/auth/register', data: {
+        'id': user.id,
+        'full_name': user.fullName,
+        'phone': user.phone,
+        'email': user.email,
+        'role': user.role,
+        'customer_type': user.customerType,
+        'region': user.region,
+        'password': password ?? 'Secret@123',
+      });
+    } catch (_) {
+      // Backend is optional/local; app continues seamlessly
+    }
+
     return true;
   }
 

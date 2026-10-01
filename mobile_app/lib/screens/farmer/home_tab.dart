@@ -43,28 +43,44 @@ class _HomeTabState extends State<HomeTab> {
   Future<void> _loadDashboardData() async {
     setState(() => _isLoading = true);
     try {
-      final farmerName = _platformState.currentUser.fullName;
+      final user = _platformState.currentUser;
+      final farmerName = user.fullName;
       final syncedOrders = _platformState.getFarmerOrders(farmerName);
       final farmerEarnings = _platformState.getFarmerTotalEarnings(farmerName);
+      final farmerProducts = _platformState.getProductsForFarmer(farmerName);
+
+      final isSeedAccount = farmerName.toLowerCase().contains("ramesh") || user.id == "11111111-1111-1111-1111-111111111111";
 
       final pendingCount = syncedOrders.where((o) => o.status != 'DELIVERED').length;
 
+      final displayEarnings = farmerEarnings > 0 
+          ? '₹${farmerEarnings.toStringAsFixed(0)}' 
+          : (isSeedAccount ? '₹2,584' : '₹0');
+
+      final displayOrders = syncedOrders.isNotEmpty
+          ? pendingCount.toString()
+          : (isSeedAccount ? '2' : '0');
+
+      final displayProducts = farmerProducts.isNotEmpty
+          ? '${farmerProducts.length} Crops'
+          : (isSeedAccount ? '6 Crops' : '0 Crops');
+
       setState(() {
         _stats = {
-          'earnings': '₹${farmerEarnings > 0 ? farmerEarnings.toStringAsFixed(0) : '2,584'}',
-          'pendingOrders': (pendingCount > 0 ? pendingCount : syncedOrders.length).toString(),
-          'products': '6 Crops',
-          'rating': '4.9 ⭐',
+          'earnings': displayEarnings,
+          'pendingOrders': displayOrders,
+          'products': displayProducts,
+          'rating': '5.0 ⭐',
         };
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _stats = {
-          'earnings': '₹2,584',
-          'pendingOrders': '2',
-          'products': '6',
-          'rating': '4.9 ⭐',
+          'earnings': '₹0',
+          'pendingOrders': '0',
+          'products': '0 Crops',
+          'rating': '5.0 ⭐',
         };
         _isLoading = false;
       });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../../services/product_service.dart';
 import '../../services/customer_state.dart';
+import '../../services/platform_state.dart';
 import 'products/product_details_screen.dart';
 import 'bulk_order_screen.dart';
 import 'recurring_order_screen.dart';
@@ -189,31 +190,55 @@ class _HomeTabState extends State<HomeTab> {
       _isLoadingProducts = true;
     });
     try {
+      final customList = PlatformState().customFarmerProducts.map((p) => {
+        'name': p['name'] ?? 'Produce',
+        'price': p['price'] ?? '₹30/kg',
+        'imageUrl': p['image_url'] ?? _resolveProduceImage(p['name']?.toString(), null),
+        'category': p['category'] ?? 'Vegetables',
+        'rating': '5.0',
+        'reviews': '1',
+        'id': p['id']?.toString() ?? '',
+        'farmer': p['farmer'] ?? p['farmer_name'] ?? 'Direct Producer',
+      }).toList();
+
       final data = await _productService.getProducts(limit: 30);
       final List<dynamic> raw = data['products'] ?? [];
+      final apiList = raw.map<Map<String, dynamic>>((p) {
+        final category = (p['category'] ?? 'default').toString();
+        final priceNum = (p['price'] ?? 0);
+        final unit = p['unit'] ?? 'kg';
+        return {
+          'name': p['name'] ?? '',
+          'price': '₹${priceNum.toString()}/$unit',
+          'imageUrl': (p['image_urls'] != null && (p['image_urls'] as List).isNotEmpty)
+              ? p['image_urls'][0]
+              : _resolveProduceImage(p['name'] ?? p['crop_name'], _categoryImages[category] ?? _categoryImages['default']!),
+          'category': category,
+          'rating': (p['rating'] ?? 4.8).toString(),
+          'reviews': (p['reviews'] ?? 42).toString(),
+          'id': p['id']?.toString() ?? '',
+          'farmer': p['farmer_name'] ?? 'Ramesh Kumar',
+        };
+      }).toList();
+
       setState(() {
-        _allProducts = raw.map<Map<String, dynamic>>((p) {
-          final category = (p['category'] ?? 'default').toString();
-          final priceNum = (p['price'] ?? 0);
-          final unit = p['unit'] ?? 'kg';
-          return {
-            'name': p['name'] ?? '',
-            'price': '₹${priceNum.toString()}/$unit',
-            'imageUrl': (p['image_urls'] != null && (p['image_urls'] as List).isNotEmpty)
-                ? p['image_urls'][0]
-                : _resolveProduceImage(p['name'] ?? p['crop_name'], _categoryImages[category] ?? _categoryImages['default']!),
-            'category': category,
-            'rating': (p['rating'] ?? 4.8).toString(),
-            'reviews': (p['reviews'] ?? 42).toString(),
-            'id': p['id']?.toString() ?? '',
-            'farmer': p['farmer_name'] ?? 'Ramesh Kumar',
-          };
-        }).toList();
+        _allProducts = [...customList, ...apiList];
         _isLoadingProducts = false;
       });
     } catch (e) {
+      final customList = PlatformState().customFarmerProducts.map((p) => {
+        'name': p['name'] ?? 'Produce',
+        'price': p['price'] ?? '₹30/kg',
+        'imageUrl': p['image_url'] ?? _resolveProduceImage(p['name']?.toString(), null),
+        'category': p['category'] ?? 'Vegetables',
+        'rating': '5.0',
+        'reviews': '1',
+        'id': p['id']?.toString() ?? '',
+        'farmer': p['farmer'] ?? p['farmer_name'] ?? 'Direct Producer',
+      }).toList();
       setState(() {
         _allProducts = [
+          ...customList,
           {
             "name": "Fresh Red Tomatoes (Nashik Special)",
             "price": "₹28/kg",

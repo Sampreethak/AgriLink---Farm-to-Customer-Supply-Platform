@@ -18,11 +18,61 @@ class AppUserModel {
     required this.phone,
     this.avatarUrl = '',
   });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'email': email,
+    'fullName': fullName,
+    'role': role,
+    'customerType': customerType,
+    'region': region,
+    'phone': phone,
+    'avatarUrl': avatarUrl,
+  };
+
+  factory AppUserModel.fromJson(Map<String, dynamic> json) => AppUserModel(
+    id: json['id']?.toString() ?? '',
+    email: json['email']?.toString() ?? '',
+    fullName: json['fullName']?.toString() ?? json['full_name']?.toString() ?? 'AgriLink User',
+    role: json['role']?.toString().toLowerCase() ?? 'customer',
+    customerType: json['customerType']?.toString() ?? json['customer_type']?.toString() ?? 'Individual Customer',
+    region: json['region']?.toString() ?? 'Bengaluru / Mandya Corridor',
+    phone: json['phone']?.toString() ?? '',
+    avatarUrl: json['avatarUrl']?.toString() ?? '',
+  );
 }
 
 class UserRegistry {
+  static final List<AppUserModel> _customUsers = [];
+
+  static void registerUser(AppUserModel user) {
+    _customUsers.removeWhere((u) => u.id == user.id || u.phone == user.phone || (user.email.isNotEmpty && u.email == user.email));
+    _customUsers.insert(0, user);
+  }
+
+  static List<AppUserModel> get users => [..._customUsers, ..._seedUsers];
+
+  static AppUserModel? findById(String id) {
+    for (final u in users) {
+      if (u.id == id) return u;
+    }
+    return null;
+  }
+
+  static AppUserModel? findByPhone(String phone) {
+    final clean = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    if (clean.isEmpty) return null;
+    for (final u in users) {
+      final uPhone = u.phone.replaceAll(RegExp(r'[^\d+]'), '');
+      if (uPhone == clean || uPhone.endsWith(clean) || clean.endsWith(uPhone)) {
+        return u;
+      }
+    }
+    return null;
+  }
+
   // Pre-configured recognized users from datasets (Supabase seed, benchmark users, and credentials)
-  static final List<AppUserModel> users = [
+  static final List<AppUserModel> _seedUsers = [
     // -------------------------------------------------------------------------
     // 1. BUYERS / CUSTOMERS
     // -------------------------------------------------------------------------

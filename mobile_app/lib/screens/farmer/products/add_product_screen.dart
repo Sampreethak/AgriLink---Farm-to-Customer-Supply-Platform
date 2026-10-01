@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/colors.dart';
 import '../../../core/validators.dart';
 import '../../../services/product_service.dart';
+import '../../../services/platform_state.dart';
 import '../../../widgets/common/primary_button.dart';
 import '../../../widgets/form/custom_upload_title.dart';
 
@@ -55,29 +56,53 @@ class _AddProductScreenState extends State<AddProductScreen> {
         "Dairy & Honey": 5,
       };
 
+      final currentFarmer = PlatformState().currentUser;
+      final double price = double.tryParse(_priceController.text.trim()) ?? 30.0;
+      final double qty = double.tryParse(_quantityController.text.trim()) ?? 100.0;
+      final String cropName = _nameController.text.trim();
+      final String unit = _selectedUnit.toLowerCase();
+
       final payload = {
-        "farmer_name": "Ramesh Kumar",
-        "title": "${_nameController.text.trim()} (${_selectedGrade})",
-        "crop_name": _nameController.text.trim(),
+        "farmer_name": currentFarmer.fullName,
+        "title": "$cropName ($_selectedGrade)",
+        "crop_name": cropName,
         "category_id": categoryMap[_selectedCategory] ?? 1,
         "description": _descriptionController.text.trim().isNotEmpty
             ? _descriptionController.text.trim()
-            : "Fresh harvested farm produce from Mandya agro corridor.",
-        "price_per_unit": double.tryParse(_priceController.text.trim()) ?? 30.0,
-        "unit": _selectedUnit.toLowerCase(),
-        "available_quantity": double.tryParse(_quantityController.text.trim()) ?? 100.0,
+            : "Fresh harvested farm produce from ${currentFarmer.region}.",
+        "price_per_unit": price,
+        "unit": unit,
+        "available_quantity": qty,
         "is_organic": _isOrganic,
         "grade": _selectedGrade,
-        "location": _locationController.text.trim(),
+        "location": _locationController.text.trim().isNotEmpty ? _locationController.text.trim() : currentFarmer.region,
         "image_url": _uploadedImageUrl ?? "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500",
       };
+
+      // Add to local dynamic state
+      PlatformState().addFarmerProduct({
+        'id': 'crop-${DateTime.now().millisecondsSinceEpoch}',
+        'name': cropName,
+        'farmer_name': currentFarmer.fullName,
+        'farmer': currentFarmer.fullName,
+        'price': '₹$price/$unit',
+        'price_per_unit': price,
+        'stock': '$qty $unit available',
+        'stock_quantity': qty,
+        'category': _selectedCategory,
+        'unit': unit,
+        'is_organic': _isOrganic,
+        'grade': _selectedGrade,
+        'location': currentFarmer.region,
+        'image_url': payload['image_url'],
+      });
 
       await _productService.createProduct(payload);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Crop listing published dynamically to AgriLink & Supabase!"),
+            content: Text("Crop listing published successfully!"),
             backgroundColor: AppColors.primaryGreen,
           ),
         );
@@ -86,8 +111,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Listing saved locally: ${e.toString().replaceAll('Exception: ', '')}"),
+          const SnackBar(
+            content: Text("Crop listing saved to your dashboard!"),
             backgroundColor: AppColors.primaryGreen,
           ),
         );
