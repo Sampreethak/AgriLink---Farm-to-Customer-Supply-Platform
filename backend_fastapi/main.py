@@ -25,6 +25,22 @@ except Exception as e:
     pricing_predictor = None
 
 try:
+    from nlp_query_engine import FarmerDatabaseNLPQueryEngine
+    nlp_engine = FarmerDatabaseNLPQueryEngine()
+except ImportError:
+    try:
+        from ml.nlp_query_engine import FarmerDatabaseNLPQueryEngine
+        nlp_engine = FarmerDatabaseNLPQueryEngine()
+    except Exception as e:
+        print(f"Farmer NLP Query Engine load warning: {e}")
+        nlp_engine = None
+except Exception as e:
+    print(f"Farmer NLP Query Engine load warning: {e}")
+    nlp_engine = None
+
+
+
+try:
     from dotenv import load_dotenv
     # Load .env file from the current directory or workspace root
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
@@ -201,8 +217,8 @@ def health_check():
         "database": "Supabase PostgreSQL (Active)",
         "corridor": "Mandya -> Bengaluru Agro-Supply Corridor",
         "recommendation_engine": {
-            "status": "LOADED" if predictor is not None and predictor.data is not None else "STANDBY",
-            "models": ["Buy Again (Recency/Freq)", "FP-Growth (Association Rules)", "User-Based Collaborative Filtering (Cosine Sim)"]
+            "status": "LOADED" if predictor is not None and predictor.purchase_data is not None and not predictor.purchase_data.empty else "STANDBY",
+            "models": ["Buy Again", "FP-Growth Association Rules", "Collaborative Filtering", "Next-Basket NBR", "Recency-Weighted", "Price-Aware", "Local Popularity"]
         },
         "pricing_engine": {
             "status": "LOADED" if pricing_predictor is not None and pricing_predictor.payload is not None else "STANDBY",
@@ -281,6 +297,12 @@ def create_listing(item: ListingCreate):
     }
     # Dynamic live storage
     MOCK_LISTINGS.insert(0, new_item)
+    if predictor:
+        try:
+            predictor.register_new_listing(new_item)
+        except Exception:
+            pass
+
     
     # Sync with Supabase cloud database
     supabase_synced = sync_to_supabase("seller_listing", {
@@ -368,7 +390,139 @@ def get_recommendations(buyer_id: str, top_k: int = 10):
         "recommendations": MOCK_LISTINGS[:top_k]
     }
 
-ACTIVE_ORDERS = []
+@app.get("/api/v1/recommendations/replacement/{listing_id}")
+def get_replacement_recommendations(listing_id: str, top_k: int = 3):
+    if predictor:
+        items = predictor.get_replacement_listings(listing_id, top_k=top_k)
+        return {"listing_id": listing_id, "recommendation_type": "REPLACEMENT", "count": len(items), "recommendations": items}
+    return {"listing_id": listing_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/farmer/{farmer_id}")
+def get_farmer_recommendations(farmer_id: str, top_k: int = 10):
+    if predictor:
+        items = predictor.get_farmer_recommendations(farmer_id, top_k=top_k)
+        return {"farmer_id": farmer_id, "recommendation_type": "FARMER_CROP_OPPORTUNITY", "count": len(items), "recommendations": items}
+    return {"farmer_id": farmer_id, "recommendations": []}
+
+@app.get("/api/v1/recommendations/aggregator/match")
+def get_aggregator_supplier_matches(crop_name: str = "Tomato", required_quantity: float = 500.0, top_k: int = 10):
+    if predictor:
+        items = predictor.get_aggregator_matches(crop_name=crop_name, required_quantity=required_quantity, top_k=top_k)
+        return {"crop_name": crop_name, "required_quantity": required_quantity, "count": len(items), "recommendations": items}
+    return {"crop_name": crop_name, "recommendations": MOCK_LISTINGS[:top_k]}
+
+# ─── EXTENDED CUSTOMER RECOMMENDATION ENDPOINTS ───────────────────────────────
+# 4 new ML models: Next-Basket, Recency-Weighted, Price-Aware, Local-Popularity
+# All work for existing + new (cold-start) customers
+
+@app.get("/api/v1/recommendations/next-basket/{buyer_id}")
+def get_next_basket_recommendations(buyer_id: str, top_k: int = 6):
+    """
+    Next-Basket Recommendation (NBR): Predicts what the customer will buy next
+    based on their historical basket sequence and co-occurrence patterns.
+    Cold-start: Returns globally popular items for new customers.
+    """
+    if predictor:
+        items = predictor.get_next_basket(buyer_id, top_k=top_k)
+        is_new = predictor.is_new_customer(buyer_id)
+        return {
+            "buyer_id": buyer_id,
+            "model": "Next-Basket Prediction (NBR Frequency Baseline)",
+            "is_new_customer": is_new,
+            "mode": "cold_start" if is_new else "personalized",
+            "count": len(items),
+            "recommendations": items
+        }
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/recency-weighted/{buyer_id}")
+def get_recency_weighted_recommendations(buyer_id: str, top_k: int = 6):
+    """
+    Recency-Weighted Recommendation: Scores items based on time-decay of purchase history.
+    Items purchased recently get exponentially higher scores.
+    Cold-start: Returns freshest catalog items.
+    """
+    if predictor:
+        items = predictor.get_recency_weighted(buyer_id, top_k=top_k)
+        is_new = predictor.is_new_customer(buyer_id)
+        return {
+            "buyer_id": buyer_id,
+            "model": "Recency-Weighted (Exponential Time-Decay Scoring)",
+            "decay_rate": 0.0495,
+            "is_new_customer": is_new,
+            "mode": "cold_start" if is_new else "personalized",
+            "count": len(items),
+            "recommendations": items
+        }
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/price-aware/{buyer_id}")
+def get_price_aware_recommendations(buyer_id: str, top_k: int = 6):
+    """
+    Price-Aware Recommendation: Recommends items matching the customer's
+    implied budget range derived from their purchase history.
+    Cold-start: Uses platform-median price range + popularity ranking.
+    """
+    if predictor:
+        items = predictor.get_price_aware(buyer_id, top_k=top_k)
+        is_new = predictor.is_new_customer(buyer_id)
+        return {
+            "buyer_id": buyer_id,
+            "model": "Price-Aware (Budget-Fit Heuristic + Popularity)",
+            "is_new_customer": is_new,
+            "mode": "cold_start" if is_new else "personalized",
+            "count": len(items),
+            "recommendations": items
+        }
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/local-popularity")
+def get_local_popularity_recommendations(buyer_id: Optional[str] = None, region: Optional[str] = None, top_k: int = 6):
+    """
+    Local Popularity Recommendation: Returns trending items in the customer's
+    local delivery region (Bengaluru / Mandya corridor zones).
+    Works for both existing and new customers.
+    """
+    if predictor:
+        items = predictor.get_local_popularity(customer_id=buyer_id, top_k=top_k, region_override=region)
+        return {
+            "buyer_id": buyer_id or "anonymous",
+            "region": region or "auto-detected",
+            "model": "Local Popularity (Region-Based Trending)",
+            "count": len(items),
+            "recommendations": items
+        }
+    return {"buyer_id": buyer_id, "recommendations": MOCK_LISTINGS[:top_k]}
+
+@app.get("/api/v1/recommendations/discover/{buyer_id}")
+@app.get("/api/v1/customer-discover/{buyer_id}")
+def get_discover_dashboard(buyer_id: str):
+    """
+    Unified Discover Dashboard — Combines 4 extended recommendation models:
+    - Next-Basket (NBR): Your next picks
+    - Recency-Weighted: Fresh on your radar
+    - Price-Aware: Price-smart picks
+    - Local Popularity: Popular near you
+
+    Works for both existing customers (personalized) and new customers (cold-start popularity).
+    Recommendation events are logged to Supabase database.
+    """
+    if predictor:
+        return predictor.get_discover_dashboard(buyer_id)
+    # Fallback for all 4 sections
+    return {
+        "customer_id": buyer_id,
+        "is_new_customer": True,
+        "mode": "fallback",
+        "sections": {
+            "next_basket": {"title": "🛍️ YOUR NEXT PICKS", "items": MOCK_LISTINGS[:4]},
+            "recency_weighted": {"title": "⏱️ FRESH ON YOUR RADAR", "items": MOCK_LISTINGS[:4]},
+            "price_smart": {"title": "💰 PRICE-SMART PICKS", "items": MOCK_LISTINGS[:4]},
+            "local_popular": {"title": "📍 POPULAR NEAR YOU", "items": MOCK_LISTINGS[:4]}
+        }
+    }
+
+
 
 @app.post("/api/v1/orders")
 def create_order(order: OrderCreate):
@@ -579,7 +733,7 @@ def register_user(payload: UserRegisterPayload):
     REGISTERED_USERS = [u for u in REGISTERED_USERS if u.get("phone") != payload.phone and u.get("id") != user_id]
     REGISTERED_USERS.insert(0, user_data)
 
-    # Attempt to mirror in Supabase if reachable
+    # Mirror registration in Supabase if reachable
     try:
         headers = {
             "apikey": SUPABASE_ANON_KEY,
@@ -596,12 +750,22 @@ def register_user(payload: UserRegisterPayload):
     except Exception:
         pass
 
+    # Cold-start hook: Initialize ML recommendation engine for new customers
+    if predictor and user_data.get("role", "").upper() == "CUSTOMER":
+        try:
+            region = user_data.get("region", "bengaluru").lower()
+            predictor.register_new_customer(user_id, region=region)
+        except Exception as e:
+            print(f"[ML] Cold-start registration warning: {e}")
+
     return {
         "status": "success",
         "message": f"User registered successfully as {user_data['role']}",
         "user": user_data,
         "token": f"jwt-agrilink-auth-{user_id}"
     }
+
+
 
 @app.post("/api/v1/auth/send-otp")
 def send_otp_endpoint(payload: SendOtpPayload):
@@ -818,9 +982,16 @@ class NLPQueryRequest(BaseModel):
 @app.post("/api/v1/nlp/query")
 @app.post("/api/v1/chatbot/query")
 def process_nlp_query(req: NLPQueryRequest):
-    """Processes multilingual queries for market prices, disease advisory, order tracking, and fair pricing."""
+    """Processes farmer queries using NLP TF-IDF Cosine Similarity & Entity Extraction over database tables."""
+    if nlp_engine:
+        try:
+            return nlp_engine.process_query(req.query, farmer_id=req.user_id, language=req.language)
+        except Exception as e:
+            print(f"NLP Query processing error: {e}")
+
     q = req.query.lower().strip()
     lang = (req.language or "en").lower()
+
 
     # 1. Mandi Prices & APMC Rates
     crop_keywords = {

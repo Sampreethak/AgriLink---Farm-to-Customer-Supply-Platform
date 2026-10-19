@@ -439,4 +439,276 @@ async function loadApmcBenchmarks() {
     }
 }
 
+async function loadFarmerRecommendations(farmerId = "FARM-101") {
+    const container = document.getElementById("farmer-opportunities-container");
+    if (!container) return;
+    container.innerHTML = `<div style="grid-column: 1/-1; padding: 1rem; text-align: center; color: var(--text-muted);">Analyzing demand-supply gap & predicting APMC prices...</div>`;
 
+    try {
+        const response = await fetch(`${API_ML_URL}/api/v1/recommendations/farmer/${farmerId}`);
+        if (response.ok) {
+            const data = await response.json();
+            const recs = data.recommendations || [];
+            container.innerHTML = "";
+            if (recs.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; padding: 1rem; text-align: center; color: var(--text-muted);">No active crop opportunities.</div>`;
+                return;
+            }
+            recs.slice(0, 4).forEach(item => {
+                container.innerHTML += `
+                    <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.1rem; font-weight: bold; color: var(--text-main);">${item.crop_name}</span>
+                            <span style="background: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">Score: ${+(item.opportunity_score * 100).toFixed(0)}%</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">${item.reason}</div>
+                        <div style="display: flex; justify-content: space-between; background: #f8fafc; padding: 0.6rem; border-radius: 8px; font-size: 0.85rem;">
+                            <div><b>Demand Gap:</b> ${item.supply_gap || item.quantity_demand || 500} kg</div>
+                            <div><b>APMC Price:</b> ₹${item.predicted_price || 35}/kg</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    } catch (e) {
+        console.log("Could not load farmer recommendations.");
+    }
+}
+
+async function findAggregatorMatches() {
+    const crop = document.getElementById("aggregator-crop-select")?.value || "Tomato";
+    const qty = document.getElementById("aggregator-qty-input")?.value || "500";
+    const grid = document.getElementById("aggregator-matches-grid");
+    if (!grid) return;
+
+    grid.innerHTML = `<div style="grid-column: 1/-1; padding: 1rem; text-align: center; color: var(--text-muted);">Matching verified farm suppliers...</div>`;
+
+    try {
+        const response = await fetch(`${API_ML_URL}/api/v1/recommendations/aggregator/match?crop_name=${encodeURIComponent(crop)}&required_quantity=${qty}`);
+        if (response.ok) {
+            const data = await response.json();
+            const recs = data.recommendations || [];
+            grid.innerHTML = "";
+            if (recs.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; padding: 1rem; text-align: center; color: var(--text-muted);">No suppliers match criteria.</div>`;
+                return;
+            }
+            renderGrid("aggregator-matches-grid", recs, "📦 Supplier Match");
+        }
+    } catch (e) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; padding: 1rem; text-align: center; color: var(--text-muted);">Unable to load supplier matches.</div>`;
+    }
+}
+
+// Auto-trigger farmer recommendations on tab switch
+const origSwitchTab = switchTab;
+switchTab = function(tabId, btnElement) {
+    origSwitchTab(tabId, btnElement);
+    if (tabId === 'farmer-tab') {
+        loadFarmerRecommendations();
+        findAggregatorMatches();
+    }
+    if (tabId === 'discover-tab') {
+        loadDiscoverDashboard(currentCustomerId);
+    }
+};
+
+// ============================================================
+// DISCOVER TAB — 4 Extended ML Recommendation Models
+// ============================================================
+
+async function loadDiscoverDashboard(customerId) {
+    // Show loading state in all 4 grids
+    setLoadingState("next-basket-grid", "🛍️ Predicting your next basket items (NBR Engine)...");
+    setLoadingState("recency-weighted-grid", "⏱️ Applying time-decay scoring to your purchase history...");
+    setLoadingState("price-smart-grid", "💰 Matching items to your budget profile...");
+    setLoadingState("local-popular-grid", "📍 Loading trending items near you...");
+
+    try {
+        // Fetch unified discover dashboard endpoint
+        const response = await fetch(`${API_ML_URL}/api/v1/recommendations/discover/${customerId}`);
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Handle cold-start UI
+            handleColdStartUI(data.is_new_customer || false);
+
+            // Render 4 sections
+            const secs = data.sections || {};
+            renderDiscoverGrid("next-basket-grid", (secs.next_basket || {}).items, "🛍️ Next Basket");
+            renderDiscoverGrid("recency-weighted-grid", (secs.recency_weighted || {}).items, "⏱️ Recency Weighted");
+            renderDiscoverGrid("price-smart-grid", (secs.price_smart || {}).items, "💰 Price Smart");
+            renderDiscoverGrid("local-popular-grid", (secs.local_popular || {}).items, "📍 Local Popular");
+            return;
+        }
+    } catch (e) {
+        console.log("Discover API unavailable, fetching sections individually...");
+    }
+
+    // Fallback: load each section independently
+    await Promise.all([
+        loadNextBasket(customerId),
+        loadRecencyWeighted(customerId),
+        loadPriceSmart(customerId),
+        loadLocalPopular(customerId)
+    ]);
+}
+
+async function loadNextBasket(customerId) {
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/recommendations/next-basket/${customerId}?top_k=4`);
+        if (res.ok) {
+            const data = await res.json();
+            handleColdStartUI(data.is_new_customer || false);
+            renderDiscoverGrid("next-basket-grid", data.recommendations, "🛍️ Next Basket");
+            return;
+        }
+    } catch(e) {}
+    renderDiscoverGrid("next-basket-grid", [], "🛍️ Next Basket");
+}
+
+async function loadRecencyWeighted(customerId) {
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/recommendations/recency-weighted/${customerId}?top_k=4`);
+        if (res.ok) {
+            const data = await res.json();
+            renderDiscoverGrid("recency-weighted-grid", data.recommendations, "⏱️ Recency Weighted");
+            return;
+        }
+    } catch(e) {}
+    renderDiscoverGrid("recency-weighted-grid", [], "⏱️ Recency Weighted");
+}
+
+async function loadPriceSmart(customerId) {
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/recommendations/price-aware/${customerId}?top_k=4`);
+        if (res.ok) {
+            const data = await res.json();
+            renderDiscoverGrid("price-smart-grid", data.recommendations, "💰 Price Smart");
+            return;
+        }
+    } catch(e) {}
+    renderDiscoverGrid("price-smart-grid", [], "💰 Price Smart");
+}
+
+async function loadLocalPopular(customerId) {
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/recommendations/local-popularity?buyer_id=${customerId}&top_k=4`);
+        if (res.ok) {
+            const data = await res.json();
+            renderDiscoverGrid("local-popular-grid", data.recommendations, "📍 Local Popular");
+            return;
+        }
+    } catch(e) {}
+    renderDiscoverGrid("local-popular-grid", [], "📍 Local Popular");
+}
+
+function handleColdStartUI(isNewCustomer) {
+    const welcomePanel = document.getElementById("cold-start-welcome");
+    const personLabel = document.getElementById("discover-personalization-label");
+    if (!welcomePanel || !personLabel) return;
+
+    if (isNewCustomer) {
+        welcomePanel.style.display = "block";
+        personLabel.textContent = "Cold-Start Mode";
+        personLabel.style.background = "#ff6b35";
+    } else {
+        welcomePanel.style.display = "none";
+        personLabel.textContent = "Personalized";
+        personLabel.style.background = "#1565c0";
+    }
+}
+
+function renderDiscoverGrid(elementId, items, modelLabel) {
+    const grid = document.getElementById(elementId);
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    if (!items || items.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                <i class="fa-solid fa-seedling fa-lg" style="color: var(--primary); margin-bottom: 0.5rem;"></i>
+                <div style="font-size: 0.9rem; margin-top: 0.5rem;">No recommendations generated. Add items to cart to train the model!</div>
+            </div>`;
+        return;
+    }
+
+    // Color themes for each section
+    const colorMap = {
+        "🛍️ Next Basket": { bg: "#e3f2fd", accent: "#1565c0", badge_bg: "#1565c0" },
+        "⏱️ Recency Weighted": { bg: "#f3e5f5", accent: "#7b1fa2", badge_bg: "#7b1fa2" },
+        "💰 Price Smart": { bg: "#fff3e0", accent: "#e65100", badge_bg: "#e65100" },
+        "📍 Local Popular": { bg: "#e1f5fe", accent: "#0277bd", badge_bg: "#0277bd" }
+    };
+    const colors = colorMap[modelLabel] || { bg: "#e8f5e9", accent: "#2e7d32", badge_bg: "#2e7d32" };
+
+    items.forEach((item, index) => {
+        const crop = item.crop_name || "Fresh Harvest";
+        const imgUrl = CROP_IMAGES[crop] || item.image_url || "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600";
+        const price = item.price_per_unit || 35.0;
+        const unit = item.unit || "kg";
+        const organicBadge = item.is_organic
+            ? `<span class="organic-badge"><i class="fa-solid fa-leaf"></i> Organic</span>`
+            : "";
+        const badge = item.badge || `${modelLabel} #${index + 1}`;
+        const reason = item.reason || "Farm-fresh produce, carefully selected for you.";
+        const score = item.score !== undefined ? (item.score * 100).toFixed(0) : null;
+
+        grid.innerHTML += `
+            <div class="listing-card" style="border-top: 3px solid ${colors.accent};">
+                <div class="card-header-img" style="background-image: url('${imgUrl}');">
+                    <span class="ml-rank-badge" style="background: ${colors.badge_bg};">${badge}</span>
+                    ${organicBadge}
+                </div>
+                <div class="card-body">
+                    <div>
+                        <div class="listing-title">${crop}</div>
+                        <div class="seller-info">${item.title || `${crop} — Mandya-Bengaluru Corridor`}</div>
+                        
+                        <div class="card-metrics-row">
+                            <div class="metric-item">
+                                <div class="lbl">Price</div>
+                                <div class="val">₹${price.toFixed(2)}/${unit}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="lbl">Rating</div>
+                                <div class="val" style="color: #f57c00;">★ ${item.rating_avg || 4.8}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="lbl">Grade</div>
+                                <div class="val">${item.grade || "A"}</div>
+                            </div>
+                            ${score ? `
+                            <div class="metric-item">
+                                <div class="lbl">ML Score</div>
+                                <div class="val" style="color: ${colors.accent}; font-weight: bold;">${score}%</div>
+                            </div>` : ""}
+                        </div>
+
+                        <div class="ml-reason-box" style="font-size: 0.82rem; margin: 0.75rem 0; background: ${colors.bg}; padding: 0.6rem; border-radius: 8px; border-left: 3px solid ${colors.accent};">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: ${colors.accent};"></i>
+                            <b>ML Reason:</b> ${reason}
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn-action btn-primary" onclick="addToCart('${crop}', '${item.listing_id || ''}')" style="background: ${colors.accent};">
+                            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// Also reload discover tab when customer changes
+const origOnCustomerChange = onCustomerChange;
+onCustomerChange = function(customerId) {
+    origOnCustomerChange(customerId);
+    // If discover tab is active, reload it too
+    const discoverTab = document.getElementById('discover-tab');
+    if (discoverTab && discoverTab.classList.contains('active')) {
+        loadDiscoverDashboard(customerId);
+    }
+};

@@ -1,0 +1,24 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Table shows how the entities are denoted with different notations for existing dataset ($\mathcal {X}$), added/deleted subset ($\mathaccentV {bar}016{\mathcal {X}}$) and the updated dataset after addition/deletion ($\mathcal {X}'$).\relax }}{19}{table.caption.15}
+\contentsline {table}{\numberline {3.2}{\ignorespaces Notations and Formulae\relax }}{21}{table.caption.17}
+\contentsline {table}{\numberline {3.3}{\ignorespaces Details of Handwritten Digits Dataset\relax }}{23}{table.caption.18}
+\contentsline {table}{\numberline {3.4}{\ignorespaces Details of Caltech-7 Dataset\relax }}{23}{table.caption.19}
+\contentsline {table}{\numberline {3.5}{\ignorespaces Details of AwA Dataset\relax }}{24}{table.caption.20}
+\contentsline {table}{\numberline {3.6}{\ignorespaces Details of IMPART Face Dataset\relax }}{24}{table.caption.21}
+\contentsline {table}{\numberline {3.7}{\ignorespaces Details of MSSpoof Dataset\relax }}{25}{table.caption.22}
+\contentsline {table}{\numberline {3.8}{\ignorespaces Details of Stereo Face Dataset\relax }}{25}{table.caption.23}
+\contentsline {table}{\numberline {3.9}{\ignorespaces Details of ORL Dataset\relax }}{25}{table.caption.24}
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Comparison of accuracy and training time : MvIDA vs. single-view ILDA\relax }}{40}{table.caption.32}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Comparison of 2DMvIDDA with other methods based on discriminant analysis\relax }}{55}{table.caption.40}
+\contentsline {table}{\numberline {6.2}{\ignorespaces Comparison of 2DMvIDDA with other 2D methods on the original datasets. Table also lists estimated memory requirements of MvIDA.\relax }}{58}{table.caption.42}
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Comparison of the classification accuracy of VIDMvDA and MvDA. First column shows the number of the view that was added or deleted.\relax }}{66}{table.caption.46}
+\contentsline {table}{\numberline {7.2}{\ignorespaces Comparison of the classification accuracy of VIDMvDA and MvDA. First column shows the number of the view that was added or deleted.\relax }}{67}{table.caption.47}
+\contentsline {table}{\numberline {7.3}{\ignorespaces Comparison of memory requirements (in MBs) of VIDMvDA and MvDA\relax }}{70}{table.caption.51}
+\contentsline {table}{\numberline {7.4}{\ignorespaces Comparison of memory requirements (in GBs) of VIDMvDA and 2DMvDA\relax }}{70}{table.caption.52}
+\addvspace {10\p@ }

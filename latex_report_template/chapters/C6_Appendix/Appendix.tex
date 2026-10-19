@@ -1,0 +1,88 @@
+\appendix{
+This appendix provides supplementary mathematical derivations, relational database schema definitions, and project access credentials supporting the AgriLink technical report.
+
+\section*{A. Derivation of Latent Factor Matrix Updates via Stochastic Gradient Descent}
+\label{proof:formula1}
+In Chapter \ref{ch:Imp}, Section \ref{sec:Methodology}, the objective loss function for regularized matrix factorization was defined in Eq. \ref{eqn:svd_loss_multiline}. Here we provide the explicit mathematical derivation of the stochastic gradient updates for latent user factors $\mathbf{p}_u$, item factors $\mathbf{q}_i$, and baseline biases $b_u, b_i$.
+
+Let the instantaneous squared error for an observed rating pair $(u, i) \in \mathcal{K}$ be defined as:
+\begin{equation}
+e_{u, i} = R_{u, i} - \hat{R}_{u, i}^{\text{SVD}} = R_{u, i} - \left( \mu + b_u + b_i + \mathbf{p}_u^T \mathbf{q}_i \right)
+\end{equation}
+
+The regularized point-wise loss $\mathcal{L}_{u, i}$ is expressed as:
+\begin{equation}
+\mathcal{L}_{u, i} = \frac{1}{2} e_{u, i}^2 + \frac{\lambda}{2} \left( b_u^2 + b_i^2 + \|\mathbf{p}_u\|_2^2 + \|\mathbf{q}_i\|_2^2 \right)
+\end{equation}
+
+Taking partial derivatives with respect to each parameter yields:
+\begin{align}
+\frac{\partial \mathcal{L}_{u, i}}{\partial b_u} &= -e_{u, i} + \lambda b_u \\
+\frac{\partial \mathcal{L}_{u, i}}{\partial b_i} &= -e_{u, i} + \lambda b_i \\
+\frac{\partial \mathcal{L}_{u, i}}{\partial \mathbf{p}_u} &= -e_{u, i} \mathbf{q}_i + \lambda \mathbf{p}_u \\
+\frac{\partial \mathcal{L}_{u, i}}{\partial \mathbf{q}_i} &= -e_{u, i} \mathbf{p}_u + \lambda \mathbf{q}_i
+\end{align}
+
+Applying the gradient descent update rule $\theta \leftarrow \theta - \eta \frac{\partial \mathcal{L}_{u, i}}{\partial \theta}$ with learning rate $\eta > 0$ produces the exact optimization recurrence used in Algorithm \ref{alg:hybrid_rec}:
+\begin{align}
+b_u &\leftarrow b_u + \eta \left( e_{u, i} - \lambda b_u \right) \\
+b_i &\leftarrow b_i + \eta \left( e_{u, i} - \lambda b_i \right) \\
+\mathbf{p}_u &\leftarrow \mathbf{p}_u + \eta \left( e_{u, i} \mathbf{q}_i - \lambda \mathbf{p}_u \right) \\
+\mathbf{q}_i &\leftarrow \mathbf{q}_i + \eta \left( e_{u, i} \mathbf{p}_u - \lambda \mathbf{q}_i \right)
+\end{align}
+
+\section*{B. Enterprise Database Relational Schema (3NF DDL Excerpt)}
+\label{sec:appendix_sql}
+The core relational entities of AgriLink are strictly normalized to 3NF and BCNF within Supabase PostgreSQL. Key schema definitions are outlined below:
+
+\vspace{0.3cm}
+\begin{singlespace}
+\noindent\textbf{1. Users Table with Role-Based Separation:}\\
+\texttt{CREATE TABLE users (}\\
+\hspace*{0.6cm}\texttt{id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),}\\
+\hspace*{0.6cm}\texttt{full\_name VARCHAR(120) NOT NULL,}\\
+\hspace*{0.6cm}\texttt{email VARCHAR(150) UNIQUE NOT NULL,}\\
+\hspace*{0.6cm}\texttt{role VARCHAR(20) CHECK (role IN ('FARMER','BUYER','AGGREGATOR','LOGISTICS','ADMIN')),}\\
+\hspace*{0.6cm}\texttt{phone VARCHAR(15) NOT NULL,}\\
+\hspace*{0.6cm}\texttt{geo\_point GEOMETRY(Point, 4326),}\\
+\hspace*{0.6cm}\texttt{created\_at TIMESTAMPTZ DEFAULT NOW()}\\
+\texttt{);}\\[0.3cm]
+\noindent\textbf{2. Produce Batch Listings Table:}\\
+\texttt{CREATE TABLE produce\_listings (}\\
+\hspace*{0.6cm}\texttt{id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),}\\
+\hspace*{0.6cm}\texttt{farmer\_id UUID REFERENCES users(id) ON DELETE CASCADE,}\\
+\hspace*{0.6cm}\texttt{crop\_name VARCHAR(100) NOT NULL,}\\
+\hspace*{0.6cm}\texttt{grade VARCHAR(5) CHECK (grade IN ('A+','A','B','C')),}\\
+\hspace*{0.6cm}\texttt{quantity\_kg NUMERIC(10,2) CHECK (quantity\_kg >= 0),}\\
+\hspace*{0.6cm}\texttt{apmc\_benchmark NUMERIC(10,2) NOT NULL,}\\
+\hspace*{0.6cm}\texttt{selling\_price NUMERIC(10,2) NOT NULL,}\\
+\hspace*{0.6cm}\texttt{status VARCHAR(20) DEFAULT 'AVAILABLE',}\\
+\hspace*{0.6cm}\texttt{harvested\_at TIMESTAMPTZ NOT NULL,}\\
+\hspace*{0.6cm}\texttt{created\_at TIMESTAMPTZ DEFAULT NOW()}\\
+\texttt{);}\\[0.3cm]
+\noindent\textbf{3. Financial Settlement Ledger (Enforcing 68-10-14-8 Split):}\\
+\texttt{CREATE TABLE financial\_ledger (}\\
+\hspace*{0.6cm}\texttt{id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),}\\
+\hspace*{0.6cm}\texttt{order\_id UUID REFERENCES orders(id) ON DELETE RESTRICT,}\\
+\hspace*{0.6cm}\texttt{gross\_amount NUMERIC(12,2) NOT NULL,}\\
+\hspace*{0.6cm}\texttt{farmer\_payout NUMERIC(12,2) GENERATED ALWAYS AS (gross\_amount * 0.68) STORED,}\\
+\hspace*{0.6cm}\texttt{aggregator\_fee NUMERIC(12,2) GENERATED ALWAYS AS (gross\_amount * 0.10) STORED,}\\
+\hspace*{0.6cm}\texttt{logistics\_fee NUMERIC(12,2) GENERATED ALWAYS AS (gross\_amount * 0.14) STORED,}\\
+\hspace*{0.6cm}\texttt{platform\_fee NUMERIC(12,2) GENERATED ALWAYS AS (gross\_amount * 0.08) STORED,}\\
+\hspace*{0.6cm}\texttt{tx\_hash VARCHAR(66) UNIQUE,}\\
+\hspace*{0.6cm}\texttt{settled\_at TIMESTAMPTZ}\\
+\texttt{);}\\
+\end{singlespace}
+\vspace{0.3cm}
+
+\section*{C. Project Repository and Verification Endpoints}
+\label{sec:appendix_repo}
+The full codebase, trained model checkpoints, and interactive deployment artifacts are available via the official institutional repository:
+\begin{itemize}
+	\item \textbf{GitHub Repository}: \url{https://github.com/Sampreethak/AgriLink---Farm-to-Customer-Supply-Platform}
+	\item \textbf{FastAPI Interactive Swagger Documentation}: Hosted at \url{http://localhost:8000/docs}
+	\item \textbf{Pilot Operational Corridor}: Mandya $\rightarrow$ Maddur $\rightarrow$ North Bengaluru (Yelahanka / Devanahalli).
+\end{itemize}
+
+\chapterend
+}

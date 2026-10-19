@@ -1,0 +1,35 @@
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Examples of multi-view data.\relax }}{2}{figure.caption.8}
+\contentsline {figure}{\numberline {1.2}{\ignorespaces An example to demonstrate the advantages of having multiple views. As the number of views increases, each view adds new complementary information. The learning algorithm leverages this information to improve its performance on each test data sample.\relax }}{3}{figure.caption.9}
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Batch methods vs. Incremental methods: (a) Batch methods have to retrain on all the historical data after every addition. (b) Incremental methods only need the old model and new data samples to update the model after every addition.\relax }}{6}{figure.caption.11}
+\contentsline {figure}{\numberline {1.4}{\ignorespaces Difference between the sizes of scatter matrices- (a) 2D data of size $4 \times 3$ produces a scatter matrix of size $4 \times 4$. (b) The vectorized form of the same input matrix produces scatter matrix of size $12 \times 12$.\relax }}{8}{figure.caption.13}
+\contentsline {figure}{\numberline {1.5}{\ignorespaces The placement of presented methods in the multi-view learning paradigm.\relax }}{9}{figure.caption.14}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The figure shows the three means pictorially. Three views are shown with three colors- blue, red and green. Two classes, Class1 and Class2, are depicted with squares and triangles, respectively.\relax }}{20}{figure.caption.16}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Cases of Increment: (a) A new data sample is added to every view. It belongs to an existing class. (b) A new data sample is added to every view. It belongs to a new class. (c) A chunk of new data samples is added. None of the new data samples belong to a new class. (d) A chunk of new data samples is added. Some of the new data samples belong to a new class.\relax }}{27}{figure.caption.25}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Inner products of first five eigenvectors of MvIDA and batch MvDA for handwritten digits dataset.\relax }}{35}{figure.caption.26}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces A plot of data samples of the handwritten digits dataset in the projected space constructed by MvIDA and MvDA. Training data samples from different classes are shown in different colors. Correctly classified test samples are shown by black squares and incorrectly classified test samples are shown by red triangles.\relax }}{36}{figure.caption.27}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Inner product of the first five eigenvectors of every iteration for handwritten digits dataset\relax }}{37}{figure.caption.28}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Comparison of training time of MvIDA and batch MvDA : sequential increment\relax }}{38}{figure.caption.29}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Comparison of training time of MvIDA and batch MvDA : chunk increment\relax }}{38}{figure.caption.30}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Memory usage comparison for handwritten digits dataset\relax }}{39}{figure.caption.31}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Classification accuracy vs. number of projection dimensions (On rescaled datasets)\relax }}{43}{figure.caption.33}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Visualization of Classification on MSSpoof Dataset: (i) Training data samples are denoted with different colors for each class. (ii) Correctly classified test samples are denoted with hollow black squares. (iii) Misclassified test samples are denoted with hollow red triangles.\relax }}{44}{figure.caption.34}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Comparison of training time\relax }}{45}{figure.caption.35}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Comparison of memory requirement\relax }}{45}{figure.caption.36}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Chunk increment and decrement : (a) A chunk of new data samples is added. Some of the new data samples belong to a new class. (b) A chunk of existing data samples is deleted from the dataset. Views are depicted with different colors (blue, green and red) and classes are depicted with different shapes (square, triangle and circle).\relax }}{48}{figure.caption.37}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Inner product between first five eigenvectors of 2DMvIDDA and 2DMvDA for Stereo face dataset during incremental and decremental phases.\relax }}{54}{figure.caption.38}
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Inner product of the eigenvectors over 100 iterations of 2DMvIDDA with those of 2DMvDA.\relax }}{54}{figure.caption.39}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Visualization of Classification on MSSpoof Dataset: (i) Training data samples are denoted with different colored dots for different classes. (ii) Correctly classified test data samples are denoted with black squares. (iii) Misclassified test data samples are denoted with red triangles.\relax }}{56}{figure.caption.41}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Updates in a scatter matrix after the addition and deletion of views over time. Each submatrix $\textbf {S}_{jr}$ is represented with the combination of colors of $j^{th}$ and $r^{th}$ view.\relax }}{60}{figure.caption.43}
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Inner products of the first five projection vectors of VIDMvDA and MvDA on handwritten digits dataset. Views are added to the initially empty dataset one by one from 1 to 6. After that, they are removed from the dataset in the order from 1 to 5.\relax }}{65}{figure.caption.44}
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Inner products of the first five projection vectors of 100 iterations of VIDMvDA with those of MvDA on handwritten digits dataset.\relax }}{66}{figure.caption.45}
+\contentsline {figure}{\numberline {7.4}{\ignorespaces A plot of data samples of the handwritten digits dataset in the projected space constructed by (a) VIDMvDA and (b) MvDA. Training data samples from different classes are shown in different colors. Black squares show correctly classified test samples, and red triangles show incorrectly classified test samples.\relax }}{67}{figure.caption.48}
+\contentsline {figure}{\numberline {7.5}{\ignorespaces Addition of views : training time of VIDMvDA vs. MvDA\relax }}{69}{figure.caption.49}
+\contentsline {figure}{\numberline {7.6}{\ignorespaces Deletion of views : training time of VIDMvDA vs. MvDA\relax }}{69}{figure.caption.50}
+\addvspace {10\p@ }

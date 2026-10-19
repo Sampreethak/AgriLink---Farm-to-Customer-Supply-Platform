@@ -1,0 +1,87 @@
+\chapter{Summary and Future Directions}
+\label{ch:Conc}
+\noindent {\textbf{\huge T}}his thesis has contributed incremental-decremental learning methods and one batch method in different niches of supervised learning. These methods are based on Multi-view Discriminant Analysis. We have identified a common framework to obtain the incremental formulations. This framework consists of four steps- (i) Updating the number of data samples, (ii) Updating the means, (iii) Updating the within-class scatter matrix, and (iv) Updating the between-class scatter matrix. This framework has been followed to implement the data increment and view increment. The batch method also follows this framework. However, it only implements it to train the model from scratch. We present a chapter-wise summary that highlights key points of these methods followed by a brief discussion and future scope in this direction.
+
+
+
+%\section{Summary}
+%\label{sec:Conc_Summary}
+%This thesis has contributed incremental-decremental learning methods in three niches of supervised learning. These methods are based on Multi-view Discriminant Analysis. We have identified a common framework to obtain the incremental formulations. This framework consists of four steps- (i) Updating the number of data samples, (ii) Updating the means, (iii) Updating the within-class scatter matrix and (iv) Updating the between-class scatter matrix. This framework has been followed to implement the data increment as well as view increment. The batch method also follows this framework, however, it only implements it to train the model from scratch. We present a chapter-wise summary that highlights key points of these methods.
+
+
+
+
+
+
+\section{Multi-view Incremental Discriminant Analysis}
+\label{sec:Conc_MvIDA}
+Multi-view Incremental Discriminant Analysis (MvIDA) is an incremental method for 1D multi-view data based on discriminant analysis. MvIDA follows the framework mentioned above to update the model after each increment. It supports the data sample increment in two forms- sequential increment and chunk increment. It also supports the addition of previously unseen classes of data. MvIDA incrementally constructs a common discriminant space for multi-view data using only the existing model and the new data samples. As MvIDA is the first incremental multi-view method in the supervised learning domain, it was compared against batch multi-view MvDA and single-view incremental ILDA on various parameters. The comparisons with MvDA show that the proposed method is order-independent and can build the same model as MvDA using less time and memory. This improvement is possible because of the incremental nature of MvIDA. Compared to ILDA, the proposed method was found to have better classification accuracy while taking significantly less time for training. This improvement is due to the multi-view nature of MvIDA. The sequential formulations of MvIDA train a model using less memory and are more precise than the chunk formulations in the early stages of increments. The chunk increments train a model using less time than sequential formulations but converge to the optimum a little later than the sequential formulations.
+
+%Being an incremental method, MvIDA should produce the same subspace as its batch counterpart MvDA. We have proven this experimentally by taking the inner products of eigenvectors computed by both the methods. As both the methods produce the same subspace, their classification accuracy which increases with the number of views, is also observed to be the same. We also show that MvIDA produces the same results as MvDA with much less training time and memory. Also, it is invariant to the input order of the data and is able to handle data samples from new classes at any stage of training. Its comparison with ILDA shows that MvIDA requires less training time compared to single-view ILDA and produces classification results of higher accuracy. This is the result of treating multiple views separately. As ILDA combines the views into one, it does not benefit from the information that MvIDA gets by treating the views separately.
+
+%Out of the two variants of MvIDA, the sequential variant can be used when data samples are added one-by-one manner, and the chunk MvIDA can be used when a group of samples are added together. Apart from this apparent usage, sequential MvIDA can be preferred over chunk MvIDA for tasks that require less memory and higher precision, and can afford spending more time in training. Whereas, the chunk MvIDA can be preferred for tasks that can afford not converging to the optimum in the early stages of training, but must train in less time.
+
+
+
+
+
+
+
+\section{2D Multi-view Discriminant Analysis}
+\label{sec:Conc_2DMvDA}
+2D Multi-view Discriminant Analysis is a multi-view batch learning method for image datasets. 2DMvDA uses the above-mentioned framework to produce a classification model for 2D data. The minimal time and memory requirements of 2DMvDA make it a suitable candidate for large, image-based datasets as these datasets are inherently two-dimensional and require a lot of resources because of their huge sizes when 1D methods are used. Also, the use of 2D images without vectorization preserves the spatial information in these matrices and, in turn, produces better classification accuracy. We compared this method with MvDA and 2DLDA on classification accuracy, training time, and memory. 2DMvDA proves to be much more efficient and a little better at classification than the other two methods due to the benefit it gets from multiple views and the spatial information from the original 2D form of images.
+
+%The experimental results on the rescaled datasets show that 2DMvDA needs less than a second to train on the datasets that take minimum 50 to 1600 seconds if MvDA was used for training. It also needs less than 2MBs of memory to train on the same datasets that require minimum 600 to maximum 6000 MBs while using MvDA. The experiments on original versions of the datasets show the true strength of 2DMvDA, as it can train on the largest dataset in less than 3 minutes using only 550 MBs of memory. Whereas, the estimated memory requirement of MvDA is over $10^{6}$ GBs. These experiments also show that though 2DMvDA takes nearly the same memory as 2DLDA, it takes only half of the time required by 2DLDA for training on same datasets. The classification accuracy of 2DMvDA is also better than MvDA and 2DLDA due to the combined use of the 2D form and multiple views of data.
+
+
+
+
+
+
+
+\section[2D Multi-view Incremental Decremental Discriminant Analysis]{2D Multi-view Incremental Decremental Discriminant\\ Analysis}
+\label{sec:Conc_2DMvIDDA}
+2D Multi-view Incremental Decremental Discriminant Analysis (2DMvIDDA) is an incremental-decremental method based on 2DMvDA. It supports incremental learning and decremental unlearning of data samples without using historical data. It only needs the existing model and the data samples to be added or deleted to update the model. 2DMvIDDA follows the four-step framework to update the trained model after each increment or decrement in data. It is also an umbrella method for the methods based on discriminant analysis, namely- 2DMvDA, MvIDA, MvDA, 2DLDA, and ILDA. We have shown that the formulations of these methods can be obtained from the formulations of 2DMvIDDA. Also, the decremental learning formulations of 2DMvIDDA can be used to form decremental versions of MvIDA and ILDA. 2DMvIDDA obtains the same discriminant subspace as its batch counterpart, 2DMvDA, and it is invariant to the order of addition or deletion of the data samples. As it benefits from the three paradigms- 2D learning, multi-view learning, and incremental learning- it is the fastest and most accurate method that requires the least amount of memory among the other methods based on discriminant analysis.
+
+%The experiments are divided into three parts. The first one compares 2DMvIDDA against all the above mentioned methods on the rescaled versions of datasets. This comparison shows that the 2D methods perform better than the 1D methods as 2DMvIDDA and 2DMvDA have highest accuracy of all the methods followed by 2DLDA. It is also shown that 2DMvIDDA requires the least amount of memory and training time than all the other methods.
+%
+%The second set of experiments compares 2DMvIDDA against the 2D methods on the original versions of datasets. Here too, 2DMvIDDA requires the least amount of memory and time for training than the other 2D methods. Out of the 1D methods, MvIDA requires the least amount of memory. Hence, we compare its memory requirements with that of the 2D methods. On ORL dataset which is the smallest of four, MvIDA is estimated to need 15.2 GBs of memory, whereas 2DMvIDDA needs only 0.02 GBs. Likewise, on the IMPART dataset which is the largest, MvIDA is estimated to need over $1.5 \times 10^{6}$ GBs of memory, whereas 2DMvIDDA uses only around 1.3 GBs.
+
+%In the third set of experiments we showed that the 2DMvIDDA obtains the same discriminant subspace as its batch counterpart 2DMvDA. We also show that it is invariant to the order of addition or deletion of the data samples.
+
+
+
+
+
+
+
+\section[View Incremental Decremental Multi-view Discriminant Analysis]{View Incremental Decremental Multi-view Discriminant\\ Analysis}
+\label{sec:Conc_VIDMvDA}
+View Incremental Decremental Multi-view Discriminant Analysis (VIDMvDA) is an incremental method for multi-view data that supports the addition and deletion of views. VIDMvDA follows the four-step framework to update its model after the addition or deletion of views from the dataset. It uses only the existing model and the views to be added or deleted to update a trained model. As this is the only view-incremental supervised method for multi-view data, it was compared against its batch counterpart MvDA for its performance. The experiments on three datasets show that VIDMvDA constructs the same discriminant subspace as MvDA. As a result, the classification accuracy of both methods is also the same. Being an incremental method, VIDMvDA also requires much less training time and memory than MvDA. The same formulations of VIDMvDA can be used for 2D datasets.
+
+
+
+
+
+
+
+
+
+
+
+\section{Discussion and Future Directions}
+\label{sec:FutureWork}
+\subsection*{Dealing with Missing Test Data}
+The methods presented in this thesis solve for the linear transforms of all views simultaneously. However, the view-wise projection vectors thus found are independent and can be used separately to project the test data samples. This property can be used to classify the test data samples that have missing views. If a view of a test data sample is missing, we can still use the projection vectors for the rest of the views to project it onto the common discriminant subspace for classification. Though it does not solve the missing view problem in the training set, it can be used for the test data with incomplete views.
+
+\subsection*{True Incremental Methods}
+The incremental methods presented in this thesis are incremental in the sense that they do not require the older data samples to update the model. As a result, the computation time and memory are reduced by a huge factor. However, these methods still have to compute the eigenvectors after each increment. To be truly incremental, these methods may employ techniques that can update or approximate the eigenvalues without computing those again. This will reduce the computation time and memory even further as these methods will not have to store scatter matrices, and work with the projection matrix alone.
+
+\subsection*{Multi-view Incremental methods for Other Paradigms}
+The methods presented in this thesis are multi-view incremental methods in the supervised domain. As seen in chapter \ref{ch:Lit}, other than those presented in this thesis, there are only four multi-view incremental methods in the literature. The methods belonging to the \textit{data sample increment} category are in the active learning domain \cite{NieLQZJ18, NieFHYZM20}. Out of the other two that support \textit{view increment}, one belongs to the supervised learning domain \cite{ZhouSDY19} and the other to the unsupervised learning domain \cite{ZhouSDYL19}. So, there is a broad scope for multi-view incremental methods in the traditional machine learning domains such as- supervised learning, semi-supervised learning, active learning, and unsupervised learning. The opportunities are also available in the other domains such as- time-series analysis, reinforcement learning, and deep learning. These domains have different challenges and hence, demand different methodologies. For example, the time-series data is chronological and needs to be treated differently than the other types of data. The existing multi-view incremental methods may not be suitable for tasks such as shapelet finding \cite{LinesDHB12} or motif discovery \cite{TorkamaniL17}. Hence, we see a scope to develop specialized methods in these domains.
+
+
+
+
+\chapterend
+\cleardoublepage

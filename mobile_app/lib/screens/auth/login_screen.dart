@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/colors.dart';
+import '../../core/validators.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
@@ -251,15 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: langProvider.translate('phone_number'),
                     prefixIcon: Icons.phone,
                     keyboardType: TextInputType.phone,
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return "Please enter your phone number";
-                      }
-                      if (val.trim().length < 10) {
-                        return "Enter a valid 10-digit number";
-                      }
-                      return null;
-                    },
+                    validator: (val) => Validators.validatePhone(val),
                   ),
                 ] else ...[
                   VoiceInputField(
@@ -267,12 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: langProvider.translate('email'),
                     prefixIcon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return "Please enter your email";
-                      }
-                      return null;
-                    },
+                    validator: (val) => Validators.validateEmail(val),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(

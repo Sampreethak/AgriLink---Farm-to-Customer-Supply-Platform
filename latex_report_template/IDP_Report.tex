@@ -1,0 +1,242 @@
+\documentclass{idp_report}
+\usepackage[intoc]{nomencl}
+\usepackage{lipsum}
+%create the list of symbols page
+\makenomenclature
+%rename nomenclature to List of Symbols
+%\renewcommand{\nomname}{List of Symbols}
+
+\setlength\parindent{24pt}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%\usepackage{amssymb}
+%\usepackage{array}
+%\usepackage{fullpage}
+\usepackage{threeparttable}
+\usepackage{wasysym}
+%\usepackage{graphicx}
+%\usepackage{multicol}
+%\usepackage{multirow}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{verbatim} 
+\usepackage{csquotes}
+%\usepackage{booktabs}
+%\usepackage[ruled,linesnumbered]{algorithm2e}
+%\usepackage{algorithmic}
+%\usepackage[lofdepth,lotdepth]{subfig}
+\usepackage{tikz}
+\usepackage{tikz,lipsum,lmodern}
+\usepackage[most]{tcolorbox}
+%\usetikzlibrary{matrix,calc}
+%\newtheorem{definition}{Definition}
+%\usepackage{algorithm} 
+%\usepackage{algpseudocode} 
+\usepackage{ragged2e}
+\usepackage{float}
+\usepackage{lineno}
+%\usepackage{wrapfig}
+%\usepackage{amssymb}
+\usepackage{enumerate}
+%\usepackage{caption}
+%\usepackage{multirow,bigstrut}
+%\usepackage{subfigure}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+%\usepackage[ruled, linesnumbered]{algorithm2e}
+\usepackage{setspace}
+\usepackage{enumitem}
+%to set the page numbers properly, include the package 'savepage'
+%\newcounter{savepage}
+\usepackage{pifont}
+\usepackage{fourier-orns}
+%\usepackage{adforn}
+\usepackage{tikz}
+\usepackage{PTSansNarrow}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{matrix}
+%\usepackage{rotating}
+\usepackage{adjustbox}
+%\usepackage[nottoc]{tocbibind}
+\usepackage{pdfpages} % For including pdf files
+
+%*** For bookmarks ***
+%\usepackage[depth=3]{bookmark}% Show up to level 4 (\paragraph) in bookmarks. Use it with booktabs package.
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+%\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+%*** For Printing the Abbrevations Alphabetically ***
+%\usepackage[acronym]{glossaries}
+%\makeglossaries
+
+\newcommand\crulefill[1][1ex]{\leavevmode\leaders\hrule depth \dimexpr-#1+0.4pt height #1\hfill\kern0pt}
+\newcommand\ornline[2][1ex]{\trivlist\item\crulefill[#1]#2\crulefill[#1]\endtrivlist}
+
+\newcommand{\chapterend}{\ornline[0.6ex]{\decofourleft\decofourleft\decosix\decoone\decosix\decofourright\decofourright}}
+
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\newcommand{\tab}[1]{\hspace{.2\textwidth}\rlap{#1}}
+
+
+\newtheorem{definition}{Definition}[chapter]
+
+\usepackage{array}
+\newcolumntype{M}{>{$\vcenter\bgroup\hbox\bgroup}c<{\egroup\egroup$}}
+
+%
+%\graphicspath{ {./chapters/Chapter_3/} {./chapters/Chapter_4/} {./chapters/Chapter_5/}{./chapters/Chapter_6/}{./chapters/Chapter_7/}}
+
+
+% *** MATH PACKAGES : for symbols ***
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% *** GRAPHICS PACKAGES : For subfigures ***
+\usepackage{subcaption}
+
+% *** For Algorithms ***
+\usepackage{algorithm}
+\usepackage{algcompatible}
+
+% *** ALIGNMENT PACKAGES : for tables ***
+%\usepackage{array}
+%\usepackage{booktabs}
+
+%*** For Hyperlinks and reference links ***
+\hypersetup{
+    colorlinks=false,
+    pdfborder={0 0 0},
+}						% Removes the colored boxes around the hyperlinks
+
+\usepackage{hyperref}
+\hypersetup{backref, colorlinks=true, linkcolor={black}, citecolor={cyan}, anchorcolor={green}, urlcolor={magenta}}
+
+
+
+
+
+
+
+
+
+\begin{document}
+\pagenumbering{roman}
+
+% generate the title page of the report
+\title{{AgriLink: An Intelligent Direct Farm-to-Consumer Supply Chain Platform with Hybrid Recommendation and Multilingual Voice Advisory}}
+\author{Sampreetha K Vishwakarma}
+\UEN{2023UG000131}
+\authorTwo{Lavanya H S}
+\UENTwo{2023UG000157}
+\authorThree{Shreerenu C}
+\UENThree{2023UG000151}
+
+
+% For supervisor name use the appropriate honorific Mr., Ms, Mrs., Dr., Prof. or others. The designation of your guide could be Adjunct Professor, Assistant Professor, Associate Professor, Professor of Practice, or Professor. To find the correct honorific and designation, please go to the VU website and find the personal webpage of your guide.
+
+\supervisorone{Dr. Kiran D C}{Professor, School of Engineering and Technology}{kiran.dc@vidyashilp.edu.in}
+\supervisortwo{Dr. Mehala N}{Associate Professor, School of Engineering and Technology}{mehala.n@vidyashilp.edu.in}
+
+\hod{Dr. Smitha Rao}{Head of Department, School of Engineering and Technology}{smitha.rao@vidyashilp.edu.in}
+
+\program{Computer Science \& Engineering (Data Science)} %Write either 'Data Science' or 'Artificial Intelligence \& Machine Learning. Do not write B.Tech. or Hons.
+
+% Enter the Month, Year, and date of report submission here.
+\submissionMonth{November}
+\submissionYear{2026}
+\certdate{November 30, 2026}
+\maketitle
+
+
+%%% include acknowledgement here
+\input{./acknowledgement/acknowledgement.tex}
+
+%%% include declaration here
+\input{./declaration/declaration.tex}
+
+%%% include certificate here
+\input{./certificate/certificate.tex}
+%\includepdf[page=-]{./certificate/certificate-signed.pdf} %Uncomment this if you have an external PDF that contains a signed certificate.
+
+%%% include abstract here
+\input{./abstract/abstract.tex}
+
+%%% Table of contents
+\tableofcontents
+
+%%% List of Figures
+\listoffigures
+\addcontentsline{toc}{chapter}{\numberline{}List of Figures}
+\clearpage
+
+%%% List of Tables
+\listoftables
+\addcontentsline{toc}{chapter}{\numberline{}List of Tables}
+\clearpage
+
+%% list of symbols. You may comment this part if you do not have any symbols or abbreviations that you need to define separately.
+\printnomenclature
+\input{./symbols_glossary/symbols.tex}
+\clearpage
+%\cleardoublepage
+
+
+
+
+%%^^^^^^^^^^^ DO NOT EDIT THIS ^^^^^^^^^^^^
+%% change the style here
+%% set fancy page style
+%\pagestyle{fancy}
+%%^^^^^^^^^^^ DO NOT EDIT THIS ^^^^^^^^^^^^
+%\onehalfspacing
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+% include chapters here 
+%%% chapter 1 Introduction, Problem Statement, and Objectives
+\input{./chapters/C1_Introduction/C1_Introduction.tex}
+
+%%% chapter 2 Literature Review, Gap, and Motivation
+\input{./chapters/C2_Literature_Review/C2_Literature_Review.tex}
+
+%%% chapter 3 Methodology
+\input{./chapters/C3_Methodology/C3_Methodology.tex}
+
+%%% chapter 4 Results and Discussions
+\input{./chapters/C4_Results/C4_Results.tex}
+
+%%% chapter 5 Conclusion and Future Work
+\input{./chapters/C5_Conclusion/C5_Conclusion.tex}
+
+
+\clearpage% or cleardoublepage
+
+
+% 
+\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+\bibliographystyle{elsarticle-num}
+\bibliography{IDP_Report_bibfile}
+%\begin{thebibliography}{1}
+%
+%\end{thebibliography}
+
+\chapterend
+\cleardoublepage
+
+
+
+%%% appendices
+\input{./chapters/C6_Appendix/Appendix.tex}
+%\appendices
+
+
+
+%%% include publications here
+\input{./publication/publication.tex}
+
+\end{document}

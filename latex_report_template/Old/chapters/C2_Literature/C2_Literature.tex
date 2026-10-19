@@ -1,0 +1,196 @@
+\chapter{Literature Survey}
+\label{ch:Lit}
+\noindent{\textbf{\huge I}}n this chapter, we take a look at recent developments in the paradigms relevant to the methods presented in this thesis, namely- Multi-view batch learning, single-view incremental learning, multi-view incremental learning, and 2D methods. We shall first take a look at the discriminant analysis-based methods for each of these paradigms as the thesis focuses on discriminant analysis, and then we will go through other methods pertaining to these paradigms. At the end of this chapter, we will briefly review Multi-view Discriminant Analysis (MvDA) as this method serves as an inspiration for the methods presented in this thesis.
+
+
+
+
+\section{Multi-view Batch Methods}
+\label{sec:Lit_Mv}
+Multi-view methods are proposed in nearly all of the machine learning paradigms. Out of those, we will first briefly discuss the methods that are based on discriminant analysis and then discuss other noteworthy multi-view methods.
+
+
+\subsection{Discriminant Analysis-based Methods}
+\label{subs:Lit_Mv_DA}
+Multi-view discriminant analysis (MvDA) \cite{KanSZLC16} is a method based on discriminant analysis, which jointly solves multiple linear transforms to compute the optimal projection matrix. This method forms the basis of the methods presented in this thesis. KMvDA \cite{LiGL20} is a kernelized version of MvDA, which uses random Fourier features to approximate Gaussian kernels in large-scale learning. The use of kernels enables the construction of a better subspace by projecting the data onto a non-linear higher-dimensional space. Another method is local feature-based multi-view discriminant analysis (FMDA) \cite{HuPGZ18}, which employs the local feature descriptor (LFD) matrices and the representation matrices. Representation matrices are comprised of only the non-redundant linear coefficients of the LFDs for each view. The dimensionality is reduced further by using discriminant analysis on these matrices, and the singularity problem is also addressed to some extent. Shu et al. proposed a two-step approach based on MvDA in \cite{ShuYJL19}. They use the Hilbert-Schmidt Independence Criterion (HSIC) to capture the intra-view class information in the first step and CCA to capture the inter-view correlation in the second step. A multi-view method based on Uncorrelated LDA is presented in \cite{SunXY15}. This method is a multi-view version of ULDA that uses the constraint of \textit{S-orthogonality} to find uncorrelated projection vectors, leading to better subspace construction. The same paper also presents two non-linear versions of MULDA that use Kernel CCA and Kernel DCCA, respectively, to project the data onto the higher dimensions. Based on the observation that many of the supervised and unsupervised feature extraction methods follow a similar structure that can be solved as a generalized eigenvalue problem, Sharma et al. \cite{SharmaKDJ12} present Generalized Multiview Analysis (GMA). This method is a generalized supervised framework and can obtain a linear latent subspace when coupled with other methods like LDA or Marginal Fisher Analysis (MFA). It can also be kernelized to obtain a non-linear subspace.
+
+
+
+
+
+
+\subsubsection{Multi-view Discriminant Analysis (MvDA)}
+\label{ssubs:Lit_MvDA}
+As stated earlier, Multi-view Discriminant Analysis (MvDA) \cite{KanSZLC16} forms a basis of the methods presented in this thesis. Hence, we take a look at the workings of MvDA. This method uses discriminant analysis to project the data samples onto a common subspace. Discriminant analysis works by finding projection vectors that bring the data samples from one class closer together while separating different classes from each other in the discriminant subspace. To apply this principle to multi-view data, MvDA needs to jointly find the projection vectors for all the views. It also needs to keep together the data samples that belong to the same class across all the views. This is achieved by a joint optimization function given as-
+
+\begin{equation}
+\label{eqn:Lit_MvDA_Wopt}
+\textbf{W}^{opt} = \left ( \textbf{W}_1^{opt},\cdots,\textbf{W}_v^{opt} \right ) = \underset{\left ( \textbf{W}_1, \textbf{W}_2,\cdots,\textbf{W} \right )}{argmax}\;\;\frac{Tr\left ( \textbf{S}_B \right )}{Tr\left (\textbf{S}_W^y \right )}
+\end{equation}
+
+Here, $v$ is the number of views. This function maximizes the between-class scatter ($\textbf{S}_B$) while minimizing the within-class scatter ($\textbf{S}_W$) in the projected space. The optimal projection matrix $\textbf{W}^{opt}$ projects data samples so that they are better discriminable in the projection subspace. To find an analytical solution, the function in Eq. (\ref{eqn:Lit_MvDA_Wopt}) is reformulated as a ratio-trace function. To achieve this, both the scatter matrices in projected space are defined in the original space as in Eq. (\ref{eqn:Lit_MvDA_SWytoSjr}) and Eq. (\ref{eqn:Lit_MvDA_SBytoDjr}).
+
+\begin{equation}
+\label{eqn:Lit_MvDA_SWytoSjr}
+\textbf{S}_W = \begin{bmatrix}
+\textbf{W}_1^T \; \textbf{W}_2^T \; \cdots \; \textbf{W}_v^T
+\end{bmatrix} 
+\begin{bmatrix}
+\textbf{S}_{11} & \textbf{S}_{12} & \cdots & \textbf{S}_{1v}\\ 
+\textbf{S}_{21} & \textbf{S}_{22} & \cdots & \textbf{S}_{2v}\\
+\vdots & \vdots & \ddots & \vdots\\ 
+\textbf{S}_{v1} & \textbf{S}_{v2} & \cdots & \textbf{S}_{vv} 
+\end{bmatrix}
+\begin{bmatrix}
+\textbf{W}_1\\ 
+\textbf{W}_2\\ 
+\vdots\\ 
+\textbf{W}_v
+\end{bmatrix} 
+= \textbf{W}^T \textbf{S} \textbf{W}
+\end{equation}
+
+similarly,
+
+\begin{equation}
+\label{eqn:Lit_MvDA_SBytoDjr}
+\textbf{S}_B = \begin{bmatrix}
+\textbf{W}_1^T \; \textbf{W}_2^T \; \cdots \; \textbf{W}_v^T
+\end{bmatrix} 
+\begin{bmatrix}
+\textbf{D}_{11} & \textbf{D}_{12} & \cdots & \textbf{D}_{1v}\\ 
+\textbf{D}_{21} & \textbf{D}_{22} & \cdots & \textbf{D}_{2v}\\ 
+\vdots & \vdots & \ddots & \vdots\\ 
+\textbf{D}_{v1} & \textbf{D}_{v2} & \cdots & \textbf{D}_{vv} 
+\end{bmatrix}
+\begin{bmatrix}
+\textbf{W}_1\\ 
+\textbf{W}_2\\ 
+\vdots\\ 
+\textbf{W}_v
+\end{bmatrix} 
+= \textbf{W}^T \textbf{D} \textbf{W}
+\end{equation}
+
+\noindent
+And the optimization function in Eq.(\ref{eqn:Lit_MvDA_Wopt}) is transformed as,
+
+\begin{equation}
+\label{eqn:Lit_MvDA_WoptRT}
+\textbf{W}^{opt} = \underset{\left ( \textbf{W}_1, \textbf{W}_2,\cdots,\textbf{W}_v \right )}{argmax} \hspace{0.2cm} \frac{Tr\left ( \textbf{W}^T \textbf{D} \textbf{W} \right )}{Tr\left ( \textbf{W}^T \textbf{S} \textbf{W} \right )} = \underset{\left ( \textbf{W}_1, \textbf{W}_2,\cdots,\textbf{W}_v \right )}{argmax} \hspace{0.2cm} Tr\left ( \frac{\textbf{W}^T \textbf{D} \textbf{W}}{\textbf{W}^T \textbf{S} \textbf{W}} \right )
+\end{equation}
+
+Generalized eigenvalue decomposition method is used to find $\textbf{W}^{opt}$,
+
+\begin{equation}
+\label{eqn:Lit_MvDA_GEP}
+\textbf{D} \textbf{W}^{opt} = \lambda \textbf{S} \textbf{W}^{opt}
+\end{equation}
+
+The projection matrix thus found is used to project the test data samples onto the common discriminant subspace and are assigned appropriate class labels.
+
+
+
+
+
+
+
+\subsection{Other Multi-view Batch Methods}
+\label{subs:Lit_Mv_Other}
+Multi-View Multi-Feature Learning (MVMFL) \cite{LiZLZ19} describes each view by multiple features to convey different information. It sees the features as the projections of latent features extracted from a more discriminant space. The label information guides the extracted latent features belonging to one class to follow the same Gaussian distribution for better classification. Huang et al. present a robust multi-view method based on Lp-norm minimization and Ls-norm maximization in \cite{HuangYLYL19}. This method provides a multi-view counterpart for classical GEPSVM methods. The robustness is achieved by using Lp-norm and Ls-norm to calculate the distances from positive and negative points to the hyperplane, which minimizes the effect of the outliers. Another multi-view method based on uncorrelated constraints (MULPP) is presented in \cite{YinS20}. This method is based on the locality preserving projection. MULPP aims to obtain multiple projections and minimize the redundancy of low-dimensional features. To achieve this, it first finds the primary projections of each view and then adds uncorrelated constraints to find more non-redundant low-dimensional projections.
+
+Though these methods make efficient use of the multi-view data to build better classification models, they have been developed for batch learning and do not handle the incremental data.
+
+
+
+
+
+
+
+
+
+
+
+\section{Single-view Incremental Methods}
+\label{sec:Lit_Inc}
+The incremental learning paradigm has seen developments in the past few years, presenting many incremental or online versions of learning algorithms. This section briefly goes over some of the single-view incremental methods based on discriminant analysis and other learning algorithms.
+
+\subsection{Discriminant Analysis-based Methods}
+\label{subs:Lit_Inc_DA}
+Pang et al. \cite{PangOK05} proposed an incremental algorithm for LDA that updates the discriminant eigenspace as and when the new data is presented. This method works even when the data samples belonging to an entirely new class are added. GSVD-ILDA \cite{ZhaoY07} is another incremental method based on LDA. This method uses generalized SVD to find the projection matrix in full space. Complete LDA or CLDA, a version of traditional LDA, addresses the problem of singularity of the within-class scatter matrix. A modified CLDA algorithm, along with its incremental version, is presented in \cite{LuZW12}. Chu et al. presented an incremental version of LDA/QR in \cite{ChuLNW15}, which is faster than LDA, as it uses QR factorization of the data matrix before solving a lower triangular linear system. Liu et al. present an incremental version of discriminant analysis in \cite{LiuLWX17} as kernel null-space discriminant analysis (IKNDA). Along with the discriminant analysis, IKNDA also employs deep neural networks for better performance in novelty detection. Some methods \cite{CauwenberghsP00, KarasuyamaT10, SirkunanSM19, Kashef21} support incremental learning and decremental unlearning too. Incremental decremental SVM (IDSVM) \cite{CauwenberghsP00} supports the addition or deletion of one data sample at a time without retraining. Karasuyama et al. extended IDSVM in \cite{KarasuyamaT10} enabling the addition and deletion of multiple data samples at a time. Interleaved IDSVM \cite{SirkunanSM19} makes it possible to learn and unlearn at the same time while reducing the computational complexity of the method, thereby reducing the training time by a margin of 60\%-70\%. Another SVM-based method presented in \cite{Kashef21} offers a boosting algorithm for non-linear SVM that supports incremental learning and decremental unlearning.
+
+
+
+
+
+\subsection{Other Single-view Incremental Methods}
+\label{subs:Lit_Inc_Other}
+Incremental SVM \cite{XiaoWZ00} is one of the earliest incremental versions of SVM. It incrementally learns the classifier while only remembering certain useful support vectors. Older support vectors are also gradually discarded using the \textit{least recently used} policy and newer support vectors are added. Incremental PCA presented in \cite{ArtacJL02} is used for visual learning. This method is an incremental version of PCA and retains only the learned coefficients and can discard the data after incrementally updating the model. SVDU-IPCA \cite{ZhaoYK06} is a specialized method for face recognition based on IPCA that bounds the approximation error to be significantly less. This is achieved by using singular value decomposition (SVD) updating. Incremental PCA-LDA \cite{Dagher10} is a combination of two methods as it computes the principal components incrementally without computing the covariance matrix and finds the linear discriminant directions to separate the classes from each other using LDA.
+
+
+
+
+
+
+
+
+
+
+\section{Multi-view Incremental Methods}
+\label{sec:Lit_MvInc}
+The benefits of incremental methods in the single-view context were sure to give rise to their multi-view counterparts. In the multi-view context, however, along with the \textit{data sample increment} we also have \textit{view increment}. We take a look at the methods belonging to both of these categories.
+
+
+\subsection{Data Sample Increment}
+\label{Lit_MvInc_Data}
+Incremental multi-view passive-aggressive active learning algorithm (IMPAA) \cite{NieLQZJ18} supports the \textit{data sample increment}. This classification method is based on active learning and is designed for polarimetric synthetic aperture radar (PolSAR) data. IMPAA assumes increments in the number of data samples and works with two views of data. The data samples on whose labels these two views do not agree are seen as informative data samples. Labels of these data samples are queried and then used to improve the model. One more incremental method \cite{NieFHYZM20} to classify the PolSAR data combines semi-supervised and active learning. The method has two phases of learning- one uses active learning to select some informative samples with the help of multi-view information and randomized rule, the next phase employs semi-supervised learning to update the classifier. Both of these methods are equipped to work with the data samples from previously unseen classes. However, these methods do not present a way to add new views of data samples or delete existing data samples or views.
+
+
+\subsection{View Increment}
+\label{Lit_MvInc_View}
+Zhou et al. proposed a method based on SVM in \cite{ZhouSDY19} which supports the \textit{view increment}. This method, incremental multi-view support vector machine (IMSVM), assumes an increment in the number of views instead of data samples. When a new view is encountered, IMSVM updates the trained model to include information from this view. The complementing information from different views is used for the betterment of the model. Incremental multi-view spectral clustering (IMSC) \cite{ZhouSDYL19} also supports increment in the number of views. This clustering method learns a consensus kernel from the new views and the base kernels when a new view is added. The base kernels are also updated simultaneously. As IMSVM and IMSC are based on the increment in the number of views, these methods only support the addition of new views of the existing data samples. These methods are not equipped to handle the addition of new data samples, as in the case of IMPAA or MvIDA.
+
+
+
+
+
+
+
+
+
+
+
+\section{2D Batch Methods}
+\label{sec:Lit_2D}
+Eigenfaces \cite{TurkP91} and Fisherfaces \cite{BelhumeurKH96} were the very first methods to use the original image matrix directly. Since then, many methods have been proposed to make use of the 2D data because of the benefits it has to offer. We present 2D methods based on discriminant analysis and other traditional machine learning algorithms.
+
+
+\subsection{Discriminant Analysis-based Methods}
+\label{subs:Lit_2D_DA}
+2D Linear Discriminant Analysis (2DLDA) \cite{LiY05} is a classification method based on discriminant analysis, which suggests the use of fisher linear projection criterion to overcome singularity. A modified version of 2DLDA was presented in \cite{ZhiR08} which uses weighted between-class scatter to separate the classes further. Wang et al. presented a formulation of 2DLDA for non-linear data \cite{WangQNY17}, which uses a specially designed convolutional neural network (CNN), facilitating the use of non-linear data. Another 2DLDA-based method is presented in \cite{LiSWD19}. This method eliminates the outlier and the small sample size problem by using bilateral Lp-norm criterion. Some methods \cite{YangYZS10,WanYGY17} use fuzzy sets in the feature extraction process to improve the performance. A membership degree matrix is computed using fuzzy $k$-NN, which is then used for classification by these methods. Another method based on 2DLDA is Fuzzy 2DLDA \cite{ZhangZC20}, which uses sub-image and random sampling. This method divides the original image into sub-images to make 2DLDA more robust to facial expressions, occlusions, or illumination. In the next step, local features are extracted from sub-images, and the fuzzy 2DLDA algorithm is applied to randomly-sampled row vectors of these sub-images. Cost-sensitive Dual-Bidirectional LDA (CB$^2$LDA) \cite{LiZHZ20} employs the bidirectional LDA along with the misclassification costs to improve classification results. Each misclassification has an associated cost, which is leveraged during the classification phase in this method.
+
+
+\subsection{Other Single-view 2D Methods}
+\label{subs:Lit_2D_Other}
+2DPCA \cite{YangZFY04}, as the name suggests, is a 2D version of traditional PCA. It constructs the image covariance matrix directly from the original images. Eigenvectors of the covariance matrix comprise the feature vectors, which are then used for classification. 2DPCA was further adopted and modified by Kong et al. \cite{KongWTLWV05}. They proposed two methods based on 2DPCA in their paper- one is bilateral-projection-based 2DPCA (B2DPCA), and the other is Kernel-based 2DPCA (K2DPCA). B2DPCA constructs two projection directions simultaneously and projects the row and column vectors of the image matrix onto two different subspaces. This way, the image can be represented by fewer coefficients than 2DPCA. K2DPCA is the kernelized version of the 2DPCA. It facilitates the modeling of non-linear structures versus the linear projection technique of the 2DPCA. Another method based on 2DPCA was proposed in \cite{WangG17} by the name of F2DPCA. This method uses the F-norm minimization to make the method robust to outliers. The distance in the attribute domain is computed using F-norm, and the summation over different data points uses the 1-norm. F2DPCA is also robust to the rotation of the images. Angle-2DPCA \cite{GaoMLGN18} uses the F-norm along with the relationship between reconstruction error and variance in the criterion function, making the method more robust to the outliers.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\chapterend
+\cleardoublepage

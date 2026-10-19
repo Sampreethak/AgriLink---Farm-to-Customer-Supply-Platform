@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/colors.dart';
+import '../../core/validators.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/primary_button.dart';
@@ -180,20 +181,24 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                         controller: _nameController,
                         label: "Farmer Full Name *",
                         icon: Icons.person,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? "Please enter your name" : null,
+                        validator: (v) => Validators.validateName(v),
                       ),
                       CustomTextField(
                         controller: _phoneController,
                         label: "Phone Number (for OTP & UPI) *",
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? "Please enter phone number" : null,
+                        validator: (v) => Validators.validatePhone(v),
                       ),
                       CustomTextField(
                         controller: _emailController,
                         label: "Email Address (Optional)",
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null; // optional
+                          return Validators.validateEmail(v);
+                        },
                       ),
                     ],
                   ),
@@ -265,17 +270,29 @@ class _FarmerRegistrationState extends State<FarmerRegistration> {
                         controller: _upiController,
                         label: "UPI ID / VPA (e.g. mobile@upi)",
                         icon: Icons.qr_code,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null; // optional
+                          return Validators.validateUPI(v);
+                        },
                       ),
                       CustomTextField(
                         controller: _accountController,
                         label: "Bank Account Number",
                         icon: Icons.account_balance,
                         keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null; // optional
+                          return Validators.validateBankAccount(v);
+                        },
                       ),
                       CustomTextField(
                         controller: _ifscController,
                         label: "IFSC Code",
                         icon: Icons.numbers,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null; // optional
+                          return Validators.validateIFSC(v);
+                        },
                       ),
                     ],
                   ),

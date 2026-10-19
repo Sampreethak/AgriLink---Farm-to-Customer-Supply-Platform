@@ -88,4 +88,125 @@ class RecommendationService {
     } catch (e) {}
     return [];
   }
+
+  /// Replacement Listing Recommendations for Out-of-Stock / Alternative items
+  Future<List<Map<String, dynamic>>> getReplacementListings(String listingId, {int topK = 3}) async {
+    try {
+      final response = await _dio.get('$_baseUrl/recommendations/replacement/$listingId', queryParameters: {'top_k': topK});
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /// Farmer Crop Opportunities (Demand gap + APMC price predictions)
+  Future<List<Map<String, dynamic>>> getFarmerCropOpportunities(String farmerId, {int topK = 10}) async {
+    try {
+      final response = await _dio.get('$_baseUrl/recommendations/farmer/$farmerId', queryParameters: {'top_k': topK});
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /// Aggregator Supplier Matching for bulk produce procurement
+  Future<List<Map<String, dynamic>>> getAggregatorSupplierMatches(String cropName, {double requiredQuantity = 500.0, int topK = 10}) async {
+    try {
+      final response = await _dio.get('$_baseUrl/recommendations/aggregator/match', queryParameters: {
+        'crop_name': cropName,
+        'required_quantity': requiredQuantity,
+        'top_k': topK,
+      });
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EXTENDED ML RECOMMENDATION MODELS (4 new notebook-backed algorithms)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// Unified Discover Dashboard — all 4 extended models in one call
+  Future<Map<String, dynamic>?> getDiscoverDashboard(String customerId) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/recommendations/discover/$customerId',
+        options: Options(receiveTimeout: const Duration(seconds: 15)),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  /// Model 4: Next-Basket Prediction (NBR Frequency Baseline)
+  Future<List<Map<String, dynamic>>> getNextBasket(String customerId, {int topK = 6}) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/recommendations/next-basket/$customerId',
+        queryParameters: {'top_k': topK},
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /// Model 5: Recency-Weighted (Exponential Time-Decay Scoring)
+  Future<List<Map<String, dynamic>>> getRecencyWeighted(String customerId, {int topK = 6}) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/recommendations/recency-weighted/$customerId',
+        queryParameters: {'top_k': topK},
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /// Model 6: Price-Aware (Budget-Fit + Popularity Heuristic)
+  Future<List<Map<String, dynamic>>> getPriceAware(String customerId, {int topK = 6}) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/recommendations/price-aware/$customerId',
+        queryParameters: {'top_k': topK},
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /// Model 7: Local Popularity (Region-Based Trending)
+  Future<List<Map<String, dynamic>>> getLocalPopularity(String customerId, {int topK = 6, String? region}) async {
+    try {
+      final params = <String, dynamic>{'buyer_id': customerId, 'top_k': topK};
+      if (region != null) params['region'] = region;
+      final response = await _dio.get(
+        '$_baseUrl/recommendations/local-popularity',
+        queryParameters: params,
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final List<dynamic> raw = response.data['recommendations'] ?? [];
+        return raw.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    } catch (e) {}
+    return [];
+  }
 }
+

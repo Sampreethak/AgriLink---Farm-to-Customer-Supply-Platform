@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
+import '../../core/validators.dart';
 import '../../services/auth_service.dart';
 import '../common/success_screen.dart';
 import 'delivery_dashboard.dart';
@@ -121,12 +122,7 @@ class _DeliveryRegistrationScreenState
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Please enter your name";
-                    }
-                    return null;
-                  },
+                  validator: (value) => Validators.validateName(value),
                 ),
                 const SizedBox(height: 16),
 
@@ -139,12 +135,7 @@ class _DeliveryRegistrationScreenState
                     prefixIcon: Icon(Icons.phone),
                     border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Please enter phone number";
-                    }
-                    return null;
-                  },
+                  validator: (value) => Validators.validatePhone(value),
                 ),
                 const SizedBox(height: 16),
 

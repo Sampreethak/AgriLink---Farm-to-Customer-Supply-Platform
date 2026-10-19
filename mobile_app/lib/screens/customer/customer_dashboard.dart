@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/customer_state.dart';
 import 'home_tab.dart';
+import 'discover_tab.dart';
 import 'cart_tab.dart';
 import 'orders_tab.dart';
 import 'profile_tab.dart';
@@ -33,22 +34,20 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
   }
 
   void _onStateChange() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   void _navigateToTab(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
+    setState(() => selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Tab order: Home | Discover | Cart | Orders | Profile
     final pages = [
-      HomeTab(onNavigateToCart: () => _navigateToTab(1)),
-      CartTab(onOrderPlaced: () => _navigateToTab(2)),
+      HomeTab(onNavigateToCart: () => _navigateToTab(2)),
+      const DiscoverTab(),
+      CartTab(onOrderPlaced: () => _navigateToTab(3)),
       const OrdersTab(),
       const ProfileTab(),
     ];
@@ -74,21 +73,23 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         selectedItemColor: const Color(0xFF2E7D32),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => selectedIndex = index),
         items: [
           const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
             label: "Home",
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.auto_awesome_outlined),
+            activeIcon: Icon(Icons.auto_awesome),
+            label: "Discover",
           ),
           BottomNavigationBarItem(
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.shopping_cart),
+                const Icon(Icons.shopping_cart_outlined),
                 if (cartBadgeCount > 0)
                   Positioned(
                     right: -6,
@@ -99,10 +100,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                       child: Text(
                         '$cartBadgeCount',
                         style: const TextStyle(
@@ -119,11 +117,13 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             label: "Cart",
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
+            icon: Icon(Icons.receipt_long_outlined),
+            activeIcon: Icon(Icons.receipt_long),
             label: "Orders",
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: "Profile",
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/platform_state.dart';
+import '../../services/recommendation_service.dart';
 import '../customer/fair_pricing_screen.dart';
 import 'earnings_screen.dart';
 import 'products/add_product_screen.dart';
@@ -14,6 +15,7 @@ class HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<HomeTab> {
   final PlatformState _platformState = PlatformState();
+  final RecommendationService _recService = RecommendationService();
 
   Map<String, dynamic> _stats = {
     'earnings': '₹0',
@@ -21,6 +23,7 @@ class _HomeTabState extends State<HomeTab> {
     'products': '—',
     'rating': '4.9 ⭐',
   };
+  List<Map<String, dynamic>> _farmerCropOpportunities = [];
   bool _isLoading = true;
 
   @override
@@ -65,6 +68,9 @@ class _HomeTabState extends State<HomeTab> {
           ? '${farmerProducts.length} Crops'
           : (isSeedAccount ? '6 Crops' : '0 Crops');
 
+      // Fetch AI Demand Crop Opportunities
+      final opps = await _recService.getFarmerCropOpportunities(user.id);
+
       setState(() {
         _stats = {
           'earnings': displayEarnings,
@@ -72,6 +78,7 @@ class _HomeTabState extends State<HomeTab> {
           'products': displayProducts,
           'rating': '5.0 ⭐',
         };
+        _farmerCropOpportunities = opps;
         _isLoading = false;
       });
     } catch (e) {
@@ -86,6 +93,7 @@ class _HomeTabState extends State<HomeTab> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -240,11 +248,96 @@ class _HomeTabState extends State<HomeTab> {
 
               const SizedBox(height: 25),
 
+              if (_farmerCropOpportunities.isNotEmpty) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      "💡 High-Demand Crop Opportunities",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "AI Demand Gap",
+                      style: TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 130,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _farmerCropOpportunities.length,
+                    itemBuilder: (context, index) {
+                      final item = _farmerCropOpportunities[index];
+                      return Container(
+                        width: 220,
+                        margin: const EdgeInsets.only(right: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.green.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  item['crop_name'] ?? 'Crop',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade700,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    'Score: ${((item['opportunity_score'] ?? 0.85) * 100).toStringAsFixed(0)}%',
+                                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              item['reason'] ?? 'High demand gap in North Bengaluru.',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                            ),
+                            const Spacer(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Gap: ${item['supply_gap'] ?? item['quantity_demand'] ?? 500} kg',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  'APMC: ₹${item['predicted_price'] ?? 40}/kg',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 25),
+              ],
+
               const Text(
                 "Quick Actions",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
+
 
               Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

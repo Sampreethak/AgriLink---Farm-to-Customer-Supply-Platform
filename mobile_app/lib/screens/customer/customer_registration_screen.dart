@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/colors.dart';
+import '../../core/validators.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/common/app_logo.dart';
 import '../../widgets/common/primary_button.dart';
@@ -169,21 +170,21 @@ class _CustomerRegistrationScreenState
                         controller: _nameController,
                         label: "Full Name *",
                         icon: Icons.person,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? "Please enter your full name" : null,
+                        validator: (v) => Validators.validateName(v),
                       ),
                       CustomTextField(
                         controller: _emailController,
                         label: "Email Address *",
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? "Please enter your email" : null,
+                        validator: (v) => Validators.validateEmail(v),
                       ),
                       CustomTextField(
                         controller: _phoneController,
                         label: "Phone Number *",
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? "Please enter phone number" : null,
+                        validator: (v) => Validators.validatePhone(v),
                       ),
                     ],
                   ),
@@ -217,6 +218,10 @@ class _CustomerRegistrationScreenState
                         label: "Pincode",
                         icon: Icons.pin_drop,
                         keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null; // optional
+                          return Validators.validatePincode(v);
+                        },
                       ),
                     ],
                   ),

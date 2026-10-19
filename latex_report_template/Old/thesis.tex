@@ -1,0 +1,253 @@
+\documentclass{iitgcsethesis}
+\usepackage[intoc]{nomencl}
+\usepackage{lipsum}
+%create the list of symbols page
+\makenomenclature
+%rename nomenclature to List of Symbols
+%\renewcommand{\nomname}{List of Symbols}
+
+\setlength\parindent{24pt}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%\usepackage{amssymb}
+%\usepackage{array}
+%\usepackage{fullpage}
+\usepackage{threeparttable}
+\usepackage{wasysym}
+%\usepackage{graphicx}
+%\usepackage{multicol}
+%\usepackage{multirow}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{verbatim} 
+\usepackage{csquotes}
+%\usepackage{booktabs}
+%\usepackage[ruled,linesnumbered]{algorithm2e}
+%\usepackage{algorithmic}
+%\usepackage[lofdepth,lotdepth]{subfig}
+\usepackage{tikz}
+\usepackage{tikz,lipsum,lmodern}
+\usepackage[most]{tcolorbox}
+%\usetikzlibrary{matrix,calc}
+%\newtheorem{definition}{Definition}
+%\usepackage{algorithm} 
+%\usepackage{algpseudocode} 
+\usepackage{ragged2e}
+\usepackage{float}
+\usepackage{lineno}
+%\usepackage{wrapfig}
+%\usepackage{amssymb}
+\usepackage{enumerate}
+%\usepackage{caption}
+%\usepackage{multirow,bigstrut}
+%\usepackage{subfigure}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+%\usepackage[ruled, linesnumbered]{algorithm2e}
+\usepackage{setspace}
+\usepackage{enumitem}
+%to set the page numbers properly, include the package 'savepage'
+%\newcounter{savepage}
+\usepackage{pifont}
+\usepackage{fourier-orns}
+%\usepackage{adforn}
+\usepackage{tikz}
+\usepackage{PTSansNarrow}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{matrix}
+%\usepackage{rotating}
+\usepackage{adjustbox}
+%\usepackage[nottoc]{tocbibind}
+\usepackage{pdfpages} % For including pdf files
+
+%*** For bookmarks ***
+%\usepackage[depth=3]{bookmark}% Show up to level 4 (\paragraph) in bookmarks. Use it with booktabs package.
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+%\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+%*** For Printing the Abbrevations Alphabetically ***
+%\usepackage[acronym]{glossaries}
+%\makeglossaries
+
+\newcommand\crulefill[1][1ex]{\leavevmode\leaders\hrule depth \dimexpr-#1+0.4pt height #1\hfill\kern0pt}
+\newcommand\ornline[2][1ex]{\trivlist\item\crulefill[#1]#2\crulefill[#1]\endtrivlist}
+
+\newcommand{\chapterend}{\ornline[0.6ex]{\decofourleft\decofourleft\decosix\decoone\decosix\decofourright\decofourright}}
+
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\newcommand{\tab}[1]{\hspace{.2\textwidth}\rlap{#1}}
+
+
+\newtheorem{definition}{Definition}[chapter]
+
+\usepackage{array}
+\newcolumntype{M}{>{$\vcenter\bgroup\hbox\bgroup}c<{\egroup\egroup$}}
+
+%
+%\graphicspath{ {./chapters/Chapter_3/} {./chapters/Chapter_4/} {./chapters/Chapter_5/}{./chapters/Chapter_6/}{./chapters/Chapter_7/}}
+
+
+% *** MATH PACKAGES : for symbols ***
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% *** GRAPHICS PACKAGES : For subfigures ***
+\usepackage{subcaption}
+
+% *** For Algorithms ***
+\usepackage{algorithm}
+\usepackage{algcompatible}
+
+% *** ALIGNMENT PACKAGES : for tables ***
+%\usepackage{array}
+%\usepackage{booktabs}
+
+%*** For Hyperlinks and reference links ***
+\hypersetup{
+    colorlinks=false,
+    pdfborder={0 0 0},
+}						% Removes the colored boxes around the hyperlinks
+
+\usepackage{hyperref}
+\hypersetup{backref, colorlinks=true, linkcolor={black}, citecolor={cyan}, anchorcolor={green}, urlcolor={magenta}}
+
+
+
+
+
+
+
+
+
+\begin{document}
+
+
+% generate the title page for the thesis
+%\title{{\Huge Supervised Incremental Learning for Multi-view Data}}
+\title{{\Huge Incremental-Decremental Methods for Multi-view Discriminant Analysis}}
+\author{Saroj Snehal Shivagunde}
+\supervisor{Dr. Vijaya Saradhi Vedula}
+\submissionMonth{March}
+\submissionYear{2022}
+\certdate{March 21, 2022} % Enter date of Thesis submission here
+\maketitle
+
+
+% generate the copyright text
+% use the author name given above
+% use the year name from 'submissionYear' above
+\copyrightText
+
+%%% include dedication here
+\input{./dedication/dedication.tex}
+
+%%% include acknowledgement here
+\input{./acknowledgement/acknowledgement.tex}
+
+%%% include declaration here
+\input{./declaration/declaration.tex}
+
+%%% include certificate here
+%\input{./certificate/certificate.tex}
+\includepdf[page=-]{./certificate/certificate-signed.pdf}
+
+%%% include abstract here
+\input{./abstract/abstract.tex}
+
+%%% Table of contents
+\tableofcontents
+
+%%% List of Figures
+\listoffigures
+\addcontentsline{toc}{chapter}{\numberline{}List of Figures}
+\clearpage
+
+%%% list of algorithms
+\listofalgorithms
+\addcontentsline{toc}{chapter}{\numberline{}List of Algorithms}
+\clearpage
+
+%%% List of Tables
+\listoftables
+\addcontentsline{toc}{chapter}{\numberline{}List of Tables}
+\clearpage
+
+%%% list of symbols
+%\printnomenclature
+%\input{./symbols_glossary/symbols.tex}
+%\clearpage
+%%\cleardoublepage
+
+%\printnomenclature
+%\input{./symbols_glossary/abbrs.tex}
+%%\clearpage
+%\clearpage
+
+%\printnomenclature
+%\input{./symbols_glossary/glossary.tex}
+%\clearpage
+%\clearpage
+
+
+
+%%^^^^^^^^^^^ DO NOT EDIT THIS ^^^^^^^^^^^^
+%% change the style here
+%% set fancy page style
+%\pagestyle{fancy}
+%%^^^^^^^^^^^ DO NOT EDIT THIS ^^^^^^^^^^^^
+%\onehalfspacing
+
+% include chapters here 
+%%% chapter 1
+\input{./chapters/C1_Introduction/C1_Introduction.tex}
+
+%%% chapter 2
+\input{./chapters/C2_Literature/C2_Literature.tex}
+
+%%% chapter 3
+\input{./chapters/C3_Notations/C3_Notations.tex}
+
+%%% chapter 4
+\input{./chapters/C4_MvIDA/C4_MvIDA.tex}
+
+%%% chapter 5
+\input{./chapters/C5_2DMvDA/C5_2DMvDA.tex}
+
+%%% chapter 6
+\input{./chapters/C6_2DMvIDDA/C6_2DMvIDDA.tex}
+
+%%% chapter 7
+\input{./chapters/C7_ViewInc/C7_ViewInc.tex}
+
+%%% chapter 8
+\input{./chapters/C8_Summary/C8_Summary.tex}
+
+%%% appendices
+\input{./chapters/C9_Appendix/Appendix.tex}
+%\appendices
+
+%%\cleardoublepage
+%%% include publications here
+%%\input{./publication/publication.tex}
+
+\clearpage% or cleardoublepage
+\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+\bibliographystyle{elsarticle-num}
+\bibliography{thesis_bibfile}
+%\begin{thebibliography}{1}
+%
+%\end{thebibliography}
+
+\chapterend
+
+\cleardoublepage
+%%% include publications here
+\input{./publication/publication.tex}
+
+%%% vitae of author
+\input{./vitae/vitae.tex}
+
+\end{document}

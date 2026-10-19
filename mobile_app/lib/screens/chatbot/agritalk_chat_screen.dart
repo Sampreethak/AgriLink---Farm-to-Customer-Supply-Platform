@@ -5,6 +5,7 @@ import '../../core/colors.dart';
 import '../../core/config.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
+import '../../services/platform_state.dart';
 
 class ChatMessage {
   final String text;
@@ -84,6 +85,7 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
     _scrollToBottom();
 
     final lang = Provider.of<LanguageProvider>(context, listen: false).currentLanguage;
+    final currentUser = PlatformState().currentUser;
 
     try {
       final response = await _dio.post(
@@ -91,7 +93,8 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
         data: {
           'query': text,
           'language': lang,
-          'role': 'FARMER',
+          'role': currentUser?.role.toUpperCase() ?? 'FARMER',
+          'user_id': currentUser?.id ?? '11111111-1111-1111-1111-111111111111',
         },
       );
 

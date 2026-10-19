@@ -1,0 +1,346 @@
+\chapter*{Appendix}
+\label{Appendix}
+\section*{A. $\textbf{S}_B'$ - Generic Derivation}
+\label{proof:Djr}
+The between-class scatter is dependent on the class mean and the total mean, both of which get updated in all four cases. Hence, the between-class scatter is recalculated at each increment. This is a generic derivation for all cases of all the methods presented in this thesis (MvIDA, 2DMvDA, 2DMvIDDA, and VIDMvDA). Appropriate notations shall be used in the case of minor variations, like new class or new view (e.g., $c'$ in place $c$ or $v'$ in place of $v$).
+
+We start with the equation in the projected space and arrive at the equation in the original space.
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_B' = \; & \sum_{i=1}^{c} n_{i}' (\textbf{m}_{i}' - \textbf{m}') (\textbf{m}_{i}' - \textbf{m}')^T \\
+= \; & \sum_{i=1}^{c} n_{i}' \textbf{m}_{i}' {\textbf{m}_{i}'}^T - \sum_{i=1}^{c} n_{i}' \textbf{m}_{i}' {\textbf{m}'}^T - \sum_{i=1}^{c} n_{i}' \textbf{m}' {\textbf{m}_{i}'}^T + \sum_{i=1}^{c} n_{i}' \textbf{m}' {\textbf{m}'}^T
+\\
+= \; & \sum_{i=1}^{c} n_{i}' \textbf{m}_{i}' {\textbf{m}_{i}'}^T - n' \textbf{m}' {\textbf{m}'}^T - \textbf{m}' (n' {\textbf{m}'}^T) + n' \textbf{m}' {\textbf{m}'}^T
+\\
+= \; & \sum_{i=1}^{c} n_{i}' \textbf{m}_{i}' {\textbf{m}_{i}'}^T - n' \textbf{m}' {\textbf{m}'}^T \\
+\\
+= \; & \sum_{i=1}^{c} n_{i}' \left( \sum_{j=1}^{v'} \frac{n_{ij}' }{n_{i}'} \textbf{W}_j^T {\textbf{m}_{ij}'}^{(x)} \right) \left( \sum_{r=1}^{v'} \frac{n_{ir}'}{n_{i}'}  \textbf{W}_r^T {\textbf{m}_{ir}'}^{(x)} \right)^T - n' \left ( \sum_{j=1}^{v'} \sum_{i=1}^{c} \frac{n_{ij}'}{n'} \textbf{W}_j^T {\textbf{m}_{ij}'}^{(x)} \right ) \left ( \sum_{r=1}^{v'} \sum_{i=1}^{c} \frac{n_{ij}'}{n'} \textbf{W}_r^T {\textbf{m}_{ir}'}^{(x)} \right )^T
+\\
+= \; & \sum_{j=1}^{v'} \sum_{r=1}^{v'} \textbf{W}_j^T \textbf{D}_{jr}' \textbf{W}_r \\
+\end{split}
+\end{equation*}
+
+\noindent
+Where,
+
+\begin{equation*}
+\begin{split}
+\textbf{D}_{jr}' =  \; \sum_{i=1}^{c} & \; \frac{n_{ij}' \; n_{ir}'}{n_{i}'} \; {\textbf{m}_{ij}'}^{(x)} {{\textbf{m}_{ir}'}^{(x)}}^T - \frac{1}{n'} \left (\sum_{i=1}^{c} n_{ij}' \; {\textbf{m}_{ij}'}^{(x)} \right ) \left (\sum_{i=1}^{c} n_{ir}' \; {{\textbf{m}_{ir}'}^{(x)}}^T \right )
+\end{split}
+\end{equation*}
+\normalsize
+
+
+
+
+
+
+
+
+
+
+\section*{B. MvIDA: $\textbf{S}_W'$ - Sequential Increment and Existing Class}
+\label{proof:MvIDA_SeqEx}
+In the case of \textit{sequential increment and existing class}, the within-class scatter matrix ($\textbf{S}_W$) is updated to include the new data sample that belongs to an already existing class $E$. Hence, we only have to update the scatter of class $E$. This update does not affect the scatter of other classes. Hence, we keep the class-wise scatters of other classes as they are and add the updated scatter of class $E$ to it. However, this scatter is not computed from scratch. We derive the formula to obtain the updated class-wise scatter of class $E$ without using the old data samples.
+
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' = \; & \sum_{i=1,i \neq E}^{c} \textbf{S}_{W_i} + \textbf{S}_{W_E}'
+\\
+= \; & \sum_{i=1,i \neq E}^{c} \textbf{S}_{W_i} + \sum_{j=1}^{v} \sum_{k=1}^{n_{Ej}} \left ( \textbf{y}_{Ejk} - \textbf{m}_E' \right ) \left ( \textbf{y}_{Ejk} - \textbf{m}_E' \right )^T + \sum_{j=1}^{v} \left ( \textbf{y}_{j}' - \textbf{m}_E' \right ) \left ( \textbf{y}_{j}' - \textbf{m}_E' \right )^T \\
+= \; & \sum_{i=1,i \neq E}^{c} \textbf{S}_{W_i} + \sum_{j=1}^{v} \sum_{k=1}^{n_{Ej}} \left ( \textbf{y}_{Ejk} - \textbf{m}_E - \frac{v(\bar{\textbf{m}}_E - \textbf{m}_E)}{n_E + v} \right ) \left ( \textbf{y}_{Ejk} - \textbf{m}_E - \frac{v(\bar{\textbf{m}}_E - \textbf{m}_E)}{n_E + v} \right )^T
+\\
+\; & \hspace{1.7cm} + \sum_{j=1}^{v} \left ( \textbf{y}_{j}' - \textbf{m}_E - \frac{v(\bar{\textbf{m}}_E - \textbf{m}_E)}{n_E + v} \right ) \left ( \textbf{y}_{j}' - \textbf{m}_E - \frac{v(\bar{\textbf{m}}_E - \textbf{m}_E)}{n_E + v} \right )^T
+\\
+= \; & \sum_{i=1,i \neq E}^{c} \textbf{S}_{W_i} + \textbf{S}_{W_E} + \frac{v \; n_E}{(n_E+v)} \left ( \bar{\textbf{m}}_E - \textbf{m}_E \right ) \left ( \bar{\textbf{m}}_E - \textbf{m}_E \right )^T + \sum_{j=1}^{v} \left ( \textbf{y}_{j}' - \bar{\textbf{m}}_E \right ) \left ( \textbf{y}_{j}' - \bar{\textbf{m}}_E \right )^T
+\\
+= \; & \textbf{S}_W + \frac{v \; n_E}{(n_E+v)} \left ( \bar{\textbf{m}}_E - \textbf{m}_E \right ) \left ( \bar{\textbf{m}}_E - \textbf{m}_E \right )^T + \sum_{j=1}^{v} \left ( \textbf{y}_{j}' - \bar{\textbf{m}}_E \right ) \left ( \textbf{y}_{j}' - \bar{\textbf{m}}_E \right )^T
+\\
+= \; & \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \left[ \textbf{S}_{jr} + \small{ {\displaystyle \frac{n_E}{v(n_E+v)}}} \left( \bar{\textbf{x}}_j -\textbf{m}_{Ej}^{(x)} \right) \left( \bar{\textbf{x}}_r -\textbf{m}_{Er}^{(x)} \right)^T - \frac{1}{v} \bar{\textbf{x}}_j \bar{\textbf{x}}_r^T \right] \textbf{W}_r + \sum_{j=1}^{v} \textbf{W}_j^T \bar{\textbf{x}}_j \bar{\textbf{x}}_j^T \textbf{W}_j
+\\
+= \; & \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr}' \textbf{W}_r
+\\
+= \; & \textbf{W}^T \textbf{S}' \textbf{W} \\
+\end{split}
+\end{equation*}
+\normalsize
+
+\noindent
+Where,
+
+\small
+\begin{equation*}
+\textbf{S}_{jr}' = \left\{\begin{matrix*}[l]
+\textbf{S}_{jr} + \frac{n_E}{v (n_E+v)} \left ( \bar{\textbf{x}}_j - {\textbf{m}_{Ej}}^{(x)} \right ) \left ( \bar{\textbf{x}}_j - {\textbf{m}_{Ej}}^{(x)} \right )^T + \bar{\textbf{x}}_j {\bar{\textbf{x}}_j}^T - \frac{1}{v} \bar{\textbf{x}}_j {\bar{\textbf{x}}_j}^T & j=r
+\\[0.3cm] 
+\textbf{S}_{jr} + \frac{n_E}{v (n_E+v)} \left ( \bar{\textbf{x}}_j - {\textbf{m}_{Ej}}^{(x)} \right ) \left ( \bar{\textbf{x}}_r - {\textbf{m}_{Er}}^{(x)} \right )^T - \frac{1}{v} \bar{\textbf{x}}_j {\bar{\textbf{x}}_r}^T & j \neq r
+\end{matrix*}\right.
+\end{equation*}
+\normalsize
+
+
+
+
+
+
+
+
+
+
+\section*{C. MvIDA: $\textbf{S}_W'$ - Sequential Increment and New Class}
+\label{proof:MvIDA_SeqNew}
+In the case of \textit{sequential increment and new class}, as the new data sample belongs to a new class (denoted as class $N$), we do not have to make changes in the scatters of any of the old classes. We only add the scatter of the new sample in the old scatter matrix. As this scatter of class $N$ does not need any older data samples, the derivation is straightforward.
+
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' & = \textbf{S}_W + \sum_{j=1}^{v} \left( \textbf{y}_j' - \textbf{m}_N \right) \left( \textbf{y}_j' - \textbf{m}_N \right)^T
+\\
+& = \textbf{S}_W + \sum_{j=1}^{v} \textbf{y}_j' {\textbf{y}_j'}^T - \sum_{j=1}^{v} \textbf{y}_j' \textbf{m}_N^T - \sum_{j=1}^{v} \textbf{m}_N {\textbf{y}_j'}^T + \sum_{j=1}^{v} \textbf{m}_N \textbf{m}_N^T
+\\
+& = \textbf{S}_W + \sum_{j=1}^{v} \textbf{y}_j' {\textbf{y}_j'}^T  - v \textbf{m}_N \textbf{m}_N^T
+\\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' & = \textbf{S}_W + \sum_{j=1}^{v} \textbf{W}_j^T \bar{\textbf{x}}_j \bar{\textbf{x}}_j^T \textbf{W}_j - v \left ( \frac{1}{v} \sum_{j=1}^{v} \textbf{W}_j^T \textbf{m}_{Nj}^{(x)} \right ) \left ( \frac{1}{v} \sum_{r=1}^{v} \textbf{W}_r^T {\textbf{m}_{Nr}^{(x)}} \right )^T
+\\
+& = \textbf{S}_W + \sum_{j=1}^{v} \textbf{W}_j^T \bar{\textbf{x}}_j \bar{\textbf{x}}_j^T \textbf{W}_j - v \left ( \frac{1}{v} \sum_{j=1}^{v} \textbf{W}_j^T \bar{\textbf{x}}_j \right ) \left ( \frac{1}{v} \sum_{r=1}^{v} \textbf{W}_r^T \bar{\textbf{x}}_r \right )^T
+\\
+& = \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr} \textbf{W}_r + \sum_{j=1}^{v} \textbf{W}_j^T \bar{\textbf{x}}_j \bar{\textbf{x}}_j^T \textbf{W}_j - \sum_{j=1}^{v} \sum_{r=1}^{v} \frac{1}{v} \textbf{W}_j^T \bar{\textbf{x}}_j \bar{\textbf{x}}_r^T \textbf{W}_r
+\\
+& = \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr}' \textbf{W}_r = \; \textbf{W}^T \textbf{S}' \textbf{W} \\
+\end{split}
+\end{equation*}
+\normalsize
+
+\noindent
+Where,
+
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_{jr}' = \left\{\begin{matrix*}[l]
+\textbf{S}_{jr} + \bar{\textbf{x}}_{j} \; \bar{\textbf{x}}_{j}^T - \frac{1}{v} \bar{\textbf{x}}_j \; \bar{\textbf{x}}_j^T & j=r
+\\[0.3cm]
+\textbf{S}_{jr} - \frac{1}{v} \bar{\textbf{x}}_j \; \bar{\textbf{x}}_r^T & j \neq r
+\end{matrix*}\right. \hspace{1.3cm}
+\end{split}
+\end{equation*}
+\normalsize
+
+
+
+
+
+
+
+
+
+\section*{D. MvIDA: $\textbf{S}_W'$ - Chunk Increment}
+\label{proof:MvIDA_ChunkEx}
+In the case of \textit{chunk increment and existing class}, we have to update the scatters of all existing classes to which new samples have been added denoted by $CH$. The classes to which no new data samples were added are denoted by $UC$. The update for \textit{chunk increment and new class} is obtained in a similar way. Hence, a separate derivation for the same is not provided. In the case of a new class, the scatters of new classes are also included in $CH$. We keep the scatters of classes in $UC$ as they are and update the scatter of the classes in set $CH$. We derive the equation for updating the scatter matrix without using the old data samples.
+
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' = \; & \sum\limits_{i \in \mathcal{UC}} \textbf{S}_{W_i} + \sum\limits_{i \in \mathcal{CH}} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \left( \textbf{y}_{ijk} - \textbf{m}_i' \right) \left( \textbf{y}_{ijk} - \textbf{m}_i' \right)^T + \sum\limits_{i \in \mathcal{CH}} \sum_{j=1}^{v} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i' \right) \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i' \right)^T
+\\
+= \; & \sum\limits_{i \in \mathcal{UC}} \textbf{S}_{W_i} + \sum\limits_{i \in \mathcal{CH}} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \left( \textbf{y}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right) \left( \textbf{y}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right)^T
+\\
+& + \sum\limits_{i \in \mathcal{CH}} \sum_{j=1}^{v} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right) \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right)^T
+\\
+= \; & \textbf{S}_W + \sum\limits_{i \in \mathcal{CH}} \frac{1}{n_i + \bar{n}_i} \left[ n_i (\bar{n}_i)^2 \sum_{j=1}^{v} \left( \bar{\textbf{m}}_i -\textbf{m}_i \right) \left( \bar{\textbf{m}}_i -\textbf{m}_i \right)^T + n_i^2 \sum_{j=1}^{v} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i \right) \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i \right)^T \right.
+\\
+& \left. \hspace{2.8cm} + (2 n_i \bar{n}_i + \bar{n}_i^2) \sum_{j=1}^{v} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right) \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right)^T \right]
+\\
+= \; & \textbf{S}_W + \sum\limits_{i \in \mathcal{CH}} \left[ \frac{v(\bar{n}_i)^2 n_i + \bar{n}_i(n_i)^2}{(n_i + \bar{n}_i)^2} \left( \bar{\textbf{m}}_i -\textbf{m}_i \right) \left( \bar{\textbf{m}}_i -\textbf{m}_i \right)^T + \sum_{j=1}^{v} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right) \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right)^T \right] \\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' & = \; \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \left[ \textbf{S}_{jr} + \sum_{i=1}^{c} \left[ \frac{v \bar{n}_i + n_i}{\bar{n}_i n_i (n_i + \bar{n}_i)^2} \left( \textbf{a} \right) \left( \textbf{b} \right)^T - \frac{\bar{n}_{ij} \bar{n}_{ir}}{\bar{n}_i} \bar{\textbf{m}}_{ij}^{(x)} \bar{\textbf{m}}_{ir}^{(x)^T} \right] \right] \textbf{W}_r + \sum_{j=1}^{v} \textbf{W}_j^T \left[ \sum_{i=1}^{c} \sum_{k=1}^{\bar{n}_{ij}} \bar{\textbf{x}}_j {\bar{\textbf{x}}_j}^T \right] \textbf{W}_j
+\\
+& = \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr}' \textbf{W}_r
+\\
+& = \; \textbf{W}^T \textbf{S}' \textbf{W} \\
+\end{split}
+\end{equation*}
+
+\normalsize
+
+\noindent
+Where, $\textbf{a} = (\bar{n}_{ij} n_i \bar{\textbf{m}}_{ij}^{(x)} - \bar{n}_i n_{ij} \textbf{m}_{ij}^{(x)})$ and $\textbf{b} = ( \bar{n}_{ir} n_i \bar{\textbf{m}}_{ir}^{(x)} - \bar{n}_i n_{ir} \textbf{m}_{ir}^{(x)})$
+
+\noindent
+and,
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_{jr}' = \left\{\begin{matrix*}[l]
+\textbf{S}_{jj} + \sum\limits_{i \in \mathcal{CH}} \bigg[ \frac{v \bar{n}_i + n_i}{\bar{n}_i n_i (n_i + \bar{n}_i)^2} \textbf{a} \textbf{a}^T - \frac{\bar{n}_{ij} \bar{n}_{ij}}{\bar{n}_i} \bar{\textbf{m}}_{ij}^{(x)} \bar{\textbf{m}}_{ij}^{(x)^T} + \sum\limits_{k=1}^{\bar{n}_{ij}} \bar{\textbf{x}}_{ijk} {\bar{\textbf{x}}_{ijk}}^T \bigg] & j=r
+\\[0.4cm]
+\textbf{S}_{jr} + \sum\limits_{i \in \mathcal{CH}} \bigg[ \frac{v \bar{n}_i + n_i}{\bar{n}_i n_i (n_i + \bar{n}_i)^2} \textbf{a} \textbf{b}^T - \frac{\bar{n}_{ij} \bar{n}_{ir}}{\bar{n}_i} \bar{\textbf{m}}_{ij}^{(x)} \bar{\textbf{m}}_{ir}^{(x)^T} \bigg] & j \neq r
+\end{matrix*}\right.
+\end{split}
+\end{equation*}
+\normalsize
+
+
+
+
+
+
+
+
+
+
+\section*{E. 2DMvDA: $\textbf{S}_W'$ - Within-class Scatter}
+\label{proof:2DMvDA_Sjr}
+The within-class scatter of 2DMvDA is given in terms of the projected data samples. We reformulate it in terms of the original data samples so as to convert the optimization function in Eq. \ref{eqn:Lit_MvDA_Wopt} to trace-ratio formulation in Eq. \ref{eqn:Lit_MvDA_WoptRT},
+
+\vspace{-0.5cm}
+\begin{equation*}
+\begin{split}
+\textbf{S}_W^y & = \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \left ( \textbf{Y}_{ijk} - \textbf{M}_{i} \right ) \left ( \textbf{Y}_{ijk} - \textbf{M}_{i} \right )^T
+\\
+& = \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \left ( \textbf{Y}_{ijk} \textbf{Y}_{ijk}^T - \textbf{Y}_{ijk} \textbf{M}_i^T - \textbf{M}_i \textbf{Y}_{ijk}^T + \textbf{M}_i \textbf{M}_i^T \right )
+\\
+& = \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \textbf{Y}_{ijk} \textbf{Y}_{ijk}^T - \sum_{i=1}^{c} n_i \textbf{M}_i \textbf{M}_i^T - \sum_{i=1}^{c} n_i \textbf{M}_i \textbf{M}_i^T + \sum_{i=1}^{c} n_i \textbf{M}_i \textbf{M}_i^T
+\\
+& =  \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \textbf{Y}_{ijk} \textbf{Y}_{ijk}^T - \sum_{i=1}^{c} n_i \textbf{M}_i \textbf{M}_i^T
+\\
+& = \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \textbf{W}_j^T \textbf{X}_{ijk} \textbf{X}_{ijk}^T \textbf{W}_j - \sum_{i=1}^{c} n_i \left ( \frac{1}{n_i} \sum_{j=1}^{v} n_{ij} \textbf{W}_j^T \textbf{M}_{ij}^{(\textbf{X})} \right ) \left (\frac{1}{n_i} \sum_{r=1}^{v} n_{ir} \textbf{M}_{ir}^{(\textbf{X})T} \textbf{W}_r \right )
+\\
+& = \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \textbf{W}_j^T \textbf{X}_{ijk} \textbf{X}_{ijk}^T \textbf{W}_j - \sum_{j=1}^{v} \sum_{r=1}^{v} \left ( \sum_{i=1}^{c} n_{ij} \textbf{W}_j^T \textbf{M}_{ij}^{(\textbf{X})} \right ) \left ( \sum_{i=1}^{c} \frac{n_{ir}}{n_i}  \textbf{M}_{ir}^{(\textbf{X})T} \textbf{W}_r \right )
+\\
+& = \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \left [ \sum_{i=1}^{c} \left ( \sum_{k=1}^{n_{ij}} \textbf{X}_{ijk }\textbf{X}_{ijk}^T - \frac{n_{ij} n_{ij}}{n_i} \textbf{M}_{ij}^{(\textbf{X})} \textbf{M}_{ij}^{(\textbf{X})T} \right )  \right ] \textbf{W}_r
+\\
+& = \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr} \textbf{W}_r \\
+\end{split}
+\end{equation*}
+
+\noindent
+where,
+
+\begin{equation*}
+\textbf{S}_{jr} = \left\{\begin{matrix*}[l]
+\sum_{i=1}^{c} \left ( \sum_{k=1}^{n_{ij}} \textbf{X}_{ijk }\textbf{X}_{ijk}^T - \frac{n_{ij} n_{ij}}{n_i} \textbf{M}_{ij}^{(\textbf{X})} \textbf{M}_{ij}^{(\textbf{X})T} \right ) & \hspace{0.5cm} \cdots j=r
+\\ 
+-\sum_{i=1}^{c} \frac{n_{ij} n_{ir}}{n_i} \textbf{M}_{ij}^{(\textbf{X})} \textbf{M}_{ir}^{(\textbf{X})T} & \hspace{0.5cm} \cdots j\neq r 
+\end{matrix*}\right.
+\end{equation*}
+
+
+
+
+
+
+
+
+
+
+\section*{F. 2DMvIDDA: $\textbf{S}_W'$ - Within-class Scatter}
+\label{proof:2DMvIDDA_Sjr}
+For 2DMvIDDA, the derivation of incremental updates is similar to the MvIDA chunk increment derivation given in Appendix D. Hence, derivation of only the decremental formulation is given here. In the case of \textit{decrement}, the scatters of classes from which data samples have been removed are updated. $\mathcal{CH}$ denotes the classes that got some data samples removed from them, and $\mathcal{UC}$ denotes those left unchanged.
+
+\small
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' = \; & \sum\limits_{i \in \mathcal{UC}} \textbf{S}_{W_i} + \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{n_{ij}} \left( \textbf{Y}_{ijk} - \textbf{M}_i' \right) \left( \textbf{Y}_{ijk} - \textbf{M}_i' \right)^T - \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{Y}}_{ijk} - \textbf{M}_i' \right) \left( \bar{\textbf{Y}}_{ijk} - \textbf{M}_i' \right)^T
+\\
+= \; & \sum\limits_{i \in \mathcal{UC}} \textbf{S}_{W_i} + \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{n_{ij}} \left( \textbf{Y}_{ijk} - \textbf{M}_i - \frac{\bar{n}_i (\textbf{M}_i - \bar{\textbf{M}}_i )}{n_i - \bar{n}_i} \right) \left( \textbf{Y}_{ijk} - \textbf{M}_i - \frac{\bar{n}_i (\textbf{M}_i - \bar{\textbf{M}}_i )}{n_i - \bar{n}_i} \right)^T
+\\
+& - \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{Y}}_{ijk} - \textbf{M}_i - \frac{\bar{n}_i (\textbf{M}_i - \bar{\textbf{M}}_i )}{n_i - \bar{n}_i} \right) \left( \bar{\textbf{Y}}_{ijk} - \textbf{M}_i - \frac{\bar{n}_i (\textbf{M}_i - \bar{\textbf{M}}_i )}{n_i - \bar{n}_i} \right)^T
+\\
+= \; & \sum\limits_{i \in \mathcal{UC}} \textbf{S}_{W_i} + \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{n_{ij}} \left( \textbf{Y}_{ijk} - \textbf{M}_i \right) \left( \textbf{Y}_{ijk} - \textbf{M}_i \right)^T + \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{n_{ij}} \frac{\bar{n}_i^2}{(n_i - \bar{n}_i)^2} \left( \textbf{M}_i - \bar{\textbf{M}}_i \right) \left( \textbf{M}_i - \bar{\textbf{M}}_i \right)^T
+\\
+& - \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{\bar{n}_{ij}} \frac{1}{(n_i - \bar{n}_i)^2} \left[ n_i \left( \bar{\textbf{Y}}_{ijk} - \bar{\textbf{M}}_i \right) + \bar{n}_i \left( \bar{\textbf{Y}}_{ijk} - \bar{\textbf{M}}_i \right)^T \right] \left[ n_i \left( \bar{\textbf{Y}}_{ijk} - \bar{\textbf{M}}_i \right) + \bar{n}_i \left( \bar{\textbf{Y}}_{ijk} - \bar{\textbf{M}}_i \right)^T \right]^T
+\\
+= \; & \textbf{S}_W + \sum\limits_{i \in \mathcal{CH}} \frac{\bar{n}_i^2 n_i - n_i^2 \bar{n}_i}{(n_i - \bar{n}_i)^2} \left( \textbf{M}_i - \bar{\textbf{M}}_i \right) \left( \textbf{M}_i - \bar{\textbf{M}}_i \right)^T - \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{Y}}_{ijk} - \bar{\textbf{M}}_i \right) \left( \bar{\textbf{Y}}_{ijk} - \bar{\textbf{M}}_i \right)^T
+\\
+= \; & \textbf{S}_W + \sum\limits_{i \in \mathcal{CH}} \frac{\bar{n}_i n_i}{(n_i - \bar{n}_i)} \left( \textbf{M}_i - \bar{\textbf{M}}_i \right) \left( \textbf{M}_i - \bar{\textbf{M}}_i \right)^T - \sum\limits_{i \in \mathcal{CH}} \sum\limits_{j=1}^{v} \sum\limits_{k=1}^{\bar{n}_{ij}} \bar{\textbf{Y}}_{ijk} \bar{\textbf{Y}}_{ijk}^T + \sum\limits_{i \in \mathcal{CH}} \bar{n}_i \bar{\textbf{M}}_{i} \bar{\textbf{M}}_i^T
+\\
+= & \; \sum\limits_{j=1}^{v} \sum\limits_{r=1}^{v} \textbf{W}_j^T \left[ \textbf{S}_{jr} - \sum\limits_{i \in \mathcal{CH}} \left[ \frac{1}{\bar{n}_i n_i (n_i - \bar{n}_i)} \left( \textbf{E} \right) \left( \textbf{F} \right)^T + \frac{\bar{n}_{ij} \bar{n}_{ir}}{\bar{n}_i} \bar{\textbf{M}}_{ij}^{(\textbf{X})} \bar{\textbf{M}}_{ir}^{(\textbf{X})^T} \right] \right] \textbf{W}_r \\
+& - \sum\limits_{j=1}^{v} \textbf{W}_j^T \left[ \sum\limits_{i \in \mathcal{CH}} \sum\limits_{k=1}^{\bar{n}_{ij}} \bar{\textbf{X}}_{ijk} {\bar{\textbf{X}}_{ijk}}^T \right] \textbf{W}_j \\
+= & \sum\limits_{j=1}^{v} \sum\limits_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr}' \textbf{W}_r = \; \textbf{W}^T \textbf{S}' \textbf{W} \\
+\end{split}
+\end{equation*}
+
+\normalsize
+\noindent
+Where, $\textbf{E} = ( \bar{n}_i n_{ij} \textbf{M}_{ij}^{(\textbf{X})} - n_i \bar{n}_{ij} \bar{\textbf{M}}_{ij}^{(\textbf{X})} )$ and $\textbf{F} = ( \bar{n}_i n_{ir} \textbf{M}_{ir}^{(\textbf{X})} - n_i \bar{n}_{ir} \bar{\textbf{M}}_{ir}^{(\textbf{X})} )$\\
+
+\noindent
+and,
+
+\begin{equation*}
+\begin{split}
+\textbf{S}_{jr}' = \left\{\begin{matrix*}[l]
+\textbf{S}_{jj} - \sum\limits_{i \in \mathcal{CH}} \bigg[ \frac{1}{\bar{n}_i n_i (n_i - \bar{n}_i)} \textbf{E} \textbf{E}^T - \frac{\bar{n}_{ij} \bar{n}_{ij}}{\bar{n}_i} \bar{\textbf{M}}_{ij}^{(\textbf{X})} \bar{\textbf{M}}_{ij}^{(X)^T} + \sum\limits_{k=1}^{\bar{n}_{ij}} \bar{\textbf{X}}_{ijk} {\bar{\textbf{X}}_{ijk}}^T \bigg] & j=r \\[0.4cm]
+\textbf{S}_{jr} - \sum\limits_{i \in \mathcal{CH}} \bigg[ \frac{1}{\bar{n}_i n_i (n_i - \bar{n}_i)} \textbf{E} \textbf{F}^T + \frac{\bar{n}_{ij} \bar{n}_{ir}}{\bar{n}_i} \bar{\textbf{M}}_{ij}^{(\textbf{X})} \bar{\textbf{M}}_{ir}^{(\textbf{X})^T} \bigg] & j \neq r
+\end{matrix*}\right.
+\end{split}
+\end{equation*}
+
+
+
+
+
+
+
+
+
+
+
+
+\section*{G. VIDMvDA: $\textbf{S}_W'$ - Within-class Scatter}
+\label{proof:VIDMvDA_Sjr}
+For VIDMvDA, in the case of \textit{increment}, the scatters are updated differently for each of the three cases. The derivation of within-class scatter is given below. The decremental unlearning formulation is also derived in a similar fashion. Here, the scatters of all classes are updated because each new view contains all data samples from all the classes. The final equation in the original space is split into three cases according to the value of $j$ and $r$ as given in section \ref{ssubs:VIDMvDA_Inc_Sw}.
+
+\begin{equation*}
+\begin{split}
+\textbf{S}_W' = \; & \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \left( \textbf{y}_{ijk} - \textbf{m}_i' \right) \left( \textbf{y}_{ijk} - \textbf{m}_i' \right)^T + \sum_{i=1}^{c} \sum_{j \in \mathcal{A}} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i' \right) \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i' \right)^T
+\\
+= \; & \sum_{i=1}^{c} \sum_{j=1}^{v} \sum_{k=1}^{n_{ij}} \left( \textbf{y}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right) \left( \textbf{y}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right)^T
+\\
+& + \sum_{i=1}^{c} \sum_{j \in \mathcal{A}} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right) \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i - \frac{\bar{n}_i (\bar{\textbf{m}}_i-\textbf{m}_i )}{n_i + \bar{n}_i} \right)^T
+\\
+= \; & \textbf{S}_W + \sum_{i=1}^{c} \frac{1}{(n_i + \bar{n}_i)^2} \left[ n_i (\bar{n}_i)^2 \left( \bar{\textbf{m}}_i -\textbf{m}_i \right) \left( \bar{\textbf{m}}_i -\textbf{m}_i \right)^T + n_i^2 \sum_{j \in \mathcal{A}} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i \right) \left( \bar{\textbf{y}}_{ijk} - \textbf{m}_i \right)^T \right.
+\\
+& \left. \hspace{3.5cm} + (2 n_i \bar{n}_i + \bar{n}_i^2) \sum_{j \in \mathcal{A}} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right) \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right)^T \right]
+\\
+= \; & \textbf{S}_W + \sum_{i=1}^{c} \left[ \frac{\bar{n}_i n_i}{n_i + \bar{n}_i} \left( \bar{\textbf{m}}_i -\textbf{m}_i \right) \left( \bar{\textbf{m}}_i -\textbf{m}_i \right)^T + \sum_{j \in \mathcal{A}} \sum_{k=1}^{\bar{n}_{ij}} \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right) \left( \bar{\textbf{y}}_{ijk} - \bar{\textbf{m}}_i \right)^T \right]
+\\
+= \; & \textbf{S}_W + \sum_{i=1}^{c} \left[ \frac{\bar{n}_i n_i}{n_i + \bar{n}_i} \left( \bar{\textbf{m}}_i -\textbf{m}_i \right) \left( \bar{\textbf{m}}_i -\textbf{m}_i \right)^T + \sum_{j \in \mathcal{A}} \sum_{k=1}^{\bar{n}_{ij}} \bar{\textbf{y}}_{ijk} {\bar{\textbf{y}}_{ijk}}^T - \bar{n}_i \bar{\textbf{m}}_i \bar{\textbf{m}}_i^T \right]
+\\
+= \; & \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \left[ \textbf{S}_{jr} + \sum_{i=1}^{c} \frac{\bar{n}_i n_{ij} n_{ir}}{n_i (n_i + \bar{n}_i)} \; {\textbf{m}_{ij}}^{(\textbf{x})} {\textbf{m}_{ir}}^{(\textbf{x})^T} \right] \textbf{W}_r + \sum_{j \in \mathcal{A}} \textbf{W}_j^T \left[ \sum_{i=1}^{c} \sum_{k=1}^{\bar{n}_{ij}} \bar{\textbf{x}}_{ijk} {\bar{\textbf{x}}_{ijk}}^T \right] \textbf{W}_j
+\\
+& - \sum_{j \in \mathcal{A}} \sum_{r \in \mathcal{A}} \textbf{W}_j^T \left[ \sum_{i=1}^{c} \frac{\bar{n}_{ij} \bar{n}_{ir}}{\bar{n}_i} \bar{\textbf{m}}_{ij}^{(x)} \bar{\textbf{m}}_{ir}^{(x)^T} \right] \textbf{W}_r
+\\
+= & \sum_{j=1}^{v} \sum_{r=1}^{v} \textbf{W}_j^T \textbf{S}_{jr}' \textbf{W}_r = \; \textbf{W}^T \textbf{S}' \textbf{W} \\
+\end{split}
+\end{equation*}
+\\
+Where,\\
+\begin{equation*}
+\begin{split}
+\textbf{S}_{jr}' = \left\{\begin{matrix*}[l]
+- \sum\limits_{i=1}^{c} \frac{\bar{n}_{ij} \bar{n}_{ir}}{\bar{n}_i} \; {\bar{\textbf{m}}_{ij}}^{(\textbf{x})} \; {\bar{\textbf{m}}_{ir}}^{(\textbf{x})^T} & \text{case 1}
+\\[0.4cm]
+\sum\limits_{i=1}^{c} \bigg[ \sum\limits_{k=1}^{\bar{n}_{ij}} \bar{\textbf{x}}_{ijk} {\bar{\textbf{x}}_{ijk}}^T - \frac{\bar{n}_{ij} \bar{n}_{ij}}{\bar{n}_i} \; {\bar{\textbf{m}}_{ij}}^{(\textbf{x})} \;{\bar{\textbf{m}}_{ij}}^{(\textbf{x})^T} \bigg] & \text{case 2}
+\\[0.4cm]
+\textbf{S}_{jr} + \sum\limits_{i=1}^{c}  \frac{n_i' - n_i}{n_i n_i'} \; n_{ij} n_{ir} \; {\textbf{m}_{ij}}^{(\textbf{x})} {\textbf{m}_{ir}}^{(\textbf{x})^T} & \text{case 3}
+\end{matrix*}\right.
+\end{split}
+\end{equation*}
+
+
+
+\chapterend
+\cleardoublepage

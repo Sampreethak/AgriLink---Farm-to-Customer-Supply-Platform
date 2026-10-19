@@ -1,433 +1,287 @@
 import os
-import joblib
-import numpy as np
+import sys
+import json
 import pandas as pd
+import numpy as np
 from collections import defaultdict
+
+# Add parent directory to sys.path so agri_recommender can be imported cleanly
+ml_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ml_dir not in sys.path:
+    sys.path.insert(0, ml_dir)
+
+try:
+    from agri_recommender.data_loader import build_purchase_data, build_listing_catalog, build_interactions, load_customer_tables
+    from agri_recommender.buy_again import generate_buy_again
+    from agri_recommender.fp_growth import train_fp_growth, recommend_for_basket
+    from agri_recommender.collaborative_filtering import recommend_for_customer
+    from agri_recommender.replacement import recommend_replacements
+    from agri_recommender.customer_hybrid import build_customer_hybrid
+    from agri_recommender.farmer_recommendation import recommend_crops_for_farmer
+    from agri_recommender.aggregator_matching import recommend_supplier_listings
+    # New recommendation modules (4 extended approaches)
+    from agri_recommender.next_basket import predict_next_basket
+    from agri_recommender.recency_weighted import recency_weighted_recommendations
+    from agri_recommender.price_aware import price_aware_recommendations_api as price_aware_recommendations
+    from agri_recommender.local_popularity import local_popularity_recommendations
+    REC_ENGINE_AVAILABLE = True
+except Exception as e:
+    print(f"[Warning] Error loading agri_recommender package: {e}")
+    REC_ENGINE_AVAILABLE = False
+
+# Supabase connection (optional, for recommendation event logging)
+try:
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "https://nxwhnbejvwxiuekhtmpm.supabase.co")
+    SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "sb_publishable__NSFd-NXvWsSDms7aE1tJQ_uziQLZO7")
+    _SUPABASE_HEADERS = {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": f"Bearer {SUPABASE_ANON_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+    }
+except Exception:
+    SUPABASE_URL = None
+    _SUPABASE_HEADERS = {}
+
 
 class RecommendationPredictor:
     """
-    AgriLink Unified Multi-Model Customer Recommendation Engine
-    Implements:
-      1. Buy Again Recommender (Recency + Frequency + Quantity Scoring)
-      2. You May Also Want (FP-Growth / Market Basket Association Rules)
-      3. Picked For You (User-Based Collaborative Filtering via Cosine Similarity)
-    Supports both existing customers (warm-start) and new / guest customers (cold-start),
-    with live real-time interaction updates and dynamic cart awareness.
+    AgriLink Unified Recommendation Engine (Production ML Predictor)
+    Integrates AgriLink_Recommendation_Code wired directly to synthetic database tables.
+
+    Provides recommendations for:
+    - Customer (Buy Again, FP-Growth Market Basket, User-Based CF, Out-of-Stock Replacements)
+    - Farmer (Demand gap, predicted APMC price, and crop opportunity ranking)
+    - Aggregator (Supplier crop matching by quantity, quality grade, rating, and price)
     """
 
-    def __init__(self, artifacts_dir=None):
-        if artifacts_dir is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            artifacts_dir = os.path.join(base_dir, "artifacts")
-        
-        self.artifacts_dir = artifacts_dir
-        self.data = None
-        # Dynamic in-memory session interactions and cart state
+    def __init__(self):
+        self.purchase_data = None
+        self.catalog = None
+        self.interactions = None
+        self.tables = None
+        self.fp_rules = None
+        self.fp_freq = None
+
+        # Real-time session interactions recorded in memory
         self.dynamic_interactions = defaultdict(list)
-        self.dynamic_purchases = defaultdict(lambda: defaultdict(lambda: {"count": 0, "total_qty": 0.0, "days_ago": 1}))
-        self.load_artifacts()
-        
-    def load_artifacts(self):
+        self.dynamic_purchases = defaultdict(lambda: defaultdict(lambda: {"count": 0, "total_qty": 0.0, "days_ago": 0}))
+
+        # Track newly registered customers for cold-start handling
+        self.new_customer_registry = set()  # customer_ids registered in this session
+
+        self.load_dataset()
+
+    def is_new_customer(self, customer_id: str) -> bool:
+        """Detect if a customer is new (no purchase history or just registered)."""
+        c_str = str(customer_id)
+        if c_str in self.new_customer_registry:
+            return True
+        if self.purchase_data is None or self.purchase_data.empty:
+            return True
+        customer_orders = self.purchase_data[self.purchase_data["customer_id"].astype(str) == c_str]
+        return customer_orders.empty
+
+    def register_new_customer(self, customer_id: str, region: str = "bengaluru"):
+        """Called when a new customer registers — seeds cold-start state."""
+        c_str = str(customer_id)
+        self.new_customer_registry.add(c_str)
+        # Sync registration event to Supabase
+        self._sync_event_to_supabase("user_interaction", {
+            "customer_id": c_str,
+            "interaction_type": "REGISTER",
+            "interaction_weight": 0.0,
+            "region": region
+        })
+        print(f"[ML] Cold-start initialized for new customer: {c_str}")
+        return {"status": "cold_start_initialized", "customer_id": c_str, "mode": "popularity_based"}
+
+    def _sync_event_to_supabase(self, table: str, payload: dict):
+        """Asynchronously sync an event record to Supabase PostgreSQL."""
         try:
-            model_file = os.path.join(self.artifacts_dir, "recommendation_engine.joblib")
-            if os.path.exists(model_file):
-                self.data = joblib.load(model_file)
-                print(f"[OK] Multi-Model Recommendation Engine loaded from: {model_file}")
-            else:
-                print(f"[Warning] Artifacts not found at {model_file}. Cold-start mode active.")
+            import requests
+            if SUPABASE_URL:
+                requests.post(
+                    f"{SUPABASE_URL}/rest/v1/{table}",
+                    headers=_SUPABASE_HEADERS,
+                    json=payload,
+                    timeout=2
+                )
         except Exception as e:
-            print(f"Error loading artifacts: {e}")
-            self.data = None
+            # Non-blocking: silently fail if Supabase is unreachable
+            pass
+
+    def load_dataset(self):
+        if not REC_ENGINE_AVAILABLE:
+            print("[Warning] agri_recommender not available. Operating in fallback mode.")
+            return
+
+        try:
+            self.tables = load_customer_tables()
+            self.purchase_data = build_purchase_data()
+            self.catalog = build_listing_catalog()
+            self.interactions = build_interactions()
+
+            # Pre-train FP-Growth rules on dataset
+            if not self.purchase_data.empty:
+                self.fp_freq, self.fp_rules, _ = train_fp_growth(self.purchase_data)
+
+            print(f"[OK] Recommendation Engine initialized with {len(self.purchase_data)} purchases, {len(self.catalog)} catalog items, and {len(self.interactions)} interactions.")
+        except Exception as e:
+            print(f"[Warning] Failed to load dataset tables for Recommendation Engine: {e}")
 
     def log_interaction(self, customer_id: str, listing_id: str, interaction_type: str = "VIEW"):
-        """
-        Dynamically records live customer activity (VIEW, CART, PURCHASE)
-        and immediately updates their recommendations in real-time.
-        """
-        interaction_type = interaction_type.upper()
-        weight = {"VIEW": 1.0, "CART": 3.0, "PURCHASE": 10.0, "REVIEW": 5.0}.get(interaction_type, 1.0)
-        
-        self.dynamic_interactions[str(customer_id)].append({
-            "listing_id": str(listing_id),
-            "type": interaction_type,
+        """Record real-time customer activity and dynamic cart state."""
+        c_str = str(customer_id)
+        l_str = str(listing_id)
+        i_type = interaction_type.upper()
+        weight = {"VIEW": 1.0, "SEARCH": 1.0, "WISHLIST": 2.0, "ADD_TO_CART": 5.0, "CART": 5.0, "RATING": 4.0, "PURCHASE": 10.0}.get(i_type, 1.0)
+
+        self.dynamic_interactions[c_str].append({
+            "listing_id": l_str,
+            "type": i_type,
             "weight": weight
         })
-        
-        # If purchase, also update Buy Again state
-        if interaction_type == "PURCHASE" and self.data:
-            listing_info = self.data.get("listing_lookup", {}).get(str(listing_id))
-            if listing_info:
-                c_name = listing_info["crop_name"]
-                self.dynamic_purchases[str(customer_id)][c_name]["count"] += 1
-                self.dynamic_purchases[str(customer_id)][c_name]["total_qty"] += 2.0
-                self.dynamic_purchases[str(customer_id)][c_name]["days_ago"] = 0
 
-        return {"status": "success", "customer_id": customer_id, "interaction_type": interaction_type}
+        # Append to live interactions DataFrame if available
+        if self.interactions is not None:
+            new_row = pd.DataFrame([{
+                "customer_id": c_str,
+                "listing_id": l_str,
+                "interaction_type": i_type,
+                "interaction_weight": weight,
+                "created_at": pd.Timestamp.now(tz="UTC")
+            }])
+            self.interactions = pd.concat([self.interactions, new_row], ignore_index=True)
 
-    DATABASE_CUSTOMER_STATS = {
-        # 1. Priya Verma (Individual Resident / Retail Kitchen)
-        "55555555-5555-5555-5555-555555555555": {
-            "Tomato": {"count": 6, "total_qty": 50.0, "days_ago": 2},
-            "Apple": {"count": 4, "total_qty": 20.0, "days_ago": 5},
-            "Onion": {"count": 5, "total_qty": 30.0, "days_ago": 10},
-            "Honey": {"count": 2, "total_qty": 4.0, "days_ago": 15},
-        },
-        "priya.buyer@agrilink.com": {
-            "Tomato": {"count": 6, "total_qty": 50.0, "days_ago": 2},
-            "Apple": {"count": 4, "total_qty": 20.0, "days_ago": 5},
-            "Onion": {"count": 5, "total_qty": 30.0, "days_ago": 10},
-            "Honey": {"count": 2, "total_qty": 4.0, "days_ago": 15},
-        },
-        "99999999-9999-9999-9999-999999999999": {
-            "Tomato": {"count": 6, "total_qty": 50.0, "days_ago": 2},
-            "Apple": {"count": 4, "total_qty": 20.0, "days_ago": 5},
-            "Onion": {"count": 5, "total_qty": 30.0, "days_ago": 10},
-            "Honey": {"count": 2, "total_qty": 4.0, "days_ago": 15},
-        },
-        "d48b9f71-c110-4f5f-83da-7b65dbfbc328": {
-            "Tomato": {"count": 6, "total_qty": 50.0, "days_ago": 2},
-            "Apple": {"count": 4, "total_qty": 20.0, "days_ago": 5},
-            "Onion": {"count": 5, "total_qty": 30.0, "days_ago": 10},
-        },
-        # 2. Amit Roy (Hostel & PG Mess Buyer)
-        "66666666-6666-6666-6666-666666666666": {
-            "Wheat": {"count": 8, "total_qty": 150.0, "days_ago": 2},
-            "Rice": {"count": 7, "total_qty": 120.0, "days_ago": 4},
-            "Tomato": {"count": 6, "total_qty": 80.0, "days_ago": 6},
-            "Potato": {"count": 5, "total_qty": 90.0, "days_ago": 8},
-            "Green Capsicum": {"count": 3, "total_qty": 30.0, "days_ago": 12},
-        },
-        "amit.buyer@agrilink.com": {
-            "Wheat": {"count": 8, "total_qty": 150.0, "days_ago": 2},
-            "Rice": {"count": 7, "total_qty": 120.0, "days_ago": 4},
-            "Tomato": {"count": 6, "total_qty": 80.0, "days_ago": 6},
-            "Potato": {"count": 5, "total_qty": 90.0, "days_ago": 8},
-            "Green Capsicum": {"count": 3, "total_qty": 30.0, "days_ago": 12},
-        },
-        "d48b9f71-c110-4f5f-83da-7b65dbfbc330": {
-            "Wheat": {"count": 8, "total_qty": 150.0, "days_ago": 2},
-            "Rice": {"count": 7, "total_qty": 120.0, "days_ago": 4},
-            "Tomato": {"count": 6, "total_qty": 80.0, "days_ago": 6},
-        },
-        # 3. Sneha Kapoor (Hospital Dietary & Healthcare Nutrition Buyer)
-        "77777777-7777-7777-7777-777777777777": {
-            "Apple": {"count": 7, "total_qty": 60.0, "days_ago": 1},
-            "Honey": {"count": 6, "total_qty": 25.0, "days_ago": 3},
-            "Palak": {"count": 5, "total_qty": 35.0, "days_ago": 7},
-            "Carrot": {"count": 4, "total_qty": 40.0, "days_ago": 9},
-            "Papaya": {"count": 3, "total_qty": 30.0, "days_ago": 14},
-        },
-        "sneha.buyer@agrilink.com": {
-            "Apple": {"count": 7, "total_qty": 60.0, "days_ago": 1},
-            "Honey": {"count": 6, "total_qty": 25.0, "days_ago": 3},
-            "Palak": {"count": 5, "total_qty": 35.0, "days_ago": 7},
-            "Carrot": {"count": 4, "total_qty": 40.0, "days_ago": 9},
-            "Papaya": {"count": 3, "total_qty": 30.0, "days_ago": 14},
-        },
-        "d48b9f71-c110-4f5f-83da-7b65dbfbc329": {
-            "Apple": {"count": 7, "total_qty": 60.0, "days_ago": 1},
-            "Honey": {"count": 6, "total_qty": 25.0, "days_ago": 3},
-            "Palak": {"count": 5, "total_qty": 35.0, "days_ago": 7},
-        },
-        # 4. Rajesh Joshi (Wholesaler / Corporate Procurement)
-        "88888888-8888-8888-8888-888888888888": {
-            "Wheat": {"count": 10, "total_qty": 500.0, "days_ago": 3},
-            "Rice": {"count": 9, "total_qty": 400.0, "days_ago": 5},
-            "Onion": {"count": 8, "total_qty": 350.0, "days_ago": 8},
-            "Tomato": {"count": 7, "total_qty": 300.0, "days_ago": 10},
-        },
-        "rajesh.buyer@agrilink.com": {
-            "Wheat": {"count": 10, "total_qty": 500.0, "days_ago": 3},
-            "Rice": {"count": 9, "total_qty": 400.0, "days_ago": 5},
-            "Onion": {"count": 8, "total_qty": 350.0, "days_ago": 8},
-            "Tomato": {"count": 7, "total_qty": 300.0, "days_ago": 10},
+        if i_type == "PURCHASE" and self.catalog is not None:
+            listing_row = self.catalog[self.catalog["listing_id"].astype(str) == l_str]
+            if not listing_row.empty:
+                c_name = listing_row.iloc[0].get("crop_name", "Produce")
+                self.dynamic_purchases[c_str][c_name]["count"] += 1
+                self.dynamic_purchases[c_str][c_name]["total_qty"] += 2.0
+                self.dynamic_purchases[c_str][c_name]["days_ago"] = 0
+
+        return {"status": "success", "customer_id": customer_id, "listing_id": listing_id, "interaction_type": i_type}
+
+    def _format_listing_record(self, row, default_type="RECOMMENDED", default_badge="Recommended"):
+        """Format a DataFrame row or dict into standard API response dict."""
+        if isinstance(row, dict):
+            d = dict(row)
+        else:
+            d = row.to_dict()
+
+        return {
+            "id": d.get("listing_id") or d.get("id") or 101,
+            "listing_id": str(d.get("listing_id") or d.get("id") or 101),
+            "farmer_name": d.get("farmer_name") or d.get("farmer_id") or "Mandya Local Farmer",
+            "title": d.get("title") or f"Fresh Farm {d.get('crop_name', 'Produce')}",
+            "crop_name": d.get("crop_name") or "Produce",
+            "category_id": d.get("category_id") or 1,
+            "description": d.get("description") or f"Direct farm harvest from Mandya-Bengaluru agro belt.",
+            "price_per_unit": float(d.get("price_per_unit") or d.get("unit_price") or 30.0),
+            "unit": d.get("unit") or "kg",
+            "available_quantity": float(d.get("quantity") or d.get("available_quantity") or 100.0),
+            "is_organic": bool(d.get("is_organic") if d.get("is_organic") is not None else True),
+            "grade": d.get("grade") or "A",
+            "rating_avg": float(d.get("rating_avg") or 4.8),
+            "rating_count": int(d.get("rating_count") or 45),
+            "status": d.get("status") or "AVAILABLE",
+            "image_url": d.get("image_url") or "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500",
+            "score": round(float(d.get("score") or d.get("final_score") or d.get("match_score") or 0.85), 4),
+            "recommendation_type": d.get("recommendation_type") or default_type,
+            "reason": d.get("reason") or "Top pick for your farm produce needs.",
+            "badge": d.get("badge") or default_badge
         }
-    }
 
     def get_buy_again(self, customer_id: str, top_k: int = 4):
-        """
-        Model 1: Buy Again
-        Evaluates: Score = 0.40 * Recency + 0.35 * Frequency + 0.25 * Quantity
-        Cold-Start: Recommends high-frequency farm daily staples.
-        """
-        if not self.data:
-            return []
-            
-        crop_to_best = self.data.get("crop_to_best_listing", {})
-        c_str = str(customer_id).lower().strip()
-        
-        # Check database seed stats first, then joblib stats, then dynamic stats
-        stored_stats = self.DATABASE_CUSTOMER_STATS.get(c_str)
-        if not stored_stats:
-            # Fallback by email prefix or keyword match
-            if "hostel" in c_str or "pg" in c_str or "mess" in c_str:
-                stored_stats = self.DATABASE_CUSTOMER_STATS["amit.buyer@agrilink.com"]
-            elif "hospital" in c_str or "clinic" in c_str or "diet" in c_str:
-                stored_stats = self.DATABASE_CUSTOMER_STATS["sneha.buyer@agrilink.com"]
-            elif "corp" in c_str or "b2b" in c_str or "wholesale" in c_str:
-                stored_stats = self.DATABASE_CUSTOMER_STATS["rajesh.buyer@agrilink.com"]
-            else:
-                stored_stats = self.data.get("buy_again_stats", {}).get(c_str, {})
-                
-        dynamic_stats = self.dynamic_purchases.get(c_str, {})
-        
-        # Merge stored order history + live session purchases
-        combined_stats = defaultdict(lambda: {"count": 0, "total_qty": 0.0, "days_ago": 30})
-        for c_name, st in stored_stats.items():
-            combined_stats[c_name]["count"] = st.get("count", 0)
-            combined_stats[c_name]["total_qty"] = st.get("total_qty", 0.0)
-            combined_stats[c_name]["days_ago"] = st.get("days_ago", max(1, 30 - (st.get("count", 1) * 3)))
-        for c_name, st in dynamic_stats.items():
-            combined_stats[c_name]["count"] += st.get("count", 0)
-            combined_stats[c_name]["total_qty"] += st.get("total_qty", 0.0)
-            combined_stats[c_name]["days_ago"] = 0  # Just purchased today
-            
-        results = []
-        if combined_stats:
-            counts = [v["count"] for v in combined_stats.values()]
-            qtys = [v["total_qty"] for v in combined_stats.values()]
-            max_c = max(counts) if counts else 1
-            max_q = max(qtys) if qtys else 1
-            
-            scored_crops = []
-            for crop_name, stat in combined_stats.items():
-                rec_score = float(np.exp(-stat["days_ago"] / 45.0))
-                freq_score = stat["count"] / max(1, max_c)
-                qty_score = stat["total_qty"] / max(1.0, max_q)
-                final_score = round(0.40 * rec_score + 0.35 * freq_score + 0.25 * qty_score, 4)
-                scored_crops.append((crop_name, final_score, stat))
-                
-            scored_crops.sort(key=lambda x: x[1], reverse=True)
-            
-            for crop_name, score, stat in scored_crops[:top_k]:
-                if crop_name in crop_to_best:
-                    listing = dict(crop_to_best[crop_name])
-                    listing["score"] = score
-                    listing["purchase_count"] = stat["count"]
-                    listing["total_quantity"] = round(stat["total_qty"], 1)
-                    listing["recommendation_type"] = "BUY_AGAIN"
-                    listing["reason"] = f"Bought {stat['count']}x • Last ordered {stat['days_ago']} day(s) ago • Total: {stat['total_qty']:.0f} {listing.get('unit', 'kg')}"
-                    listing["badge"] = f"Ordered {stat['count']} times"
-                    results.append(listing)
-                    
-        # Cold-Start Fallback: Popular high-repeat staples
-        if not results:
-            default_crops = ["Tomato", "Potato", "Onion", "Banana"]
-            for c_name in default_crops[:top_k]:
-                if c_name in crop_to_best:
-                    listing = dict(crop_to_best[c_name])
-                    listing["score"] = 0.85
-                    listing["recommendation_type"] = "BUY_AGAIN_COLD_START"
-                    listing["reason"] = "Essential farm-fresh daily staple with high repeat order rate in North Bengaluru"
-                    listing["badge"] = "Popular Daily Staple"
-                    results.append(listing)
-                    
-        return results
+        """Model 1: Buy Again (Recency + Frequency + Quantity)"""
+        c_str = str(customer_id)
+        if self.purchase_data is not None and not self.purchase_data.empty:
+            try:
+                recs = generate_buy_again(self.purchase_data, customer_id=c_str, top_n=top_k)
+                if not recs.empty:
+                    # Join catalog details
+                    joined = recs.merge(self.catalog, on="listing_id", how="left", suffixes=("", "_cat"))
+                    res = []
+                    for _, r in joined.iterrows():
+                        res.append(self._format_listing_record(r, default_type="BUY_AGAIN", default_badge="Ordered Previously"))
+                    return res
+            except Exception as e:
+                print(f"Error in generate_buy_again: {e}")
+
+        # Fallback catalog picks
+        if self.catalog is not None and not self.catalog.empty:
+            sample = self.catalog.head(top_k)
+            return [self._format_listing_record(r, default_type="BUY_AGAIN_POPULAR", default_badge="Daily Staple") for _, r in sample.iterrows()]
+        return []
 
     def get_you_may_also_want(self, customer_id: str = None, cart_crops: list = None, top_k: int = 4):
-        """
-        Model 2: You May Also Want (FP-Growth / Market Basket Association Rules)
-        Matches antecedent rules against active cart items or customer's recent orders.
-        Ranks by score = Confidence * Lift.
-        """
-        if not self.data:
-            return []
-            
-        rules = self.data.get("association_rules", [])
-        crop_to_best = self.data.get("crop_to_best_listing", {})
-        
-        # Normalize cart crops
-        active_cart = [c.strip() for c in cart_crops if c.strip()] if cart_crops else []
-        
-        # If no cart provided, infer from customer's order history or session views
-        if not active_cart and customer_id:
-            stored_stats = self.data.get("buy_again_stats", {}).get(str(customer_id), {})
-            if stored_stats:
-                active_cart = sorted(stored_stats.keys(), key=lambda c: stored_stats[c].get("count", 0), reverse=True)[:3]
-            else:
-                # Check live session interactions
-                interacted_listings = [i["listing_id"] for i in self.dynamic_interactions.get(str(customer_id), [])]
-                for l_id in interacted_listings:
-                    l_info = self.data.get("listing_lookup", {}).get(l_id)
-                    if l_info and l_info["crop_name"] not in active_cart:
-                        active_cart.append(l_info["crop_name"])
-                        
-        if not active_cart:
-            active_cart = ["Tomato", "Onion"]
-            
-        # Match association rules
-        candidates = {}
-        for rule in rules:
-            ant = rule["antecedent"]
-            con = rule["consequent"]
-            
-            # Rule applies if all items in antecedent are in the basket
-            ant_items = [x.strip() for x in ant.split("+")]
-            if all(item in active_cart for item in ant_items) and con not in active_cart:
-                score = round(rule["confidence"] * rule["lift"], 4)
-                if con not in candidates or score > candidates[con]["score"]:
-                    candidates[con] = {
-                        "crop_name": con,
-                        "score": score,
-                        "confidence": rule["confidence"],
-                        "lift": rule["lift"],
-                        "trigger": ant,
-                        "reason": f"Frequently bought with {ant} ({int(rule['confidence']*100)}% pairing rate • Lift {rule['lift']:.1f}x)"
-                    }
-                    
-        # Also check single-item matches if multi-item yielded fewer than top_k
-        if len(candidates) < top_k:
-            for item in active_cart:
-                for rule in rules:
-                    if rule["antecedent"] == item and rule["consequent"] not in active_cart:
-                        con = rule["consequent"]
-                        score = round(rule["confidence"] * rule["lift"], 4)
-                        if con not in candidates:
-                            candidates[con] = {
-                                "crop_name": con,
-                                "score": score,
-                                "confidence": rule["confidence"],
-                                "lift": rule["lift"],
-                                "trigger": item,
-                                "reason": f"Frequently paired with {item} ({int(rule['confidence']*100)}% co-bought • Lift {rule['lift']:.1f}x)"
-                            }
-                            
-        sorted_candidates = sorted(candidates.values(), key=lambda x: x["score"], reverse=True)
-        
-        results = []
-        for cand in sorted_candidates[:top_k]:
-            c_name = cand["crop_name"]
-            if c_name in crop_to_best:
-                listing = dict(crop_to_best[c_name])
-                listing["score"] = cand["score"]
-                listing["recommendation_type"] = "ASSOCIATION"
-                listing["reason"] = cand["reason"]
-                listing["association_trigger"] = cand["trigger"]
-                listing["badge"] = "Frequently Bought Together"
-                results.append(listing)
-                
-        # Cold-start fallback if basket triggers no rule
-        if not results:
-            fallbacks = ["Coriander", "Green Chilli", "Ginger", "Garlic", "Potato"]
-            for c_name in fallbacks:
-                if c_name in crop_to_best and c_name not in active_cart:
-                    listing = dict(crop_to_best[c_name])
-                    listing["score"] = 0.75
-                    listing["recommendation_type"] = "ASSOCIATION_COLD_START"
-                    listing["reason"] = "Top North Bengaluru culinary pairing essential"
-                    listing["badge"] = "Cooking Essential"
-                    results.append(listing)
-                    if len(results) >= top_k:
-                        break
-                        
-        return results[:top_k]
+        """Model 2: You May Also Want (FP-Growth Market Basket Association Rules)"""
+        active_basket = [c.strip() for c in cart_crops if c.strip()] if cart_crops else []
+
+        if not active_basket and customer_id and self.purchase_data is not None:
+            c_str = str(customer_id)
+            c_orders = self.purchase_data[self.purchase_data["customer_id"].astype(str) == c_str]
+            if not c_orders.empty:
+                active_basket = list(c_orders["crop_name"].dropna().unique())[:3]
+
+        if not active_basket:
+            active_basket = ["Tomato", "Onion"]
+
+        if self.fp_rules is not None:
+            try:
+                recs = recommend_for_basket(active_basket, self.fp_rules, top_n=top_k)
+                if not recs.empty:
+                    # Match crop_name to available catalog listings
+                    res = []
+                    for _, r in recs.iterrows():
+                        c_name = r.get("crop_name")
+                        matching_catalog = self.catalog[self.catalog["crop_name"].astype(str).str.lower() == str(c_name).lower()] if self.catalog is not None else pd.DataFrame()
+                        if not matching_catalog.empty:
+                            cat_row = matching_catalog.iloc[0].to_dict()
+                            cat_row.update(r.to_dict())
+                            res.append(self._format_listing_record(cat_row, default_type="ASSOCIATION", default_badge="Frequently Bought Together"))
+                    if res:
+                        return res[:top_k]
+            except Exception as e:
+                print(f"Error in recommend_for_basket: {e}")
+
+        # Fallback
+        if self.catalog is not None and not self.catalog.empty:
+            sample = self.catalog.iloc[1:1 + top_k]
+            return [self._format_listing_record(r, default_type="ASSOCIATION_POPULAR", default_badge="Cooking Essential") for _, r in sample.iterrows()]
+        return []
 
     def get_picked_for_you(self, customer_id: str, top_k: int = 4):
-        """
-        Model 3: Picked For You (User-Based Collaborative Filtering via Cosine Similarity)
-        Finds peer customer neighbors with similar crop preference vectors.
-        Aggregates unpurchased crops weighted by peer similarity.
-        Cold-Start: Recommends highest-rated certified organic farm harvests in North Bengaluru.
-        """
-        if not self.data:
-            return []
-            
-        cust2idx = self.data.get("cust2idx", {})
-        idx2crop = self.data.get("idx2crop", {})
-        sim_matrix = self.data.get("customer_sim_matrix")
-        crop_matrix = self.data.get("customer_crop_matrix")
-        crop_to_best = self.data.get("crop_to_best_listing", {})
-        
-        c_str = str(customer_id).lower().strip()
-        
-        # Map known named personas to benchmark customer indices if needed
-        if c_str not in cust2idx:
-            if "amit" in c_str or "hostel" in c_str or "pg" in c_str or "mess" in c_str:
-                c_str = "415c5186-549e-44e9-9132-6d158175f5c1"
-            elif "sneha" in c_str or "hospital" in c_str or "clinic" in c_str:
-                c_str = "7da7a7d5-e468-4f10-a91c-c07fd503dc72"
-            elif "rajesh" in c_str or "corp" in c_str or "wholesale" in c_str:
-                c_str = "f3fa5f28-5d69-41fc-a0e8-369ed44442f3"
-            elif "priya" in c_str or "buyer" in c_str:
-                c_str = "4be287a3-4af7-4b0f-93da-1215dbbe7007"
+        """Model 3: Picked For You (User-Based Collaborative Filtering via Cosine Similarity)"""
+        c_str = str(customer_id)
+        if self.interactions is not None and not self.interactions.empty and self.catalog is not None:
+            try:
+                recs = recommend_for_customer(c_str, self.interactions, self.catalog, top_n=top_k)
+                if not recs.empty:
+                    joined = recs.merge(self.catalog, on="listing_id", how="left", suffixes=("", "_cat"))
+                    res = []
+                    for _, r in joined.iterrows():
+                        res.append(self._format_listing_record(r, default_type="COLLABORATIVE", default_badge="Preferred by Similar Buyers"))
+                    return res
+            except Exception as e:
+                print(f"Error in recommend_for_customer: {e}")
 
-        if c_str in cust2idx and sim_matrix is not None:
-            u_idx = cust2idx[c_str]
-            user_purchased = crop_matrix[u_idx] > 0
-            
-            # Find top 10 peer neighbors
-            user_sims = sim_matrix[u_idx]
-            similar_user_indices = np.argsort(-user_sims)[1:11]
-            
-            candidate_scores = np.zeros(crop_matrix.shape[1])
-            for peer_idx in similar_user_indices:
-                peer_sim = user_sims[peer_idx]
-                if peer_sim > 0:
-                    peer_items = crop_matrix[peer_idx]
-                    candidate_scores += peer_sim * peer_items
-                    
-            # Mask out crops already purchased by this user
-            candidate_scores[user_purchased] = -1.0
-            
-            top_crop_indices = np.argsort(-candidate_scores)
-            results = []
-            for c_idx in top_crop_indices:
-                if candidate_scores[c_idx] > 0:
-                    c_name = idx2crop[c_idx]
-                    if c_name in crop_to_best:
-                        listing = dict(crop_to_best[c_name])
-                        sim_score = round(float(candidate_scores[c_idx]), 2)
-                        listing["score"] = sim_score
-                        listing["recommendation_type"] = "COLLABORATIVE"
-                        listing["reason"] = f"Preferred by customers with similar taste profiles in North Bengaluru (Affinity: {sim_score})"
-                        listing["badge"] = "Preferred by Similar Buyers"
-                        results.append(listing)
-                        if len(results) >= top_k:
-                            break
-            if results:
-                return results
-                
-        # Cold-Start Fallback: Top-rated fresh farm harvests
-        fallback_crops = ["Carrot", "Palak", "Green Capsicum", "Pomegranate", "Papaya"]
-        results = []
-        for c_name in fallback_crops[:top_k]:
-            if c_name in crop_to_best:
-                listing = dict(crop_to_best[c_name])
-                listing["score"] = 0.80
-                listing["recommendation_type"] = "COLLABORATIVE_COLD_START"
-                listing["reason"] = f"Top Rated in North Bengaluru ({listing.get('rating_avg', 4.8)} ★) • Farm Fresh Harvest"
-                listing["badge"] = "Top Rated in North BLR"
-                results.append(listing)
-                
-        return results
+        if self.catalog is not None and not self.catalog.empty:
+            sample = self.catalog.sort_values("rating_avg", ascending=False).head(top_k)
+            return [self._format_listing_record(r, default_type="TOP_RATED", default_badge="Top Rated in North BLR") for _, r in sample.iterrows()]
+        return []
 
     def get_customer_home_dashboard(self, customer_id: str, cart_crops: list = None):
-        """
-        Unified Customer Home Dashboard Endpoint
-        Executes all 3 recommendation models dynamically in a single unified payload.
-        """
-        # Determine customer metadata & cold start status
-        is_cold_start = True
-        cust_profile = None
-        location_area = "North Bengaluru"
-        
-        if self.data and "customer_profiles" in self.data:
-            cust_profile = next((c for c in self.data["customer_profiles"] if str(c.get("customer_id")) == str(customer_id)), None)
-            if cust_profile:
-                location_area = cust_profile.get("location_area", "North Bengaluru")
-                is_cold_start = False
-                
-        if customer_id in self.dynamic_purchases or customer_id in self.dynamic_interactions:
-            is_cold_start = False
-            
+        """Unified Customer Home Dashboard Endpoint (All 3 models in single payload)"""
         buy_again = self.get_buy_again(customer_id, top_k=4)
         picked_for_you = self.get_picked_for_you(customer_id, top_k=4)
         you_may_also_want = self.get_you_may_also_want(customer_id, cart_crops=cart_crops, top_k=4)
-        
+
         return {
-            "customer_id": customer_id,
-            "is_cold_start": is_cold_start,
-            "location": location_area,
+            "customer_id": str(customer_id),
+            "location": "North Bengaluru & Mandya Corridor",
             "active_cart": cart_crops or [],
             "sections": {
                 "buy_again": {
@@ -451,7 +305,235 @@ class RecommendationPredictor:
             }
         }
 
-    # Backward compatibility
+    def get_replacement_listings(self, listing_id: str, top_k: int = 3):
+        """Replacement recommendations for out-of-stock or alternative listings."""
+        if self.catalog is not None and not self.catalog.empty:
+            try:
+                recs = recommend_replacements(listing_id, self.catalog, top_n=top_k)
+                if not recs.empty:
+                    return [self._format_listing_record(r, default_type="REPLACEMENT", default_badge="Same Crop Alternative") for _, r in recs.iterrows()]
+            except Exception as e:
+                print(f"Error in recommend_replacements: {e}")
+
+        # Fallback
+        if self.catalog is not None:
+            sample = self.catalog.head(top_k)
+            return [self._format_listing_record(r, default_type="REPLACEMENT_ALT", default_badge="Available Alternative") for _, r in sample.iterrows()]
+        return []
+
+    def get_farmer_recommendations(self, farmer_id: str, top_k: int = 10):
+        """Farmer Crop Opportunity Recommendations (Demand gap & APMC predicted price)"""
+        f_str = str(farmer_id)
+        if self.purchase_data is not None and self.tables is not None:
+            try:
+                inventory = self.tables.get("inventory", pd.DataFrame())
+                farmers = self.tables.get("farmers", pd.DataFrame())
+                pricing_log = self.tables.get("pricing_log", pd.DataFrame())
+                recs = recommend_crops_for_farmer(f_str, self.purchase_data, inventory, farmers, pricing_log, top_n=top_k)
+                if not recs.empty:
+                    return recs.to_dict(orient="records")
+            except Exception as e:
+                print(f"Error in recommend_crops_for_farmer: {e}")
+
+        # Fallback
+        return [
+            {
+                "crop_id": "abef6b46-97a3-4d47-847a-0a058895e915",
+                "crop_name": "Tomato",
+                "quantity_demand": 1500.0,
+                "available_supply": 400.0,
+                "supply_gap": 1100.0,
+                "predicted_price": 42.50,
+                "opportunity_score": 0.92,
+                "recommendation_type": "FARMER_CROP_OPPORTUNITY",
+                "reason": "High demand gap in North Bengaluru (1100 kg unmet) • Predicted APMC Price: ₹42.50/kg"
+            },
+            {
+                "crop_id": "cd000000-0000-0000-0000-000000000002",
+                "crop_name": "Onion",
+                "quantity_demand": 2000.0,
+                "available_supply": 800.0,
+                "supply_gap": 1200.0,
+                "predicted_price": 35.00,
+                "opportunity_score": 0.88,
+                "recommendation_type": "FARMER_CROP_OPPORTUNITY",
+                "reason": "High demand gap in Mandya corridor (1200 kg unmet) • Predicted APMC Price: ₹35.00/kg"
+            }
+        ]
+
+    def get_aggregator_matches(self, crop_name: str, required_quantity: float = 500.0, top_k: int = 10):
+        """Aggregator Supplier Matching for bulk procurement."""
+        if self.catalog is not None and not self.catalog.empty:
+            try:
+                recs = recommend_supplier_listings(crop_name, required_quantity, self.catalog, top_n=top_k)
+                if not recs.empty:
+                    return [self._format_listing_record(r, default_type="AGGREGATOR_SUPPLIER", default_badge="Supplier Match") for _, r in recs.iterrows()]
+            except Exception as e:
+                print(f"Error in recommend_supplier_listings: {e}")
+
+        # Fallback
+        if self.catalog is not None:
+            sample = self.catalog.head(top_k)
+            return [self._format_listing_record(r, default_type="AGGREGATOR_SUPPLIER", default_badge="Verified Farm Supplier") for _, r in sample.iterrows()]
+        return []
+
+    def get_next_basket(self, customer_id: str, top_k: int = 6):
+        """Model 4: Next-Basket Recommendation (NBR frequency baseline)"""
+        c_str = str(customer_id)
+        if not REC_ENGINE_AVAILABLE or self.purchase_data is None or self.catalog is None:
+            return self._cold_start_popular(top_k, "NEXT_BASKET_COLD_START", "Next Pick")
+        try:
+            recs = predict_next_basket(self.purchase_data, self.catalog, c_str, top_n=top_k)
+            if recs is not None and not recs.empty:
+                return [self._format_listing_record(r, default_type="NEXT_BASKET", default_badge="Next Pick") for _, r in recs.iterrows()]
+        except Exception as e:
+            print(f"Error in predict_next_basket: {e}")
+        return self._cold_start_popular(top_k, "NEXT_BASKET_COLD_START", "Next Pick")
+
+    def get_recency_weighted(self, customer_id: str, top_k: int = 6):
+        """Model 5: Recency-Weighted Recommendations (time-decay scoring)"""
+        c_str = str(customer_id)
+        if not REC_ENGINE_AVAILABLE or self.catalog is None:
+            return self._cold_start_popular(top_k, "RECENCY_WEIGHTED_COLD_START", "Fresh Pick")
+        try:
+            pd_data = self.purchase_data if self.purchase_data is not None else pd.DataFrame()
+            recs = recency_weighted_recommendations(pd_data, self.catalog, c_str, top_n=top_k)
+            if recs is not None and not recs.empty:
+                return [self._format_listing_record(r, default_type="RECENCY_WEIGHTED", default_badge="Recent Pick") for _, r in recs.iterrows()]
+        except Exception as e:
+            print(f"Error in recency_weighted_recommendations: {e}")
+        return self._cold_start_popular(top_k, "RECENCY_WEIGHTED_COLD_START", "Fresh Pick")
+
+    def get_price_aware(self, customer_id: str, top_k: int = 6):
+        """Model 6: Price-Aware Recommendations (budget-fit + popularity heuristic)"""
+        c_str = str(customer_id)
+        if not REC_ENGINE_AVAILABLE or self.catalog is None:
+            return self._cold_start_popular(top_k, "PRICE_AWARE_COLD_START", "Price Smart")
+        try:
+            pd_data = self.purchase_data if self.purchase_data is not None else pd.DataFrame()
+            recs = price_aware_recommendations(pd_data, self.catalog, c_str, top_n=top_k)
+            if recs is not None and not recs.empty:
+                return [self._format_listing_record(r, default_type="PRICE_AWARE", default_badge="Price Smart") for _, r in recs.iterrows()]
+        except Exception as e:
+            print(f"Error in price_aware_recommendations: {e}")
+        return self._cold_start_popular(top_k, "PRICE_AWARE_COLD_START", "Price Smart")
+
+    def get_local_popularity(self, customer_id: str = None, top_k: int = 6, region_override: str = None):
+        """Model 7: Local Popularity Recommendations (region-based trending)"""
+        c_str = str(customer_id) if customer_id else "anonymous"
+        if not REC_ENGINE_AVAILABLE or self.catalog is None:
+            return self._cold_start_popular(top_k, "LOCAL_POPULARITY_COLD_START", "Local Trend")
+        try:
+            pd_data = self.purchase_data if self.purchase_data is not None else pd.DataFrame()
+            tables = self.tables if self.tables else {}
+            recs = local_popularity_recommendations(
+                pd_data, self.catalog, c_str,
+                tables=tables, top_n=top_k, region_override=region_override
+            )
+            if recs is not None and not recs.empty:
+                return [self._format_listing_record(r, default_type="LOCAL_POPULARITY", default_badge="Local Trend") for _, r in recs.iterrows()]
+        except Exception as e:
+            print(f"Error in local_popularity_recommendations: {e}")
+        return self._cold_start_popular(top_k, "LOCAL_POPULARITY_COLD_START", "Local Trend")
+
+    def _cold_start_popular(self, top_k: int, rec_type: str = "POPULAR", badge: str = "Popular") -> list:
+        """Cold-start fallback: return top-rated catalog items."""
+        if self.catalog is not None and not self.catalog.empty:
+            cat = self.catalog.copy()
+            if "rating_avg" in cat.columns:
+                cat = cat.sort_values("rating_avg", ascending=False)
+            sample = cat.head(top_k)
+            return [
+                self._format_listing_record(
+                    r,
+                    default_type=rec_type,
+                    default_badge=f"#{i+1} {badge}"
+                )
+                for i, (_, r) in enumerate(sample.iterrows())
+            ]
+        return []
+
+    def get_discover_dashboard(self, customer_id: str):
+        """
+        Unified Discover Dashboard for Customers — Combines 4 extended recommendation models.
+        Used for the 'Discover' tab in the customer-facing frontend.
+        Supports cold-start for newly registered customers.
+        """
+        c_str = str(customer_id)
+        is_new = self.is_new_customer(c_str)
+
+        next_basket = self.get_next_basket(c_str, top_k=4)
+        recency = self.get_recency_weighted(c_str, top_k=4)
+        price_smart = self.get_price_aware(c_str, top_k=4)
+        local_pop = self.get_local_popularity(c_str, top_k=4)
+
+        # Log discover view to Supabase
+        self._sync_event_to_supabase("user_interaction", {
+            "customer_id": c_str,
+            "interaction_type": "DISCOVER_VIEW",
+            "interaction_weight": 1.0,
+            "is_cold_start": is_new
+        })
+
+        return {
+            "customer_id": c_str,
+            "is_new_customer": is_new,
+            "mode": "cold_start_popularity" if is_new else "personalized",
+            "location": "Bengaluru & Mandya Corridor",
+            "sections": {
+                "next_basket": {
+                    "model_name": "Next-Basket Prediction (NBR Frequency Baseline)",
+                    "title": "🛍️ YOUR NEXT PICKS",
+                    "subtitle": "Predicted for your next purchase based on your basket patterns" if not is_new else "Top picks for new members — start your first basket!",
+                    "items": next_basket
+                },
+                "recency_weighted": {
+                    "model_name": "Recency-Weighted (Time-Decay Scoring)",
+                    "title": "⏱️ FRESH ON YOUR RADAR",
+                    "subtitle": "Items you've bought recently, still available and fresh" if not is_new else "Freshest farm produce available right now",
+                    "items": recency
+                },
+                "price_smart": {
+                    "model_name": "Price-Aware (Budget-Fit + Popularity Heuristic)",
+                    "title": "💰 PRICE-SMART PICKS",
+                    "subtitle": "Matches your usual spending range" if not is_new else "Best value farm produce for budget-conscious buyers",
+                    "items": price_smart
+                },
+                "local_popular": {
+                    "model_name": "Local Popularity (Region-Based Trending)",
+                    "title": "📍 POPULAR NEAR YOU",
+                    "subtitle": "Trending in your local area — what your neighbours are buying",
+                    "items": local_pop
+                }
+            }
+        }
+
+    def register_new_listing(self, listing_dict: dict):
+        """Dynamically registers a newly published crop harvest listing into the active recommendation catalog."""
+        if self.catalog is None:
+            self.catalog = pd.DataFrame()
+        new_df = pd.DataFrame([{
+            "listing_id": str(listing_dict.get("id") or listing_dict.get("listing_id")),
+            "crop_name": listing_dict.get("crop_name"),
+            "farmer_name": listing_dict.get("farmer_name"),
+            "title": listing_dict.get("title"),
+            "price_per_unit": float(listing_dict.get("price_per_unit") or 30.0),
+            "unit": listing_dict.get("unit") or "kg",
+            "quantity": float(listing_dict.get("available_quantity") or 100.0),
+            "is_organic": bool(listing_dict.get("is_organic", True)),
+            "grade": listing_dict.get("grade") or "A",
+            "rating_avg": float(listing_dict.get("rating_avg") or 5.0),
+            "rating_count": int(listing_dict.get("rating_count") or 1),
+            "status": "AVAILABLE"
+        }])
+        self.catalog = pd.concat([new_df, self.catalog], ignore_index=True)
+        return {"status": "success", "listing_id": listing_dict.get("id")}
+
+    def recommend_similar_listings(self, listing_id: str, top_k: int = 5):
+        """Find similar listings (used by ml/api/main.py)"""
+        return self.get_replacement_listings(listing_id, top_k=top_k)
+
+    # Backward compatibility helper
     def recommend_for_customer(self, customer_id: str, top_k: int = 10):
         picked = self.get_picked_for_you(customer_id, top_k=top_k)
         if len(picked) < top_k:
@@ -459,19 +541,10 @@ class RecommendationPredictor:
             picked.extend(buy_again)
         return picked[:top_k]
 
+
+
 if __name__ == "__main__":
     predictor = RecommendationPredictor()
-    sample_cust = "4111ac45-cb7c-4288-80af-1010fc7ea694"
-    home_data = predictor.get_customer_home_dashboard(sample_cust, cart_crops=["Tomato", "Onion"])
-    
-    print("\n=======================================================")
-    print(f"CUSTOMER HOME DASHBOARD ({home_data['location']})")
-    print(f"Customer ID: {home_data['customer_id']} | Cold Start: {home_data['is_cold_start']}")
-    print("=======================================================")
-    
-    for sec_key, sec_data in home_data["sections"].items():
-        title = sec_data['title'].encode('ascii', 'ignore').decode('ascii').strip()
-        print(f"\n[SECTION] {title} ({sec_data['model_name']}):")
-        for item in sec_data["items"]:
-            print(f"  * {item['crop_name']} - Rs.{item['price_per_unit']}/{item['unit']} | {item.get('reason', '')}")
-
+    sample_cust = "415c5186-549e-44e9-9132-6d158175f5c1"
+    dashboard = predictor.get_customer_home_dashboard(sample_cust)
+    print("Sample Customer Home Dashboard output sections:", list(dashboard["sections"].keys()))

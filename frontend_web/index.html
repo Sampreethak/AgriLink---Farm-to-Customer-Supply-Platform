@@ -18,6 +18,10 @@
             <button class="nav-btn active" onclick="switchTab('marketplace-tab', this)">
                 <i class="fa-solid fa-store"></i> Shop Fresh
             </button>
+            <button class="nav-btn" id="discover-nav-btn" onclick="switchTab('discover-tab', this)">
+                <i class="fa-solid fa-compass"></i> Discover
+                <span style="background: linear-gradient(135deg, #ff6b35, #f7c948); color: white; font-size: 0.6rem; padding: 1px 5px; border-radius: 8px; margin-left: 4px; font-weight: bold; vertical-align: top;">NEW</span>
+            </button>
             <button class="nav-btn" onclick="switchTab('orders-tab', this)">
                 <i class="fa-solid fa-receipt"></i> My Orders
             </button>
@@ -62,7 +66,7 @@
                     </div>
                 </div>
                 <div class="status-indicator" id="ml-engine-badge">
-                    <div class="dot"></div> 3 ML Models Active (Background Engine)
+                    <div class="dot"></div> 7 ML Models Active (Background Engine)
                 </div>
             </div>
 
@@ -122,7 +126,103 @@
 
         </div>
 
+        <!-- ================= TAB: DISCOVER (Customer Recommendation Expansion) ================= -->
+        <div id="discover-tab" class="tab-content">
+
+            <!-- Discover Hero Banner -->
+            <div class="hero-banner" style="background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #1565c0 100%); min-height: 130px;">
+                <div class="hero-text">
+                    <h1 style="font-size: 1.6rem;">🧭 Discover — Your Personalised Farm Market</h1>
+                    <p style="font-size: 0.95rem; opacity: 0.9;">Powered by 4 extended ML models: Next-Basket · Recency-Weighted · Price-Smart · Local Trending</p>
+                </div>
+            </div>
+
+            <!-- Cold-Start Welcome Panel (shown for new customers) -->
+            <div id="cold-start-welcome" style="display:none; background: linear-gradient(135deg, #fff8e1, #fff3e0); border: 1px solid #ffe082; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <span style="font-size: 2rem;">👋</span>
+                    <div>
+                        <div style="font-weight: bold; font-size: 1rem; color: #e65100; margin-bottom: 0.25rem;">Welcome to AgriLink! We're learning your preferences.</div>
+                        <div style="font-size: 0.85rem; color: #795548;">As a new member, we're showing you our most popular and trending farm produce. Your recommendations will personalise as you shop!</div>
+                    </div>
+                    <span id="cold-start-mode-badge" style="margin-left: auto; background: #ff6b35; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; white-space: nowrap;">Cold-Start Mode</span>
+                </div>
+            </div>
+
+            <!-- ML Status Bar for Discover Tab -->
+            <div style="background: linear-gradient(90deg, #e8f5e9, #e3f2fd); border-radius: 12px; padding: 0.8rem 1.25rem; margin-bottom: 2rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; font-size: 0.82rem; font-weight: bold;">
+                <span><i class="fa-solid fa-brain" style="color: #1565c0;"></i>&nbsp; 4 Extended ML Models Active</span>
+                <span style="color: #2e7d32;"><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i>&nbsp; Next-Basket NBR</span>
+                <span style="color: #7b1fa2;"><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i>&nbsp; Recency-Weighted Decay</span>
+                <span style="color: #e65100;"><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i>&nbsp; Price-Aware Heuristic</span>
+                <span style="color: #0277bd;"><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i>&nbsp; Local Popularity</span>
+                <span id="discover-personalization-label" style="margin-left: auto; background: #1565c0; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem;">Personalized</span>
+            </div>
+
+            <!-- SECTION A: 🛍️ YOUR NEXT PICKS (Next-Basket NBR) -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>
+                        <i class="fa-solid fa-bag-shopping" style="color: #1565c0;"></i>
+                        🛍️ Your Next Picks
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 4: Next-Basket Prediction — NBR Frequency Baseline)</span>
+                    </span>
+                    <span style="font-size: 0.8rem; background: #e3f2fd; color: #1565c0; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Basket Sequence Engine</span>
+                </div>
+                <div id="next-basket-grid" class="grid-cards">
+                    <!-- Next Basket Cards Inserted Here -->
+                </div>
+            </div>
+
+            <!-- SECTION B: ⏱️ FRESH ON YOUR RADAR (Recency-Weighted) -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>
+                        <i class="fa-solid fa-clock-rotate-left" style="color: #7b1fa2;"></i>
+                        ⏱️ Fresh On Your Radar
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 5: Recency-Weighted — Exponential Time-Decay Scoring)</span>
+                    </span>
+                    <span style="font-size: 0.8rem; background: #f3e5f5; color: #7b1fa2; padding: 4px 10px; border-radius: 20px; font-weight: bold;">λ Time-Decay Engine</span>
+                </div>
+                <div id="recency-weighted-grid" class="grid-cards">
+                    <!-- Recency Weighted Cards Inserted Here -->
+                </div>
+            </div>
+
+            <!-- SECTION C: 💰 PRICE-SMART PICKS (Price-Aware) -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>
+                        <i class="fa-solid fa-tags" style="color: #e65100;"></i>
+                        💰 Price-Smart Picks
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 6: Price-Aware Heuristic — Budget-Fit + Popularity)</span>
+                    </span>
+                    <span style="font-size: 0.8rem; background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Budget-Fit Engine</span>
+                </div>
+                <div id="price-smart-grid" class="grid-cards">
+                    <!-- Price Smart Cards Inserted Here -->
+                </div>
+            </div>
+
+            <!-- SECTION D: 📍 POPULAR NEAR YOU (Local Popularity) -->
+            <div style="margin-bottom: 2.5rem;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>
+                        <i class="fa-solid fa-location-dot" style="color: #0277bd;"></i>
+                        📍 Popular Near You
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Model 7: Local Popularity — Region-Based Trending)</span>
+                    </span>
+                    <span style="font-size: 0.8rem; background: #e1f5fe; color: #0277bd; padding: 4px 10px; border-radius: 20px; font-weight: bold;">Local Trend Engine</span>
+                </div>
+                <div id="local-popular-grid" class="grid-cards">
+                    <!-- Local Popular Cards Inserted Here -->
+                </div>
+            </div>
+
+        </div>
+
         <!-- ================= TAB 2: MY ORDERS ================= -->
+
         <div id="orders-tab" class="tab-content">
             <div class="section-title">
                 <i class="fa-solid fa-receipt"></i> Recent Orders & Deliveries
@@ -190,6 +290,14 @@
                 </div>
             </div>
 
+            <div class="section-title" style="font-size: 1.1rem; margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-lightbulb" style="color: var(--warning);"></i> High-Demand Crop Opportunities for Farmers <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">(Demand Gap + APMC Price Prediction)</span></span>
+                <button onclick="loadFarmerRecommendations()" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">Refresh Opportunities</button>
+            </div>
+            <div id="farmer-opportunities-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <!-- Farmer Crop Recommendations loaded dynamically -->
+            </div>
+
             <div class="section-title" style="font-size: 1.1rem; margin-top: 1.5rem;">
                 My Published Crop Harvest Listings
             </div>
@@ -209,7 +317,7 @@
                     <tbody>
                         <tr>
                             <td><b>Organic Red Tomato</b></td>
-                            <td>Farmer A Green Farm (Kolar)</td>
+                            <td>Farmer A Green Farm (Mandya)</td>
                             <td>40.0 kg</td>
                             <td>₹30.00</td>
                             <td>Grade A</td>
@@ -218,7 +326,7 @@
                         </tr>
                         <tr>
                             <td><b>Cherry Tomato</b></td>
-                            <td>Farmer B Organic Farm (Kolar)</td>
+                            <td>Farmer B Organic Farm (Maddur)</td>
                             <td>30.0 kg</td>
                             <td>₹32.00</td>
                             <td>Grade A</td>
@@ -228,6 +336,36 @@
                     </tbody>
                 </table>
             </div>
+
+            <div class="section-title" style="font-size: 1.1rem; margin-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-boxes-packing" style="color: var(--secondary);"></i> Aggregator Bulk Supplier Matcher</span>
+            </div>
+            <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem;">
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">TARGET CROP:</label><br>
+                        <select id="aggregator-crop-select" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; font-weight: bold;">
+                            <option value="Tomato">Tomato</option>
+                            <option value="Onion">Onion</option>
+                            <option value="Potato">Potato</option>
+                            <option value="Carrot">Carrot</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">REQUIRED QUANTITY (KG):</label><br>
+                        <input type="number" id="aggregator-qty-input" value="500" style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; width: 120px; font-weight: bold;">
+                    </div>
+                    <div style="margin-top: 1.2rem;">
+                        <button onclick="findAggregatorMatches()" style="background: var(--secondary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                            <i class="fa-solid fa-magnifying-glass"></i> Find Best Suppliers
+                        </button>
+                    </div>
+                </div>
+                <div id="aggregator-matches-grid" class="grid-cards" style="margin-top: 1.5rem;">
+                    <!-- Aggregator Matches Rendered Here -->
+                </div>
+            </div>
+
         </div>
 
         <!-- ================= TAB 4: DELIVERY TRACKER ================= -->
