@@ -174,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedRole,
+                  initialValue: _selectedRole,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.group),
                     hintText: "Select Role",
@@ -265,16 +265,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: () async {
                     setState(() => _isLoading = true);
                     final authService = AuthService();
+                    final messenger = ScaffoldMessenger.of(context);
+                    final navigator = Navigator.of(context);
                     await authService.signInWithGoogle();
                     if (mounted) {
                       setState(() => _isLoading = false);
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      messenger.showSnackBar(
                         const SnackBar(
                           content: Text("Google Sign-In Successful! Welcome."),
                           backgroundColor: AppColors.success,
                         ),
                       );
-                      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+                      navigator.pushNamedAndRemoveUntil('/home', (route) => false);
                     }
                   },
                   icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),

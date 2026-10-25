@@ -61,7 +61,7 @@ class _MultiUserScreenState extends State<MultiUserScreen> {
                     ),
                     const SizedBox(height: 15),
                     DropdownButtonFormField<String>(
-                      value: selectedRole,
+                      initialValue: selectedRole,
                       decoration: const InputDecoration(
                         labelText: "Define Permission Role",
                       ),

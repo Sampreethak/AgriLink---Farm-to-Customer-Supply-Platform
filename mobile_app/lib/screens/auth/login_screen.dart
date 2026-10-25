@@ -334,16 +334,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () async {
                     setState(() => _isLoading = true);
                     final authService = AuthService();
+                    final messenger = ScaffoldMessenger.of(context);
+                    final navigator = Navigator.of(context);
                     await authService.signInWithGoogle();
                     if (mounted) {
                       setState(() => _isLoading = false);
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      messenger.showSnackBar(
                         const SnackBar(
                           content: Text("Signed in with Google! Welcome."),
                           backgroundColor: AppColors.success,
                         ),
                       );
-                      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+                      navigator.pushNamedAndRemoveUntil('/home', (route) => false);
                     }
                   },
                   icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),

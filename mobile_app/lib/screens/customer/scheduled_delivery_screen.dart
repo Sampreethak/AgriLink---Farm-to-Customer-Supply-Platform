@@ -72,7 +72,7 @@ class _ScheduledDeliveryScreenState extends State<ScheduledDeliveryScreen> {
                     ),
                     const SizedBox(height: 15),
                     DropdownButtonFormField<String>(
-                      value: selectedSlot,
+                      initialValue: selectedSlot,
                       decoration: const InputDecoration(
                         labelText: "Available Time Slots",
                         prefixIcon: Icon(Icons.access_time),

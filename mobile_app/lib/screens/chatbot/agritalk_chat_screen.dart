@@ -93,8 +93,8 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
         data: {
           'query': text,
           'language': lang,
-          'role': currentUser?.role.toUpperCase() ?? 'FARMER',
-          'user_id': currentUser?.id ?? '11111111-1111-1111-1111-111111111111',
+          'role': currentUser.role.toUpperCase(),
+          'user_id': currentUser.id,
         },
       );
 
@@ -199,8 +199,8 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
               separatorBuilder: (context, index) => const SizedBox(width: 8),
               itemBuilder: (ctx, i) => ActionChip(
                 label: Text(suggestions[i], style: const TextStyle(fontSize: 12)),
-                backgroundColor: AppColors.primaryGreen.withOpacity(0.08),
-                side: BorderSide(color: AppColors.primaryGreen.withOpacity(0.3)),
+                backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.08),
+                side: BorderSide(color: AppColors.primaryGreen.withValues(alpha: 0.3)),
                 onPressed: () => _sendMessage(suggestions[i]),
               ),
             ),
@@ -244,7 +244,7 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   offset: const Offset(0, -2),
                   blurRadius: 6,
                 )

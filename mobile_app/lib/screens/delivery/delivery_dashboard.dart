@@ -59,7 +59,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
               ),
               Switch(
                 value: isOnline,
-                activeColor: Colors.white,
+                activeThumbColor: Colors.white,
                 activeTrackColor: Colors.green.shade900,
                 inactiveThumbColor: Colors.grey,
                 inactiveTrackColor: Colors.black26,

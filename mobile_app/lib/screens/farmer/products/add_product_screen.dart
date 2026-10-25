@@ -160,7 +160,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               const SizedBox(height: 14),
 
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: const InputDecoration(
                   labelText: "Category",
                   prefixIcon: Icon(Icons.category),
@@ -197,7 +197,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   Expanded(
                     flex: 1,
                     child: DropdownButtonFormField<String>(
-                      value: _selectedUnit,
+                      initialValue: _selectedUnit,
                       decoration: const InputDecoration(
                         labelText: "Unit",
                       ),
@@ -232,7 +232,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedGrade,
+                      initialValue: _selectedGrade,
                       decoration: const InputDecoration(
                         labelText: "Quality Grade",
                       ),
@@ -273,7 +273,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
               SwitchListTile(
                 value: _isOrganic,
-                activeColor: AppColors.primaryGreen,
+                activeThumbColor: AppColors.primaryGreen,
                 title: const Text("Certified Organic / Zero Chemical"),
                 subtitle: const Text("Qualifies for +15% organic premium pricing"),
                 onChanged: (val) => setState(() => _isOrganic = val),
@@ -281,7 +281,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
               SwitchListTile(
                 value: _available,
-                activeColor: AppColors.primaryGreen,
+                activeThumbColor: AppColors.primaryGreen,
                 title: const Text("Available for Immediate Dispatch"),
                 onChanged: (val) => setState(() => _available = val),
               ),

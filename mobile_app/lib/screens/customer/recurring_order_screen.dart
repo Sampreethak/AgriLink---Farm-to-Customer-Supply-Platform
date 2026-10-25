@@ -70,7 +70,7 @@ class _RecurringOrderScreenState extends State<RecurringOrderScreen> {
                     ),
                     const SizedBox(height: 15),
                     DropdownButtonFormField<String>(
-                      value: selectedProduce,
+                      initialValue: selectedProduce,
                       decoration: const InputDecoration(
                         labelText: "Select Produce Item",
                         prefixIcon: Icon(Icons.shopping_basket),
@@ -115,7 +115,7 @@ class _RecurringOrderScreenState extends State<RecurringOrderScreen> {
                         Expanded(
                           flex: 3,
                           child: DropdownButtonFormField<String>(
-                            value: frequency,
+                            initialValue: frequency,
                             decoration: const InputDecoration(
                               labelText: "Frequency",
                             ),

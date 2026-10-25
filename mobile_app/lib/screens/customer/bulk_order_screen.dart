@@ -59,7 +59,7 @@ class _BulkOrderScreenState extends State<BulkOrderScreen> {
                     ),
                     const SizedBox(height: 10),
                     DropdownButtonFormField<String>(
-                      value: selectedProduce,
+                      initialValue: selectedProduce,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.eco),
                         contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),

@@ -174,7 +174,7 @@ class _CartTabState extends State<CartTab> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: cartItems.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, si) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final item = cartItems[index];
                       final itemTotal = item.priceNum * item.qty;
@@ -195,7 +195,7 @@ class _CartTabState extends State<CartTab> {
                                   width: 60,
                                   height: 60,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
+                                  errorBuilder: (_, ei, es) => Container(
                                     width: 60,
                                     height: 60,
                                     color: Colors.green.shade100,

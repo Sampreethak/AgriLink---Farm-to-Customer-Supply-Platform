@@ -141,7 +141,7 @@ class _DeliveryRegistrationScreenState
 
                 // Vehicle Selector
                 DropdownButtonFormField<String>(
-                  value: selectedVehicle,
+                  initialValue: selectedVehicle,
                   decoration: const InputDecoration(
                     labelText: "Assigned Vehicle Type",
                     prefixIcon: Icon(Icons.electric_rickshaw),

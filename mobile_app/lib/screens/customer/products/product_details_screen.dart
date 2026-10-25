@@ -174,7 +174,7 @@ class _CustomerProductDetailsScreenState
                 child: Image.network(
                   imgUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, ei, es) => Container(
                     color: AppColors.mintLight,
                     child: const Icon(Icons.eco, size: 80, color: AppColors.lightGreenPrimary),
                   ),

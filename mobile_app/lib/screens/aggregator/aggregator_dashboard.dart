@@ -169,14 +169,14 @@ class _CollectionGradingTabState extends State<CollectionGradingTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: selectedFarmer,
+                    initialValue: selectedFarmer,
                     decoration: const InputDecoration(labelText: "Select Farmer"),
                     items: farmers.map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
                     onChanged: (val) => setState(() => selectedFarmer = val!),
                   ),
                   const SizedBox(height: 15),
                   DropdownButtonFormField<String>(
-                    value: selectedProduce,
+                    initialValue: selectedProduce,
                     decoration: const InputDecoration(labelText: "Produce Type"),
                     items: ["Tomato", "Potato", "Onion", "Carrot", "Green Capsicum", "Rice"]
                         .map((p) => DropdownMenuItem(value: p, child: Text(p)))
@@ -192,7 +192,7 @@ class _CollectionGradingTabState extends State<CollectionGradingTab> {
                   ),
                   const SizedBox(height: 15),
                   DropdownButtonFormField<String>(
-                    value: selectedGrade,
+                    initialValue: selectedGrade,
                     decoration: const InputDecoration(labelText: "Quality Grade (Assessed)"),
                     items: ["Grade A+", "Grade A", "Grade B (Processing)"]
                         .map((g) => DropdownMenuItem(value: g, child: Text(g)))

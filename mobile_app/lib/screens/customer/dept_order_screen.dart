@@ -63,7 +63,7 @@ class _DeptOrderScreenState extends State<DeptOrderScreen> {
                     ),
                     const SizedBox(height: 15),
                     DropdownButtonFormField<String>(
-                      value: selectedDept,
+                      initialValue: selectedDept,
                       decoration: const InputDecoration(
                         labelText: "Select Hospital Department",
                         prefixIcon: Icon(Icons.local_hospital),
@@ -81,7 +81,7 @@ class _DeptOrderScreenState extends State<DeptOrderScreen> {
                     ),
                     const SizedBox(height: 15),
                     DropdownButtonFormField<String>(
-                      value: selectedItem,
+                      initialValue: selectedItem,
                       decoration: const InputDecoration(
                         labelText: "Select Item",
                         prefixIcon: Icon(Icons.eco),
@@ -186,7 +186,7 @@ class _DeptOrderScreenState extends State<DeptOrderScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange),

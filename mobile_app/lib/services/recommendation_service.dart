@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../core/config.dart';
 
 class RecommendationService {
@@ -34,7 +35,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -50,7 +53,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -62,7 +67,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -74,7 +81,9 @@ class RecommendationService {
         'listing_id': listingId,
         'interaction_type': interactionType,
       });
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
   }
 
   /// Legacy compatibility method
@@ -85,7 +94,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -97,7 +108,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -109,7 +122,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -125,7 +140,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -143,7 +160,9 @@ class RecommendationService {
       if (response.statusCode == 200 && response.data != null) {
         return Map<String, dynamic>.from(response.data);
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return null;
   }
 
@@ -158,7 +177,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -173,7 +194,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -188,7 +211,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 
@@ -205,7 +230,9 @@ class RecommendationService {
         final List<dynamic> raw = response.data['recommendations'] ?? [];
         return raw.map((item) => Map<String, dynamic>.from(item)).toList();
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('[RecommendationService] Network error: $e');
+    }
     return [];
   }
 }

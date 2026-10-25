@@ -122,9 +122,9 @@ class _CustomUploadTileState extends State<CustomUploadTile> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryGreen.withOpacity(0.1),
+                  color: AppColors.primaryGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.primaryGreen.withValues(alpha: 0.3)),
                 ),
                 child: _isUploading
                     ? const Padding(

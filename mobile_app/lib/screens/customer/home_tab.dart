@@ -37,24 +37,6 @@ class _HomeTabState extends State<HomeTab> {
   List<Map<String, dynamic>> _allProducts = [];
   bool _isLoadingProducts = true;
 
-  List<Map<String, String>> get _dynamicPreviousOrders {
-    final List<Map<String, String>> list = [];
-    for (final order in _customerState.orders) {
-      for (final item in order.items) {
-        list.add({
-          "name": item.name,
-          "crop_name": item.name.split(' ').first,
-          "quantity": "${item.qty} kg",
-          "price": item.priceStr,
-          "date": order.date,
-          "farmer": item.farmer,
-          "imageUrl": _resolveProduceImage(item.name.split(' ').first, item.imageUrl),
-        });
-      }
-    }
-    return list;
-  }
-
   // Category definitions with real produce images
   final List<Map<String, String>> _categories = [
     {
@@ -537,7 +519,7 @@ class _HomeTabState extends State<HomeTab> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -548,7 +530,7 @@ class _HomeTabState extends State<HomeTab> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.scale, color: Colors.white, size: 24),
@@ -648,7 +630,7 @@ class _HomeTabState extends State<HomeTab> {
                       child: Image.network(
                         cat['imageUrl']!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, ei, es) => Container(
                           color: AppColors.mintLight,
                           child: const Icon(Icons.eco, color: AppColors.lightGreenPrimary),
                         ),
@@ -1030,7 +1012,7 @@ class RecommendationCard extends StatelessWidget {
                     height: 95,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, ei, es) => Container(
                       height: 95,
                       color: AppColors.mintLight,
                       child: const Icon(Icons.eco, color: AppColors.lightGreenPrimary),
@@ -1199,7 +1181,7 @@ class ProductCard extends StatelessWidget {
                   width: 64,
                   height: 64,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, ei, es) => Container(
                     width: 64,
                     height: 64,
                     color: AppColors.mintLight,

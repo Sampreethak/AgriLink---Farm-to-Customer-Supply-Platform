@@ -36,7 +36,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: DropdownButtonFormField<String>(
-        value: selectedValue,
+        initialValue: selectedValue,
         validator: widget.validator,
         decoration: InputDecoration(
           labelText: widget.label,

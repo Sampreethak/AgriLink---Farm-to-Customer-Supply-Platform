@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import '../../core/colors.dart';
 import '../../services/recommendation_service.dart';
 import '../../services/customer_state.dart';
@@ -257,7 +256,7 @@ class _DiscoverTabState extends State<DiscoverTab> {
             decoration: BoxDecoration(
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.lightGreenPrimary.withOpacity(0.4)),
+              border: Border.all(color: AppColors.lightGreenPrimary.withValues(alpha: 0.4)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -310,7 +309,7 @@ class _DiscoverTabState extends State<DiscoverTab> {
               Container(
                 padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 18),
@@ -358,14 +357,14 @@ class _DiscoverTabState extends State<DiscoverTab> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                separatorBuilder: (_, si) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
                   return _buildRecommendationCard(items[index], color);
                 },
               ),
             ),
           const SizedBox(height: 4),
-          Divider(color: Colors.grey.withOpacity(0.15)),
+          Divider(color: Colors.grey.withValues(alpha: 0.15)),
         ],
       ),
     );
@@ -406,7 +405,7 @@ class _DiscoverTabState extends State<DiscoverTab> {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withValues(alpha: 0.07),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -425,7 +424,7 @@ class _DiscoverTabState extends State<DiscoverTab> {
                     height: 100,
                     width: 160,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, ei, es) => Container(
                       height: 100,
                       width: 160,
                       color: const Color(0xFFE8F5E9),
@@ -516,7 +515,7 @@ class _DiscoverTabState extends State<DiscoverTab> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: accentColor.withOpacity(0.8),
+                          color: accentColor.withValues(alpha: 0.8),
                         ),
                       ),
                     ],

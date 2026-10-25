@@ -63,7 +63,7 @@ class _VoiceInputFieldState extends State<VoiceInputField> {
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(
-          localeId: localeId,
+          listenOptions: stt.SpeechListenOptions(localeId: localeId),
           onResult: (result) {
             setState(() {
               widget.controller.text = result.recognizedWords;
