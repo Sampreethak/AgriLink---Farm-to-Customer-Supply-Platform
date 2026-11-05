@@ -101,6 +101,9 @@ jobs:
           cd mobile_app
           flutter analyze --no-fatal-infos --no-fatal-warnings || true
 
+      - name: Enable Flutter Web
+        run: flutter config --enable-web
+
       - name: Build Flutter Web Release
         run: |
           cd mobile_app
