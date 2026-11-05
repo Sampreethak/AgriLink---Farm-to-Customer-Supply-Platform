@@ -238,7 +238,7 @@ class AuthService {
   // RETRIEVE PASSWORD & DETAILS FROM DATABASE
   // Used by Login Screen to autofill password when email is entered/selected
   // ─────────────────────────────────────────────
-  Future<Map<String, dynamic>>? getAccountAutofill(String email) async {
+  Future<Map<String, dynamic>?> getAccountAutofill(String email) async {
     final cleanEmail = email.trim().toLowerCase();
     if (cleanEmail.isEmpty) return null;
 
