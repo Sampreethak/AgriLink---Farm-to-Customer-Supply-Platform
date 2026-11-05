@@ -1,9 +1,15 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import '../../core/colors.dart';
+import '../../services/auth_service.dart';
+import '../../services/user_registry.dart';
 import '../language/language_selection_screen.dart';
+import '../auth/login_screen.dart';
+import '../customer/customer_dashboard.dart';
+import '../farmer/farmer_dashboard.dart';
+import '../aggregator/aggregator_dashboard.dart';
+import '../delivery/delivery_dashboard.dart';
+import '../admin/admin_dashboard.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,72 +19,93 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
+    _initApp();
+  }
 
-    Timer(
-      const Duration(seconds: 3),
-      () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LanguageSelectionScreen(),
-          ),
-        );
-      },
+  Future<void> _initApp() async {
+    // Show splash for at least 2 seconds
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    // Try to restore an existing Supabase session
+    try {
+      final authService = AuthService();
+      final user = await authService.restoreSession();
+
+      if (!mounted) return;
+
+      if (user != null) {
+        // Valid session found — skip login and go straight to dashboard
+        _routeToDashboard(user);
+        return;
+      }
+    } catch (_) {
+      // No session or Supabase not reachable — continue to language selection
+    }
+
+    // No valid session — normal flow
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LanguageSelectionScreen()),
+    );
+  }
+
+  void _routeToDashboard(AppUserModel user) {
+    Widget target;
+    switch (user.role.toLowerCase()) {
+      case 'farmer':
+        target = const FarmerDashboard();
+        break;
+      case 'aggregator':
+        target = const AggregatorDashboard();
+        break;
+      case 'delivery':
+        target = const DeliveryDashboard();
+        break;
+      case 'admin':
+        target = const AdminDashboard();
+        break;
+      case 'customer':
+      default:
+        target = const CustomerDashboard();
+        break;
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => target),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       backgroundColor: AppColors.primaryGreen,
-
       body: Center(
-
         child: Column(
-
           mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-
-            const Icon(
-              Icons.agriculture,
-              color: Colors.white,
-              size: 110,
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "AgriLink",
+          children: const [
+            Icon(Icons.agriculture, color: Colors.white, size: 110),
+            SizedBox(height: 20),
+            Text(
+              'AgriLink',
               style: TextStyle(
                 fontSize: 38,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-
-            const SizedBox(height: 10),
-
-            const Text(
-              "Connecting Farmers to Customers",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
+            SizedBox(height: 10),
+            Text(
+              'Connecting Farmers to Customers',
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
-
-            const SizedBox(height: 50),
-
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
-
+            SizedBox(height: 50),
+            CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),

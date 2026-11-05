@@ -5,7 +5,6 @@ import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
 import '../../core/validators.dart';
-import 'otp_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -52,41 +51,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final authService = AuthService();
+      final regEmail = _emailController.text.trim();
+      final regPassword = _passwordController.text;
+
       bool success = await authService.register(
         fullName: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
         role: _selectedRole,
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+        email: regEmail,
+        password: regPassword,
       );
 
-      if (success) {
-        // Send OTP
-        final result = await authService.sendOTP(
-          phone: _phoneController.text.trim(),
-          purpose: 'registration',
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Account registered for ${_selectedRole.toUpperCase()}!\nPassword saved in database for autofill.",
+            ),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 4),
+          ),
         );
-
-        if (mounted) {
-          final otpCode = result['otp'];
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("OTP sent to ${_phoneController.text.trim()}! Code: $otpCode"),
-              backgroundColor: AppColors.success,
-              duration: const Duration(seconds: 8),
-            ),
-          );
-          // Navigate to OTP verification
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OtpVerificationScreen(
-                phoneNumber: _phoneController.text.trim(),
-                purpose: 'registration',
-              ),
-            ),
-          );
-        }
+        // Return the registered email and password to the Login Screen
+        Navigator.pop(context, {
+          'email': regEmail,
+          'password': regPassword,
+          'role': _selectedRole,
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -94,13 +85,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SnackBar(
             content: Text(e.toString().replaceAll("Exception: ", "")),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -150,6 +140,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
+
+                // Full Name
                 VoiceInputField(
                   controller: _nameController,
                   hintText: langProvider.translate('full_name'),
@@ -157,6 +149,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: Validators.validateName,
                 ),
                 const SizedBox(height: 16),
+
+                // Email
                 VoiceInputField(
                   controller: _emailController,
                   hintText: langProvider.translate('email'),
@@ -165,6 +159,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: Validators.validateEmail,
                 ),
                 const SizedBox(height: 16),
+
+                // Phone
                 VoiceInputField(
                   controller: _phoneController,
                   hintText: langProvider.translate('phone_number'),
@@ -173,17 +169,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: Validators.validatePhone,
                 ),
                 const SizedBox(height: 16),
+
+                // Role Dropdown (ALL 5 AgriLink roles supported)
                 DropdownButtonFormField<String>(
                   initialValue: _selectedRole,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.group),
-                    hintText: "Select Role",
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.badge_outlined),
+                    labelText: "Select Account Role",
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'customer', child: Text("Customer")),
-                    DropdownMenuItem(value: 'farmer', child: Text("Farmer")),
+                    DropdownMenuItem(value: 'customer', child: Text("Customer / Buyer")),
+                    DropdownMenuItem(value: 'farmer', child: Text("Farmer (Producer)")),
+                    DropdownMenuItem(value: 'aggregator', child: Text("Aggregator Hub Manager")),
                     DropdownMenuItem(value: 'delivery_partner', child: Text("Delivery Partner")),
-                    DropdownMenuItem(value: 'aggregator', child: Text("Aggregator")),
+                    DropdownMenuItem(value: 'admin', child: Text("System Administrator")),
                   ],
                   onChanged: (val) {
                     if (val != null) {
@@ -194,6 +193,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // Password
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -204,6 +205,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Confirm Password
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: true,
@@ -222,6 +225,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
+
+                // Register Button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
@@ -248,53 +253,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: const [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Text("OR", style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    setState(() => _isLoading = true);
-                    final authService = AuthService();
-                    final messenger = ScaffoldMessenger.of(context);
-                    final navigator = Navigator.of(context);
-                    await authService.signInWithGoogle();
-                    if (mounted) {
-                      setState(() => _isLoading = false);
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text("Google Sign-In Successful! Welcome."),
-                          backgroundColor: AppColors.success,
-                        ),
-                      );
-                      navigator.pushNamedAndRemoveUntil('/home', (route) => false);
-                    }
-                  },
-                  icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
-                  label: const Text(
-                    "Sign in with Google",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.text,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: AppColors.border, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 20),
               ],

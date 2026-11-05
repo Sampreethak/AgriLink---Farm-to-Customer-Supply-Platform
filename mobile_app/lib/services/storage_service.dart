@@ -57,6 +57,25 @@ class StorageService {
     await prefs.setString('user_id', id);
   }
 
+  // Save demo password for autofill fallback
+  Future<void> saveSavedPassword(String email, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_pwd_${email.toLowerCase().trim()}', password);
+    await prefs.setString('last_logged_in_email', email.toLowerCase().trim());
+  }
+
+  // Get demo password for autofill fallback
+  Future<String?> getSavedPassword(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('saved_pwd_${email.toLowerCase().trim()}');
+  }
+
+  // Get last logged in email
+  Future<String?> getLastEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('last_logged_in_email');
+  }
+
   // Clear all storage on logout
   Future<void> clearAll() async {
     await _secureStorage.deleteAll();
