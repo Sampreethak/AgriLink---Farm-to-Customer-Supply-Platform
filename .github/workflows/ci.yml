@@ -11,6 +11,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   # ============================================================================
   # 1. PYTHON BACKEND, ML & NLP ENGINE CI
@@ -60,7 +65,7 @@ jobs:
           python verify_full_system_integrity.py
 
   # ============================================================================
-  # 2. FLUTTER MOBILE APP CI
+  # 2. FLUTTER MOBILE & WEB CLIENT ANALYSIS
   # ============================================================================
   mobile-app-ci:
     name: Flutter Mobile Client Analysis & Build Check
@@ -114,3 +119,46 @@ jobs:
           test -f frontend_web/app.js || exit 1
           test -f frontend_web/styles.css || exit 1
           echo "Frontend static files verified successfully."
+
+  # ============================================================================
+  # 4. AUTOMATED DEPLOYMENT TO GITHUB PAGES
+  # ============================================================================
+  deploy-github-pages:
+    name: Build & Deploy Flutter Web to GitHub Pages
+    needs: [backend-ml-nlp-ci, mobile-app-ci, web-frontend-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install Dependencies
+        run: |
+          cd mobile_app
+          flutter pub get
+
+      - name: Build Flutter Web Release
+        run: |
+          cd mobile_app
+          flutter build web --release --base-href "/AgriLink---Farm-to-Customer-Supply-Platform/"
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: mobile_app/build/web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
