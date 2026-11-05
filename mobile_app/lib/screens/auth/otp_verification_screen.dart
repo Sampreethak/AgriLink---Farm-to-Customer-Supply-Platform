@@ -5,21 +5,27 @@ import 'package:provider/provider.dart';
 import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../services/auth_service.dart';
+import '../../services/user_registry.dart';
 import '../customer/customer_dashboard.dart';
 import '../farmer/farmer_dashboard.dart';
 import '../aggregator/aggregator_dashboard.dart';
 import '../delivery/delivery_dashboard.dart';
 import '../admin/admin_dashboard.dart';
-// We'll navigate to home tab or dashboards depending on role
 
 class OtpVerificationScreen extends StatefulWidget {
-  final String phoneNumber;
+  final String? phoneNumber;
+  final String? email;
   final String purpose; // 'login' or 'registration'
+  final String channel; // 'email', 'phone', or 'whatsapp'
+  final int otpLength;  // 8 for Supabase email, 6 for SMS/WhatsApp
 
   const OtpVerificationScreen({
     super.key,
-    required this.phoneNumber,
+    this.phoneNumber,
+    this.email,
     required this.purpose,
+    this.channel = 'phone',
+    this.otpLength = 6,
   });
 
   @override
@@ -30,7 +36,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final TextEditingController _otpController = TextEditingController();
   final StreamController<ErrorAnimationType> _errorController =
       StreamController<ErrorAnimationType>.broadcast();
-  
+
   bool _isLoading = false;
   int _secondsRemaining = 60;
   Timer? _timer;
@@ -51,11 +57,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _startCountdown() {
     _secondsRemaining = 60;
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
-        setState(() {
-          _secondsRemaining--;
-        });
+        if (mounted) setState(() => _secondsRemaining--);
       } else {
         _timer?.cancel();
       }
@@ -63,8 +68,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Future<void> _verifyOtp() async {
-    final otp = _otpController.text;
-    if (otp.length < 6) {
+    final otp = _otpController.text.trim();
+    if (otp.length < widget.otpLength) {
       _errorController.add(ErrorAnimationType.shake);
       return;
     }
@@ -73,11 +78,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     try {
       final authService = AuthService();
-      final user = await authService.verifyOTP(
-        phone: widget.phoneNumber,
-        code: otp,
-        purpose: widget.purpose,
-      );
+      AppUserModel? user;
+
+      if (widget.channel == 'email') {
+        user = await authService.verifyEmailOTP(
+          email: widget.email ?? '',
+          token: otp,
+        );
+      } else {
+        user = await authService.verifyOTP(
+          phone: widget.phoneNumber ?? '',
+          code: otp,
+          purpose: widget.purpose,
+        );
+      }
 
       if (user != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -114,7 +128,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         _errorController.add(ErrorAnimationType.shake);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Invalid OTP, please try again"),
+            content: Text("Invalid OTP code. Please check and try again."),
             backgroundColor: AppColors.error,
           ),
         );
@@ -124,28 +138,47 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         _errorController.add(ErrorAnimationType.shake);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: $e"),
+            content: Text(e.toString().replaceAll("Exception: ", "")),
             backgroundColor: AppColors.error,
           ),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _resendOtp() async {
+    if (_secondsRemaining > 0) return;
+
     setState(() => _isLoading = true);
     try {
       final authService = AuthService();
-      await authService.sendOTP(phone: widget.phoneNumber, purpose: widget.purpose);
+
+      if (widget.channel == 'email') {
+        await authService.sendEmailOTP(widget.email ?? '');
+      } else {
+        final res = await authService.sendOTP(
+          phone: widget.phoneNumber ?? '',
+          purpose: widget.purpose,
+          channel: widget.channel,
+        );
+        if (res['isSimulated'] == true && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Dev Testing OTP: ${res['otp']}"),
+              backgroundColor: AppColors.primaryGreen,
+              duration: const Duration(seconds: 8),
+            ),
+          );
+        }
+      }
+
       _startCountdown();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("OTP Resent Successfully"),
+            content: Text("New OTP sent successfully!"),
             backgroundColor: AppColors.success,
           ),
         );
@@ -154,21 +187,42 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to resend: $e"),
+            content: Text("Failed to resend: ${e.toString().replaceAll('Exception: ', '')}"),
             backgroundColor: AppColors.error,
           ),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  IconData _getChannelIcon() {
+    switch (widget.channel) {
+      case 'email':
+        return Icons.mark_email_read;
+      case 'whatsapp':
+        return Icons.chat_bubble_outline;
+      case 'phone':
+      default:
+        return Icons.sms_outlined;
+    }
+  }
+
+  String _getSubtitleText(LanguageProvider lang) {
+    if (widget.channel == 'email') {
+      return "Enter the ${widget.otpLength}-digit verification code sent to:\n${widget.email}";
+    } else if (widget.channel == 'whatsapp') {
+      return "Enter the ${widget.otpLength}-digit code sent via WhatsApp to:\n+91 ${widget.phoneNumber}";
+    } else {
+      return "${lang.translate('enter_otp')}\n+91 ${widget.phoneNumber}";
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final langProvider = Provider.of<LanguageProvider>(context);
+    final isEightDigit = widget.otpLength == 8;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -180,17 +234,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 30),
-              const Icon(
-                Icons.lock_person,
-                size: 80,
+              const SizedBox(height: 20),
+              Icon(
+                _getChannelIcon(),
+                size: 75,
                 color: AppColors.primaryGreen,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               Text(
                 langProvider.translate('otp_verification'),
                 textAlign: TextAlign.center,
@@ -200,26 +254,29 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   color: AppColors.text,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
-                "${langProvider.translate('enter_otp')}\n+91 ${widget.phoneNumber}",
+                _getSubtitleText(langProvider),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
+                  height: 1.4,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 35),
+
+              // Pin code input field (adapts width for 6 or 8 digits)
               PinCodeTextField(
                 appContext: context,
-                length: 6,
+                length: widget.otpLength,
                 obscureText: false,
                 animationType: AnimationType.fade,
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
-                  borderRadius: BorderRadius.circular(12),
-                  fieldHeight: 50,
-                  fieldWidth: 45,
+                  borderRadius: BorderRadius.circular(10),
+                  fieldHeight: isEightDigit ? 46 : 50,
+                  fieldWidth: isEightDigit ? 34 : 45,
                   activeFillColor: Colors.white,
                   selectedFillColor: Colors.white,
                   inactiveFillColor: AppColors.greyLight,
@@ -233,12 +290,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 errorAnimationController: _errorController,
                 controller: _otpController,
                 keyboardType: TextInputType.number,
-                onCompleted: (v) {
-                  _verifyOtp();
-                },
-                onChanged: (value) {},
+                onCompleted: (_) => _verifyOtp(),
+                onChanged: (_) {},
               ),
               const SizedBox(height: 20),
+
+              // Resend Countdown Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -261,7 +318,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 35),
+
+              // Verify Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _verifyOtp,
                 style: ElevatedButton.styleFrom(

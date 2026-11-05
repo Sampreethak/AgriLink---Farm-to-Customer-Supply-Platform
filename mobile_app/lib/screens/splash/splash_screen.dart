@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/colors.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_registry.dart';
@@ -19,27 +20,48 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  StreamSubscription<AuthState>? _authSub;
+  bool _hasNavigated = false;
+
   @override
   void initState() {
     super.initState();
+    // Listen for OAuth redirects (e.g. Google Sign-In on Chrome)
+    _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+      final session = data.session;
+      if (session != null && mounted && !_hasNavigated) {
+        final authService = AuthService();
+        final user = await authService.restoreSession();
+        if (user != null && mounted && !_hasNavigated) {
+          _hasNavigated = true;
+          _routeToDashboard(user);
+        }
+      }
+    });
     _initApp();
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _initApp() async {
     // Show splash for at least 2 seconds
     await Future.delayed(const Duration(seconds: 2));
 
-    if (!mounted) return;
+    if (!mounted || _hasNavigated) return;
 
     // Try to restore an existing Supabase session
     try {
       final authService = AuthService();
       final user = await authService.restoreSession();
 
-      if (!mounted) return;
+      if (!mounted || _hasNavigated) return;
 
       if (user != null) {
-        // Valid session found — skip login and go straight to dashboard
+        _hasNavigated = true;
         _routeToDashboard(user);
         return;
       }
@@ -47,8 +69,8 @@ class _SplashScreenState extends State<SplashScreen> {
       // No session or Supabase not reachable — continue to language selection
     }
 
-    // No valid session — normal flow
-    if (!mounted) return;
+    if (!mounted || _hasNavigated) return;
+    _hasNavigated = true;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const LanguageSelectionScreen()),

@@ -14,6 +14,13 @@ import '../aggregator/aggregator_dashboard.dart';
 import '../delivery/delivery_dashboard.dart';
 import '../admin/admin_dashboard.dart';
 
+enum AuthMethod {
+  emailPassword,
+  emailOtp,
+  phoneOtp,
+  whatsappOtp,
+}
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -28,8 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
 
-  bool _isPhoneLogin = false;
+  AuthMethod _selectedMethod = AuthMethod.emailPassword;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   bool _obscurePassword = true;
   bool _isAutofilling = false;
 
@@ -142,7 +150,29 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Handle Login submission
+  // Handle Google OAuth Sign-In
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isGoogleLoading = true);
+    try {
+      final authService = AuthService();
+      await authService.signInWithGoogle();
+      // On Web, the browser initiates the Google consent screen and redirects back to Uri.base.origin.
+      // SplashScreen / restoreSession() will intercept the returned session and navigate to dashboard.
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google Sign-In: ${e.toString().replaceAll("Exception: ", "")}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
+    }
+  }
+
+  // Handle Primary Login Submission based on active method
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -151,49 +181,104 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authService = AuthService();
 
-      if (_isPhoneLogin) {
-        final result = await authService.sendOTP(
-          phone: _phoneController.text.trim(),
-          purpose: 'login',
-        );
-        if (result['success'] == true && mounted) {
-          final otpCode = result['otp'];
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(otpCode != null
-                  ? "OTP for ${_phoneController.text.trim()}: $otpCode"
-                  : "OTP sent to ${_phoneController.text.trim()}"),
-              backgroundColor: AppColors.primaryGreen,
-              duration: const Duration(seconds: 8),
-            ),
+      switch (_selectedMethod) {
+        case AuthMethod.emailPassword:
+          final user = await authService.login(
+            identifier: _emailController.text.trim(),
+            password: _passwordController.text,
           );
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OtpVerificationScreen(
-                phoneNumber: _phoneController.text.trim(),
-                purpose: 'login',
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Welcome back, ${user.fullName} (${user.role.toUpperCase()})!"),
+                backgroundColor: AppColors.success,
+                duration: const Duration(seconds: 2),
               ),
-            ),
-          );
-        }
-      } else {
-        // Authenticate via Supabase Auth
-        final user = await authService.login(
-          identifier: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+            );
+            _routeToDashboard(user);
+          }
+          break;
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Welcome back, ${user.fullName} (${user.role.toUpperCase()})!"),
-              backgroundColor: AppColors.success,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          _routeToDashboard(user);
-        }
+        case AuthMethod.emailOtp:
+          final email = _emailController.text.trim();
+          await authService.sendEmailOTP(email);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("8-digit OTP sent to $email. Check your inbox!"),
+                backgroundColor: AppColors.primaryGreen,
+                duration: const Duration(seconds: 6),
+              ),
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OtpVerificationScreen(
+                  email: email,
+                  purpose: 'login',
+                  channel: 'email',
+                  otpLength: 8,
+                ),
+              ),
+            );
+          }
+          break;
+
+        case AuthMethod.phoneOtp:
+          final phone = _phoneController.text.trim();
+          final res = await authService.sendOTP(phone: phone, purpose: 'login', channel: 'sms');
+          if (mounted) {
+            final devOtp = res['otp'];
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(devOtp != null
+                    ? "SMS OTP for $phone: $devOtp"
+                    : "6-digit SMS OTP sent to $phone"),
+                backgroundColor: AppColors.primaryGreen,
+                duration: const Duration(seconds: 8),
+              ),
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OtpVerificationScreen(
+                  phoneNumber: phone,
+                  purpose: 'login',
+                  channel: 'phone',
+                  otpLength: 6,
+                ),
+              ),
+            );
+          }
+          break;
+
+        case AuthMethod.whatsappOtp:
+          final phone = _phoneController.text.trim();
+          final res = await authService.sendOTP(phone: phone, purpose: 'login', channel: 'whatsapp');
+          if (mounted) {
+            final devOtp = res['otp'];
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(devOtp != null
+                    ? "WhatsApp OTP for $phone: $devOtp"
+                    : "6-digit WhatsApp OTP sent to $phone"),
+                backgroundColor: const Color(0xFF25D366),
+                duration: const Duration(seconds: 8),
+              ),
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OtpVerificationScreen(
+                  phoneNumber: phone,
+                  purpose: 'login',
+                  channel: 'whatsapp',
+                  otpLength: 6,
+                ),
+              ),
+            );
+          }
+          break;
       }
     } catch (e) {
       if (mounted) {
@@ -220,20 +305,19 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       builder: (ctx) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.all(20),
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(ctx).size.height * 0.75,
+            maxHeight: MediaQuery.of(context).size.height * 0.65,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Autofill Credentials",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    "Select Registered Account",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -242,113 +326,144 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const Text(
-                "Tap any registered account below to automatically fill email and password from the database:",
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                "Tap an account to autofill credentials directly from Supabase:",
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
-              const SizedBox(height: 16),
-              if (_registeredAccounts.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.0),
-                  child: Center(
-                    child: Text(
-                      "No accounts in database yet. Register a new account below!",
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                  ),
-                )
-              else
-                Expanded(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: _registeredAccounts.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (c, idx) {
-                      final acc = _registeredAccounts[idx];
-                      final role = (acc['user_role'] ?? 'CUSTOMER').toString().toUpperCase();
-                      final email = acc['email'] ?? '';
-                      final name = acc['full_name'] ?? email;
-                      final pwd = acc['demo_password'] ?? '';
+              const Divider(height: 24),
+              Expanded(
+                child: _registeredAccounts.isEmpty
+                    ? const Center(child: Text("No registered accounts found."))
+                    : ListView.separated(
+                        itemCount: _registeredAccounts.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final acc = _registeredAccounts[index];
+                          final email = acc['email'] ?? '';
+                          final name = acc['full_name'] ?? 'User';
+                          final role = (acc['user_role'] ?? 'USER').toString().toUpperCase();
+                          final pwd = acc['demo_password'] ?? '';
 
-                      Color badgeColor = AppColors.primaryGreen;
-                      IconData roleIcon = Icons.person;
+                          Color roleColor;
+                          switch (role.toLowerCase()) {
+                            case 'farmer':
+                              roleColor = Colors.green.shade700;
+                              break;
+                            case 'aggregator':
+                              roleColor = Colors.orange.shade800;
+                              break;
+                            case 'delivery':
+                              roleColor = Colors.blue.shade700;
+                              break;
+                            case 'admin':
+                              roleColor = Colors.purple.shade700;
+                              break;
+                            default:
+                              roleColor = Colors.teal.shade700;
+                              break;
+                          }
 
-                      if (role.contains('FARM')) {
-                        badgeColor = Colors.green.shade800;
-                        roleIcon = Icons.agriculture;
-                      } else if (role.contains('AGGR')) {
-                        badgeColor = Colors.orange.shade800;
-                        roleIcon = Icons.store;
-                      } else if (role.contains('DELIV')) {
-                        badgeColor = Colors.blue.shade800;
-                        roleIcon = Icons.local_shipping;
-                      } else if (role.contains('ADMIN')) {
-                        badgeColor = Colors.purple.shade800;
-                        roleIcon = Icons.admin_panel_settings;
-                      }
-
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        leading: CircleAvatar(
-                          backgroundColor: badgeColor.withValues(alpha: 0.15),
-                          child: Icon(roleIcon, color: badgeColor, size: 22),
-                        ),
-                        title: Row(
-                          children: [
-                            Expanded(
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                            leading: CircleAvatar(
+                              backgroundColor: roleColor.withValues(alpha: 0.15),
                               child: Text(
-                                name,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                overflow: TextOverflow.ellipsis,
+                                name.isNotEmpty ? name[0] : 'U',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: roleColor),
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                            subtitle: Text(email, style: const TextStyle(fontSize: 12)),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: badgeColor.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: badgeColor.withValues(alpha: 0.4)),
+                                color: roleColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: roleColor.withValues(alpha: 0.4)),
                               ),
                               child: Text(
                                 role,
                                 style: TextStyle(
-                                  color: badgeColor,
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
+                                  color: roleColor,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 2),
-                            Text(email, style: const TextStyle(fontSize: 13)),
-                            const SizedBox(height: 2),
-                            Text(
-                              "Password: ●●●●●●●● (${pwd.isNotEmpty ? 'ready' : 'none'})",
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          setState(() {
-                            _emailController.text = email;
-                            _passwordController.text = pwd;
-                            _detectedRole = role;
-                            _autofillStatus = "Password autofilled from database for [$role]";
-                          });
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              setState(() {
+                                _selectedMethod = AuthMethod.emailPassword;
+                                _emailController.text = email;
+                                _passwordController.text = pwd;
+                                _detectedRole = role;
+                                _autofillStatus = "Autofilled credentials for [$role]";
+                              });
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
-                ),
+                      ),
+              ),
             ],
           ),
         );
       },
     );
+  }
+
+  Widget _buildMethodTab({
+    required AuthMethod method,
+    required String label,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedMethod == method;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedMethod = method),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(9),
+            boxShadow: isSelected
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 2))]
+                : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isSelected ? AppColors.primaryGreen : AppColors.textSecondary,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? AppColors.text : AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getSubmitButtonLabel(LanguageProvider langProvider) {
+    switch (_selectedMethod) {
+      case AuthMethod.emailPassword:
+        return langProvider.translate('login');
+      case AuthMethod.emailOtp:
+        return "Send 8-Digit Email OTP";
+      case AuthMethod.phoneOtp:
+        return "Send 6-Digit SMS OTP";
+      case AuthMethod.whatsappOtp:
+        return "Send 6-Digit WhatsApp OTP";
+    }
   }
 
   @override
@@ -358,263 +473,355 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 25),
-                const Icon(
-                  Icons.agriculture,
-                  size: 75,
-                  color: AppColors.primaryGreen,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  langProvider.translate('welcome_back'),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.text,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 10),
+                  const Icon(
+                    Icons.agriculture,
+                    size: 70,
+                    color: AppColors.primaryGreen,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  langProvider.translate('login_continue'),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
+                  const SizedBox(height: 10),
+                  Text(
+                    langProvider.translate('welcome_back'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 4),
+                  Text(
+                    langProvider.translate('login_continue'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-                // Toggle: Email & Password vs Phone OTP
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppColors.greyLight,
-                    borderRadius: BorderRadius.circular(12),
+                  // ─────────────────────────────────────────────
+                  // 4-METHOD AUTHENTICATION SELECTOR
+                  // ─────────────────────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.greyLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        _buildMethodTab(
+                          method: AuthMethod.emailPassword,
+                          label: "Email & PW",
+                          icon: Icons.lock_outline,
+                        ),
+                        _buildMethodTab(
+                          method: AuthMethod.emailOtp,
+                          label: "Email OTP",
+                          icon: Icons.mark_email_read_outlined,
+                        ),
+                        _buildMethodTab(
+                          method: AuthMethod.phoneOtp,
+                          label: "Phone SMS",
+                          icon: Icons.sms_outlined,
+                        ),
+                        _buildMethodTab(
+                          method: AuthMethod.whatsappOtp,
+                          label: "WhatsApp",
+                          icon: Icons.chat_bubble_outline,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isPhoneLogin = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            decoration: BoxDecoration(
-                              color: !_isPhoneLogin ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: !_isPhoneLogin
-                                  ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))]
-                                  : null,
-                            ),
-                            child: const Text(
-                              "Email & PW",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.text),
-                            ),
+                  const SizedBox(height: 16),
+
+                  // Quick Account Picker (for Email & PW)
+                  if (_selectedMethod == AuthMethod.emailPassword) ...[
+                    OutlinedButton.icon(
+                      onPressed: _openAccountPickerSheet,
+                      icon: const Icon(Icons.key, color: AppColors.primaryGreen, size: 18),
+                      label: const Text(
+                        "Select Saved Account (Autofill Password)",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        side: const BorderSide(color: AppColors.primaryGreen, width: 1.1),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.04),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+
+                  // ─────────────────────────────────────────────
+                  // INPUT FIELDS BY SELECTED METHOD
+                  // ─────────────────────────────────────────────
+                  if (_selectedMethod == AuthMethod.phoneOtp || _selectedMethod == AuthMethod.whatsappOtp) ...[
+                    VoiceInputField(
+                      controller: _phoneController,
+                      hintText: langProvider.translate('phone_number'),
+                      prefixIcon: _selectedMethod == AuthMethod.whatsappOtp
+                          ? Icons.chat_bubble_outline
+                          : Icons.phone,
+                      keyboardType: TextInputType.phone,
+                      validator: (val) => Validators.validatePhone(val),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _selectedMethod == AuthMethod.whatsappOtp
+                          ? "Enter your 10-digit phone number to receive a 6-digit WhatsApp OTP."
+                          : "Enter your 10-digit phone number to receive a 6-digit SMS OTP.",
+                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                  ] else ...[
+                    // Email Input Field
+                    TextFormField(
+                      controller: _emailController,
+                      focusNode: _emailFocusNode,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (val) => Validators.validateEmail(val),
+                      onChanged: (val) {
+                        if (_selectedMethod == AuthMethod.emailPassword && val.contains('@') && val.contains('.')) {
+                          _autofillPasswordFromDb(val);
+                        }
+                      },
+                      decoration: InputDecoration(
+                        hintText: langProvider.translate('email'),
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        suffixIcon: _isAutofilling
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              )
+                            : (_selectedMethod == AuthMethod.emailPassword
+                                ? IconButton(
+                                    icon: const Icon(Icons.search, size: 20),
+                                    tooltip: "Search password in database",
+                                    onPressed: () => _autofillPasswordFromDb(_emailController.text),
+                                  )
+                                : null),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Password Input Field (Only for Email & PW)
+                    if (_selectedMethod == AuthMethod.emailPassword) ...[
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        validator: (val) {
+                          if (val == null || val.isEmpty) return "Please enter password";
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          hintText: langProvider.translate('password'),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _isPhoneLogin = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            decoration: BoxDecoration(
-                              color: _isPhoneLogin ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: _isPhoneLogin
-                                  ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))]
-                                  : null,
+                    ] else ...[
+                      // Helper banner for Email OTP
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.info_outline, size: 16, color: Colors.blue.shade700),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                "An 8-digit OTP will be delivered directly to your Gmail inbox via Gmail SMTP.",
+                                style: TextStyle(fontSize: 11, color: Colors.blueGrey),
+                              ),
                             ),
-                            child: const Text(
-                              "Phone OTP",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.text),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Autofill Status Badge
+                    if (_selectedMethod == AuthMethod.emailPassword && _autofillStatus != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle, size: 16, color: Colors.green.shade700),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _autofillStatus!,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.green.shade800,
+                                ),
+                              ),
                             ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+
+                  const SizedBox(height: 20),
+
+                  // Submit Button
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryGreen,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : Text(
+                            _getSubmitButtonLabel(langProvider),
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // ─────────────────────────────────────────────
+                  // OR DIVIDER
+                  // ─────────────────────────────────────────────
+                  Row(
+                    children: [
+                      Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Text(
+                          "OR",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // ─────────────────────────────────────────────
+                  // GOOGLE SIGN-IN BUTTON (Supabase OAuth Web / Chrome)
+                  // ─────────────────────────────────────────────
+                  OutlinedButton(
+                    onPressed: (_isLoading || _isGoogleLoading) ? null : _handleGoogleSignIn,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      backgroundColor: Colors.white,
+                    ),
+                    child: _isGoogleLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.network(
+                                'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
+                                width: 20,
+                                height: 20,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.g_mobiledata,
+                                  color: Colors.blue,
+                                  size: 26,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                "Continue with Google",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  // Don't have an account? Register link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(langProvider.translate('dont_have_account')),
+                      TextButton(
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                          );
+                          // If user registered, auto-fill credentials
+                          if (result != null && result is Map) {
+                            setState(() {
+                              _selectedMethod = AuthMethod.emailPassword;
+                              _emailController.text = result['email'] ?? '';
+                              _passwordController.text = result['password'] ?? '';
+                              _detectedRole = (result['role'] ?? 'USER').toString().toUpperCase();
+                              _autofillStatus = "Registered as [$_detectedRole]! Password autofilled from database.";
+                            });
+                            _loadAccountsFromDb();
+                          }
+                        },
+                        child: Text(
+                          langProvider.translate('register'),
+                          style: const TextStyle(
+                            color: AppColors.primaryGreen,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 18),
-
-                // ─────────────────────────────────────────────
-                // QUICK AUTOFILL ACCOUNT SELECTOR BUTTON
-                // ─────────────────────────────────────────────
-                if (!_isPhoneLogin)
-                  OutlinedButton.icon(
-                    onPressed: _openAccountPickerSheet,
-                    icon: const Icon(Icons.key, color: AppColors.primaryGreen, size: 20),
-                    label: const Text(
-                      "Select Saved Account (Autofill Password)",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryGreen,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: AppColors.primaryGreen, width: 1.2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      backgroundColor: AppColors.primaryGreen.withValues(alpha: 0.04),
-                    ),
-                  ),
-
-                const SizedBox(height: 16),
-
-                if (_isPhoneLogin) ...[
-                  VoiceInputField(
-                    controller: _phoneController,
-                    hintText: langProvider.translate('phone_number'),
-                    prefixIcon: Icons.phone,
-                    keyboardType: TextInputType.phone,
-                    validator: (val) => Validators.validatePhone(val),
-                  ),
-                ] else ...[
-                  // Email Input Field
-                  TextFormField(
-                    controller: _emailController,
-                    focusNode: _emailFocusNode,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (val) => Validators.validateEmail(val),
-                    onChanged: (val) {
-                      if (val.contains('@') && val.contains('.')) {
-                        _autofillPasswordFromDb(val);
-                      }
-                    },
-                    decoration: InputDecoration(
-                      hintText: langProvider.translate('email'),
-                      prefixIcon: const Icon(Icons.email),
-                      suffixIcon: _isAutofilling
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                            )
-                          : IconButton(
-                              icon: const Icon(Icons.search, size: 20),
-                              tooltip: "Search password in database",
-                              onPressed: () => _autofillPasswordFromDb(_emailController.text),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Password Input Field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    validator: (val) {
-                      if (val == null || val.isEmpty) return "Please enter password";
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      hintText: langProvider.translate('password'),
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                      ),
-                    ),
-                  ),
-
-                  // Autofill Status Badge
-                  if (_autofillStatus != null) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.shade300),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle, size: 16, color: Colors.green.shade700),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _autofillStatus!,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.green.shade800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
-
-                const SizedBox(height: 22),
-
-                // Submit Button
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : Text(
-                          _isPhoneLogin ? "Send OTP" : langProvider.translate('login'),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // Don't have an account? Register link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(langProvider.translate('dont_have_account')),
-                    TextButton(
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                        );
-                        // If user registered, auto-fill the email and password immediately
-                        if (result != null && result is Map) {
-                          setState(() {
-                            _emailController.text = result['email'] ?? '';
-                            _passwordController.text = result['password'] ?? '';
-                            _detectedRole = (result['role'] ?? 'USER').toString().toUpperCase();
-                            _autofillStatus = "Registered as [$_detectedRole]! Password autofilled from database.";
-                          });
-                          _loadAccountsFromDb();
-                        }
-                      },
-                      child: Text(
-                        langProvider.translate('register'),
-                        style: const TextStyle(color: AppColors.primaryGreen, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ),

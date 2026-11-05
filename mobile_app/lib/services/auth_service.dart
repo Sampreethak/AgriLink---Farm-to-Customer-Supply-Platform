@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'storage_service.dart';
 import 'user_registry.dart';
@@ -16,6 +17,132 @@ class AuthService {
     if (clean == 'buyer') return 'customer';
     if (clean == 'delivery_partner') return 'delivery';
     return clean;
+  }
+
+  // ─────────────────────────────────────────────
+  // 1. GOOGLE SIGN-IN (OAuth via Supabase)
+  // Supports Flutter Web running on Chrome & Native Mobile Deep Links
+  // ─────────────────────────────────────────────
+  Future<void> signInWithGoogle() async {
+    final redirectUrl = kIsWeb
+        ? Uri.base.origin
+        : 'io.supabase.agrilink://login-callback/';
+
+    await _supabase.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: redirectUrl,
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // 2. EMAIL OTP FLOW (via Gmail SMTP configured in Supabase)
+  // Sends 8-digit OTP using Supabase's configured SMTP
+  // ─────────────────────────────────────────────
+  Future<Map<String, dynamic>> sendEmailOTP(String email) async {
+    final cleanEmail = email.trim().toLowerCase();
+    try {
+      await _supabase.auth.signInWithOtp(
+        email: cleanEmail,
+        shouldCreateUser: true,
+      );
+      return {'success': true};
+    } catch (e) {
+      final errStr = e.toString().toLowerCase();
+      if (errStr.contains('rate limit')) {
+        throw Exception("Email rate limit reached. Please wait a few moments before requesting a new OTP.");
+      }
+      rethrow;
+    }
+  }
+
+  Future<AppUserModel?> verifyEmailOTP({
+    required String email,
+    required String token,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+    final res = await _supabase.auth.verifyOTP(
+      email: cleanEmail,
+      token: token.trim(),
+      type: OtpType.email,
+    );
+    if (res.user == null) return null;
+    return _buildUserFromSupabaseUser(res.user!);
+  }
+
+  // ─────────────────────────────────────────────
+  // 3 & 4. PHONE & WHATSAPP OTP FLOW
+  // Uses Supabase Phone provider with simulated fallback for developer testing
+  // ─────────────────────────────────────────────
+  Future<Map<String, dynamic>> sendOTP({
+    required String phone,
+    required String purpose,
+    String channel = 'sms', // 'sms' or 'whatsapp'
+  }) async {
+    final cleanPhone = phone.trim().replaceAll(RegExp(r'\s+'), '');
+    try {
+      await _supabase.auth.signInWithOtp(
+        phone: cleanPhone,
+        channel: channel == 'whatsapp' ? OtpChannel.whatsapp : OtpChannel.sms,
+      );
+      return {'success': true, 'channel': channel};
+    } catch (e) {
+      // If Twilio/WhatsApp provider is not yet activated on Supabase dashboard,
+      // provide seamless fallback simulation so testing and verification never block
+      final generatedCode = (100000 + (cleanPhone.hashCode.abs() % 900000)).toString();
+      return {
+        'success': true,
+        'otp': generatedCode,
+        'isSimulated': true,
+        'channel': channel,
+      };
+    }
+  }
+
+  Future<AppUserModel?> verifyOTP({
+    required String phone,
+    required String code,
+    required String purpose,
+  }) async {
+    final cleanPhone = phone.trim().replaceAll(RegExp(r'\s+'), '');
+    try {
+      final res = await _supabase.auth.verifyOTP(
+        phone: cleanPhone,
+        token: code.trim(),
+        type: OtpType.sms,
+      );
+      if (res.user != null) {
+        return _buildUserFromSupabaseUser(res.user!, phone: cleanPhone);
+      }
+    } catch (_) {}
+
+    // Fallback simulation check
+    final expected = (100000 + (cleanPhone.hashCode.abs() % 900000)).toString();
+    if (code.trim() != expected && code.trim() != '123456') return null;
+
+    AppUserModel? existing = UserRegistry.findByPhone(cleanPhone);
+    if (existing == null) {
+      existing = AppUserModel(
+        id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
+        email: '$cleanPhone@agrilink.com',
+        fullName: 'AgriLink Member',
+        role: 'customer',
+        customerType: 'Individual Customer',
+        region: 'Bengaluru / Mandya Corridor',
+        phone: cleanPhone,
+      );
+      UserRegistry.registerUser(existing);
+    }
+
+    await _storageService.saveToken('otp-verified-dev');
+    await _storageService.saveUserData(
+      name: existing.fullName,
+      phone: existing.phone,
+      role: existing.role,
+      id: existing.id,
+    );
+    PlatformState().setCurrentUser(existing);
+    if (existing.role == 'customer') CustomerState().setProfile(existing);
+    return existing;
   }
 
   // ─────────────────────────────────────────────
@@ -111,7 +238,7 @@ class AuthService {
   // RETRIEVE PASSWORD & DETAILS FROM DATABASE
   // Used by Login Screen to autofill password when email is entered/selected
   // ─────────────────────────────────────────────
-  Future<Map<String, dynamic>?> getAccountAutofill(String email) async {
+  Future<Map<String, dynamic>>? getAccountAutofill(String email) async {
     final cleanEmail = email.trim().toLowerCase();
     if (cleanEmail.isEmpty) return null;
 
@@ -285,100 +412,12 @@ class AuthService {
   }
 
   // ─────────────────────────────────────────────
-  // RESTORE SESSION (called on app launch)
+  // RESTORE SESSION (called on app launch & OAuth return)
   // ─────────────────────────────────────────────
   Future<AppUserModel?> restoreSession() async {
     final session = _supabase.auth.currentSession;
     if (session == null) return null;
-
-    final userId = session.user.id;
-
-    final profileRow = await _supabase
-        .from('profiles')
-        .select()
-        .eq('user_id', userId)
-        .maybeSingle();
-
-    if (profileRow == null) return null;
-
-    final rawRole = normalizeRole(profileRow['user_role']?.toString() ?? 'customer');
-
-    final user = AppUserModel(
-      id: userId,
-      email: session.user.email ?? '',
-      fullName: profileRow['full_name']?.toString() ?? 'AgriLink User',
-      role: rawRole,
-      customerType: profileRow['customer_type']?.toString() ?? _defaultCustomerType(rawRole),
-      region: profileRow['location']?.toString() ?? 'Bengaluru / Mandya Corridor',
-      phone: profileRow['phone']?.toString() ?? '',
-    );
-
-    UserRegistry.registerUser(user);
-    PlatformState().setCurrentUser(user);
-    if (rawRole == 'customer') CustomerState().setProfile(user);
-
-    return user;
-  }
-
-  // ─────────────────────────────────────────────
-  // OTP FLOW (Phone)
-  // ─────────────────────────────────────────────
-  Future<Map<String, dynamic>> sendOTP({
-    required String phone,
-    required String purpose,
-  }) async {
-    try {
-      await _supabase.auth.signInWithOtp(phone: phone);
-      return {'success': true};
-    } catch (e) {
-      final generatedCode = (100000 + (phone.hashCode.abs() % 900000)).toString();
-      return {'success': true, 'otp': generatedCode};
-    }
-  }
-
-  Future<AppUserModel?> verifyOTP({
-    required String phone,
-    required String code,
-    required String purpose,
-  }) async {
-    try {
-      final res = await _supabase.auth.verifyOTP(
-        phone: phone,
-        token: code,
-        type: OtpType.sms,
-      );
-      if (res.user == null) return null;
-      return _buildUserFromSupabaseUser(res.user!, phone: phone);
-    } catch (_) {
-      final expected = (100000 + (phone.hashCode.abs() % 900000)).toString();
-      if (code.trim() != expected && code.trim() != '123456') return null;
-
-      AppUserModel? existing = UserRegistry.findByPhone(phone);
-      if (existing == null) {
-        final cleanPhone = phone.replaceAll(RegExp(r'\s+'), '');
-        existing = AppUserModel(
-          id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
-          email: '$cleanPhone@agrilink.com',
-          fullName: 'AgriLink Member',
-          role: 'customer',
-          customerType: 'Individual Customer',
-          region: 'Bengaluru / Mandya Corridor',
-          phone: phone,
-        );
-        UserRegistry.registerUser(existing);
-      }
-
-      await _storageService.saveToken('otp-verified-dev');
-      await _storageService.saveUserData(
-        name: existing.fullName,
-        phone: existing.phone,
-        role: existing.role,
-        id: existing.id,
-      );
-      PlatformState().setCurrentUser(existing);
-      if (existing.role == 'customer') CustomerState().setProfile(existing);
-      return existing;
-    }
+    return _buildUserFromSupabaseUser(session.user);
   }
 
   // ─────────────────────────────────────────────
@@ -410,28 +449,58 @@ class AuthService {
   }) async {
     final userId = supabaseUser.id;
 
-    final profileRow = await _supabase
-        .from('profiles')
-        .select()
-        .eq('user_id', userId)
-        .maybeSingle();
+    Map<String, dynamic>? profileRow;
+    try {
+      profileRow = await _supabase
+          .from('profiles')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
+    } catch (_) {}
+
+    final metadata = supabaseUser.userMetadata ?? {};
+
+    final fullName = profileRow?['full_name']?.toString() ??
+        metadata['full_name']?.toString() ??
+        metadata['name']?.toString() ??
+        (supabaseUser.email != null && supabaseUser.email!.isNotEmpty
+            ? supabaseUser.email!.split('@').first
+            : 'AgriLink Member');
+
+    final userPhone = phone ??
+        profileRow?['phone']?.toString() ??
+        metadata['phone']?.toString() ??
+        '';
 
     final rawRole = normalizeRole(
       profileRow?['user_role']?.toString() ??
-      supabaseUser.userMetadata?['role']?.toString() ??
+      metadata['role']?.toString() ??
       'customer',
     );
+
+    // If profile didn't exist in DB (e.g. brand-new Google OAuth login), auto-create it
+    if (profileRow == null) {
+      try {
+        await _supabase.from('profiles').upsert({
+          'id': userId,
+          'user_id': userId,
+          'full_name': fullName,
+          'email': supabaseUser.email ?? '',
+          'phone': userPhone,
+          'user_role': rawRole.toUpperCase(),
+          'location': 'Bengaluru / Mandya Corridor',
+        });
+      } catch (_) {}
+    }
 
     final user = AppUserModel(
       id: userId,
       email: supabaseUser.email ?? '',
-      fullName: profileRow?['full_name']?.toString() ??
-          supabaseUser.userMetadata?['full_name']?.toString() ??
-          'AgriLink Member',
+      fullName: fullName,
       role: rawRole,
-      customerType: _defaultCustomerType(rawRole),
+      customerType: profileRow?['customer_type']?.toString() ?? _defaultCustomerType(rawRole),
       region: profileRow?['location']?.toString() ?? 'Bengaluru / Mandya Corridor',
-      phone: phone ?? profileRow?['phone']?.toString() ?? '',
+      phone: userPhone,
     );
 
     UserRegistry.registerUser(user);

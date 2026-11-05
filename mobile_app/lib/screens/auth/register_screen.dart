@@ -22,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   String _selectedRole = 'customer'; // Default role
 
   @override
@@ -32,6 +33,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isGoogleLoading = true);
+    try {
+      final authService = AuthService();
+      await authService.signInWithGoogle();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google Sign-Up: ${e.toString().replaceAll("Exception: ", "")}"),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGoogleLoading = false);
+    }
   }
 
   Future<void> _handleRegister() async {
@@ -252,6 +272,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                ),
+                const SizedBox(height: 18),
+
+                // OR Divider
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Text(
+                        "OR",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                  ],
+                ),
+                const SizedBox(height: 18),
+
+                // Google Sign-Up Button
+                OutlinedButton(
+                  onPressed: (_isLoading || _isGoogleLoading) ? null : _handleGoogleSignIn,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    backgroundColor: Colors.white,
+                  ),
+                  child: _isGoogleLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.network(
+                              'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
+                              width: 20,
+                              height: 20,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.g_mobiledata,
+                                color: Colors.blue,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              "Sign Up with Google",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
                         ),
                 ),
                 const SizedBox(height: 20),
