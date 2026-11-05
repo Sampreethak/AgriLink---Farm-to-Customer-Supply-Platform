@@ -65,7 +65,7 @@ jobs:
           python verify_full_system_integrity.py
 
   # ============================================================================
-  # 2. FLUTTER MOBILE & WEB CLIENT ANALYSIS
+  # 2. FLUTTER MOBILE & WEB CLIENT ANALYSIS + BUILD
   # ============================================================================
   mobile-app-ci:
     name: Flutter Mobile Client Analysis & Build Check
@@ -101,6 +101,17 @@ jobs:
           cd mobile_app
           flutter analyze --no-fatal-infos --no-fatal-warnings || true
 
+      - name: Build Flutter Web Release
+        run: |
+          cd mobile_app
+          flutter build web --release --no-tree-shake-icons --base-href "/AgriLink---Farm-to-Customer-Supply-Platform/"
+
+      - name: Upload Pages Artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: mobile_app/build/web
+
   # ============================================================================
   # 3. WEB FRONTEND STATIC INTEGRITY CI
   # ============================================================================
@@ -121,44 +132,20 @@ jobs:
           echo "Frontend static files verified successfully."
 
   # ============================================================================
-  # 4. AUTOMATED DEPLOYMENT TO GITHUB PAGES
+  # 4. DEPLOY TO GITHUB PAGES
   # ============================================================================
   deploy-github-pages:
-    name: Build & Deploy Flutter Web to GitHub Pages
+    name: Deploy to GitHub Pages
     needs: [backend-ml-nlp-ci, mobile-app-ci, web-frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          cache: true
-
-      - name: Install Dependencies
-        run: |
-          cd mobile_app
-          flutter pub get
-
-      - name: Build Flutter Web Release
-        run: |
-          cd mobile_app
-          flutter build web --release --base-href "/AgriLink---Farm-to-Customer-Supply-Platform/"
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: mobile_app/build/web
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
