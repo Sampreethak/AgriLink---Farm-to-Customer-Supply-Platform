@@ -3,12 +3,16 @@ import sys
 
 sys.stdout.reconfigure(encoding='utf-8')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "nlp_engine"))
 
-from ml.nlp_query_engine import FarmerDatabaseNLPQueryEngine
+try:
+    from nlp_engine import FarmerDatabaseNLPQueryEngine
+except ImportError:
+    from ml.nlp_query_engine import FarmerDatabaseNLPQueryEngine
 
 def test_farmer_rls():
     print("=" * 80)
-    print("TESTING STRICT ROW LEVEL SECURITY (RLS) IN FARMER CHATBOT ENGINE")
+    print("TESTING STRICT ROW LEVEL SECURITY (RLS) IN RESTRUCTURED NLP ENGINE")
     print("=" * 80)
 
     engine = FarmerDatabaseNLPQueryEngine()

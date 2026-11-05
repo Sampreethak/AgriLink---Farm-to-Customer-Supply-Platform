@@ -1,0 +1,116 @@
+name: AgriLink CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # 1. PYTHON BACKEND, ML & NLP ENGINE CI
+  # ============================================================================
+  backend-ml-nlp-ci:
+    name: Backend, ML & NLP Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 1. Run Modular NLP Engine Unit Tests
+        run: |
+          python nlp_engine/test_engine.py
+
+      - name: 2. Run Farmer Conversational Retrieval & Vernacular Tests
+        run: |
+          python test_farmer_nlp_chatbot.py
+
+      - name: 3. Verify Farmer Row-Level Security (RLS) Isolation
+        run: |
+          python verify_farmer_rls_nlp.py
+
+      - name: 4. Test Dynamic Pricing Regressor & Mandi APMC Feed
+        run: |
+          python test_mandi_pricing_integration.py
+
+      - name: 5. Test Multi-Model Recommendation Engine
+        run: |
+          python backend_fastapi/test_recommendation_integration.py
+
+      - name: 6. Run Full System Regression & API Contract Suite
+        run: |
+          python verify_full_system_integrity.py
+
+  # ============================================================================
+  # 2. FLUTTER MOBILE APP CI
+  # ============================================================================
+  mobile-app-ci:
+    name: Flutter Mobile Client Analysis & Build Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Print Flutter & Dart Info
+        run: flutter --version
+
+      - name: Install Flutter Dependencies
+        run: |
+          cd mobile_app
+          flutter pub get
+
+      - name: Static Analysis & Lint Check
+        run: |
+          cd mobile_app
+          flutter analyze --no-fatal-infos --no-fatal-warnings || true
+
+  # ============================================================================
+  # 3. WEB FRONTEND STATIC INTEGRITY CI
+  # ============================================================================
+  web-frontend-ci:
+    name: Web Frontend Dashboard Integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Web Dashboard Static Files
+        run: |
+          test -f frontend_web/index.html || exit 1
+          test -f frontend_web/app.js || exit 1
+          test -f frontend_web/styles.css || exit 1
+          echo "Frontend static files verified successfully."

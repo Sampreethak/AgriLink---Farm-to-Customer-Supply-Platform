@@ -3,13 +3,16 @@ import sys
 
 sys.stdout.reconfigure(encoding='utf-8')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "nlp_engine"))
 
-
-from ml.nlp_query_engine import FarmerDatabaseNLPQueryEngine
+try:
+    from nlp_engine import FarmerDatabaseNLPQueryEngine
+except ImportError:
+    from ml.nlp_query_engine import FarmerDatabaseNLPQueryEngine
 
 def test_nlp_farmer_chatbot():
     print("=" * 80)
-    print("TESTING FARMER NLP DATABASE QUERY RETRIEVAL CHATBOT")
+    print("TESTING RESTRUCTURED FARMER NLP DATABASE QUERY RETRIEVAL CHATBOT")
     print("=" * 80)
 
     engine = FarmerDatabaseNLPQueryEngine()
@@ -20,7 +23,9 @@ def test_nlp_farmer_chatbot():
         ("Which crops have the highest buyer demand right now?", "BUYER_DEMAND_GAP"),
         ("How much total payout and earnings did I receive?", "ORDER_PAYOUT_HISTORY"),
         ("What is my crop produce rating and review score?", "LISTING_RATING_QUALITY"),
-        ("How do I control leaf curl pest on tomatoes?", "GENERAL / Advisory")
+        ("How do I control leaf curl pest on tomatoes?", "PEST_DISEASE_ADVISORY"),
+        ("ನನ್ನ ಟೊಮ್ಯಾಟೊ ಸ್ಟಾಕ್ ಎಷ್ಟಿದೆ?", "INVENTORY_LOOKUP (Kannada)"),
+        ("ಮಂಡಿ ದರ ಎಷ್ಟು?", "PRICING_PREDICTION (Kannada)")
     ]
 
     for q_text, expected_label in test_queries:

@@ -14,6 +14,12 @@ class Validators {
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
 
+  // Gmail Regex: Must be a valid email strictly with @gmail.com
+  static final RegExp gmailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@gmail\.com$',
+    caseSensitive: false,
+  );
+
   // Indian Phone Number: 10 digits starting with 6, 7, 8, or 9 (with optional +91 or 0 prefix)
   static final RegExp phoneRegex = RegExp(
     r'^(?:\+91|0)?[6-9]\d{9}$',
@@ -72,13 +78,18 @@ class Validators {
     return null;
   }
 
-  /// Validates email address
+  /// Validates email address - strictly enforces @gmail.com
   static String? validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter an email address';
+      return 'Please enter your Gmail address';
     }
-    if (!emailRegex.hasMatch(value.trim())) {
-      return 'Enter a valid email address (e.g. name@domain.com)';
+    final clean = value.trim().toLowerCase();
+    // Allow internal demo accounts during development if needed
+    if (clean.endsWith('@agrilink.com')) {
+      return null;
+    }
+    if (!clean.endsWith('@gmail.com') || !gmailRegex.hasMatch(clean)) {
+      return 'Only @gmail.com addresses are permitted (e.g. name@gmail.com)';
     }
     return null;
   }
