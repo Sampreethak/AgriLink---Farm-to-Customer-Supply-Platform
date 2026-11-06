@@ -1,64 +1,119 @@
 \chapter{Literature Survey}
 \label{ch:Lit}
-\noindent{\textbf{\huge T}}his chapter presents a systematic critical evaluation of state-of-the-art literature across two foundational computational domains: (i) digital agricultural marketplaces, recommender architectures, and cloud data platforms; and (ii) speech-driven multilingual natural language processing and retrieval-augmented decision support for rural farming communities. Through rigorous benchmarking against existing research paradigms, we identify structural operational gaps in contemporary solutions and articulate the formal motivation underpinning AgriLink.
+\noindent{\textbf{\huge T}}his chapter presents a systematic critical evaluation of state-of-the-art literature across two foundational computational domains: (i) digital agricultural marketplaces, recommender architectures, and cloud data platforms; and (ii) speech-driven multilingual natural language processing and retrieval-augmented decision support for rural farming communities. Through rigorous benchmarking against existing research paradigms and deployed commercial platforms, we identify structural operational gaps in contemporary solutions and articulate the formal motivation underpinning AgriLink.
 
-\section{Literature Review Related to Agricultural Supply Platforms and Recommender Systems}
-\label{sec:LitRev_1}
-The application of digital platforms to agricultural supply chains has garnered substantial scholarly focus over the past decade. Early investigations focused on electronic trading portals designed to automate traditional wholesale auctioning. Sedek et al. \cite{Sedek2021} proposed a four-layer Cloud Data Platform (CDP) model for smart agro e-marketplaces in Malaysia, comprising ingestion, unified cloud storage, distributed analytics via Apache Spark, and a data-serving layer. Their findings demonstrated that decoupled, semi-structured cloud architectures provide superior elasticity compared to legacy relational data warehouses when handling rapidly mutating seasonal crop listings. However, the framework formulated by Sedek et al. concentrated strictly on enterprise data ingestion, omitting consumer-facing mobile interfaces and personalized procurement pipelines.
-
-In an extensive empirical investigation of local food networks across North America, Glaros et al. \cite{Glaros2023} examined the operational dynamics of open-source farmgate software, specifically analyzing deployment instances of the Open Food Network (OFN). Their findings highlighted that proprietary digital platforms frequently impose vendor lock-in, high transactional commissions, and centralized control that disempower small-scale agrarian producers. The authors advocated for architectures adhering to Findable, Accessible, Interoperable, and Reusable (FAIR) principles, featuring open RESTful APIs and decentralized data stewardship. Nonetheless, the platforms analyzed by Glaros et al. lacked algorithmic recommendation components, requiring buyers to manually navigate cumbersome catalogs without personalized ranking or demand forecasting.
-
-From an architectural standpoint, K{\"o}ksal and Tekinerdogan \cite{Koksal2019} formulated a Feature-Driven Domain Analysis (FDDA) reference architecture for Internet-of-Things (IoT) based Farm Management Information Systems (FMIS). Their seven-layer reference blueprint effectively formalized data flows from on-farm sensor telemetry to cloud analytics. However, their primary focus was confined to pre-harvest agronomic monitoring (e.g., automated irrigation and soil moisture telemetry), leaving post-harvest consolidation, cold-chain logistics routing, and consumer settlement unaddressed.
-
-Within the domain of algorithmic recommendation systems, the seminal work of Sarwar et al. \cite{Sarwar2001} established the efficacy of item-based collaborative filtering in web personalization. Koren et al. \cite{Koren2009} further demonstrated that matrix factorization techniques using Singular Value Decomposition (SVD) capture latent user preference vectors with substantially lower computational complexity than nearest-neighbor heuristics. In agricultural e-commerce, however, conventional collaborative filtering suffers severe degradation due to extreme item sparsity and short perishable lifecycles; fresh harvest batches expire within 48 to 72 hours, creating acute cold-start bottlenecks. To mitigate basket co-occurrence sparsity, Han et al. \cite{Han2000} introduced the Frequent Pattern Growth (FP-Growth) algorithm, which discovers high-lift item associations in compact tree structures without generating costly candidate itemsets. AgriLink synthesizes these classical formulations into an adaptive hybrid framework specifically tailored for highly perishable agricultural batches.
-
-\section{Literature Review Related to Multilingual NLP and Conversational Voice Advisories}
-\label{sec:LitRev_2}
-Providing timely, localized agricultural guidance to rural growers has increasingly leveraged advancements in natural language processing (NLP) and speech interfaces. Rehman, Raghuvanshi, and Kumar \cite{Rehman2024} developed \textit{KisanQRS}, a deep learning-based automated query-response system trained on a massive repository of 34 million Kisan Call Centre (KCC) call logs maintained by the Government of India. Evaluating their pipeline across 300,000 samples from five major agrarian states, the authors implemented an LSTM query mapping module paired with a rapid threshold-based clustering technique. KisanQRS achieved an impressive top F1-score of 96.58\% and a Normalized Discounted Cumulative Gain (NDCG) of 96.20\% on answer cluster ranking. Despite its exceptional classification accuracy, KisanQRS functions purely as a standalone advisory engine; it lacks direct integration with an active marketplace where advised chemical-free bio-inputs or harvest batches can be traded or scheduled for transport.
-
-To overcome the profound illiteracy barriers prevalent in rural smallholder communities, Rahman, Shishir, Kundu et al. \cite{Rahman2025} developed a speech-driven conversational assistant presented at IEEE RAAICON 2025. Their pipeline integrated a fine-tuned OpenAI Whisper-base ASR module, dense semantic embedding using Sentence-Transformers, a Facebook AI Similarity Search (FAISS) vector database, and a 4-bit quantized Llama-2-7B large language model (LLM). Evaluated across curated extension documents from UC ANR, Cornell Cooperative Extension, and AgroQA, the system achieved an 18.5\% Word Error Rate (WER) on accented rural speech, an average inference latency of 3.5 seconds, and a high semantic relevance score of 0.85 with strict factual grounding. However, their architecture required heavy edge or cloud compute and lacked localized multi-dialect translation for South Indian linguistic families.
-
-In parallel, Abhishek, Sreekar, Mohith, Vekkot, and Bhavana \cite{Abhishek2025} introduced \textit{AgriTalk}, an end-to-end speech-to-speech assistant designed specifically for Indian regional languages. AgriTalk utilized the AI4Bharat IndicTrans2 transformer model covering 22 official Indian languages, coupled with the `paraphrase-multilingual-MiniLM-L12-v2` dense embedding encoder and Google Text-to-Speech (gTTS). The authors demonstrated that cascading regional machine translation with semantic thresholding (>0.7 cosine similarity) effectively bridged dialect barriers in Kannada, Telugu, Hindi, and Malayalam. Nonetheless, AgriTalk remained constrained to static question-and-answer databases, lacking real-time APMC mandi price feeds or dynamic local weather APIs.
-
-Complementing these works, Reddy et al. \cite{Reddy2025} presented \textit{Agri Assist}, an integrated framework combining stacked ensemble regressors (Random Forest and Gradient Boosting) for crop yield and fertilizer prediction with FastText NLP embeddings, achieving 99.32\% accuracy. Biswas and Goyal \cite{Biswas2023} deployed Sentence-Transformers combined with Pegasus summarization to ingest daily Agmarknet mandi price feeds and OpenWeatherMap REST endpoints, demonstrating a 96.0\% question-mapping accuracy.
-
-A comparative synthesis of the key benchmarked literature is summarized in Table \ref{tab:lit_comparison}.
+\section{Agricultural Commerce Platforms and Positioning}
+\label{sec:LitRev_platforms}
+A critical starting point in agricultural supply chain engineering is analyzing existing market solutions. The original AgriLink system design benchmarks the platform against four primary archetypes of contemporary agricultural and consumer commerce platforms: government trading portals (eNAM), B2B supply-chain aggregators (Ninjacart), hyper-local grocery delivery services (BigBasket, Amazon Fresh), and on-demand delivery networks (Swiggy, Zomato, Zepto). Table~\ref{tab:platform_positioning} summarizes this comparative positioning.
 
 \begin{table}[h]
-	\centering
-	\caption{Comparative Synthesis of Agricultural Digital Platforms and NLP Decision Systems.}
-	\label{tab:lit_comparison}
-	\resizebox{\columnwidth}{!}{
-	\begin{tabular}{|l|l|l|l|l|}
-	\hline
-	\textbf{Study / Author} & \textbf{Core Methodology \& Stack} & \textbf{Dataset / Scale} & \textbf{Key Empirical Results} & \textbf{Identified Research Gap} \\ \hline
-	Rehman et al. \cite{Rehman2024} & LSTM + Semantic Clustering & 34M KCC Call Logs & F1: 96.58\%, NDCG: 96.20\% & Pure advisory; no e-marketplace \\ \hline
-	Rahman et al. \cite{Rahman2025} & Whisper ASR + FAISS + Llama-2 & 5.92k Agri Documents & WER: 18.5\%, Latency: 3.5s & Heavy compute; no transactional hooks \\ \hline
-	Reddy et al. \cite{Reddy2025} & Stacked Ensemble + FastText & Soil \& Climatic Records & Accuracy: 99.32\%, Cosine: 0.88 & Soil focus; lacks multi-sided trading \\ \hline
-	Abhishek et al. \cite{Abhishek2025} & IndicTrans2 + MiniLM + gTTS & Multilingual Agri QA & High Indic translation fidelity & Static QA; no live mandi price sync \\ \hline
-	Biswas \& Goyal \cite{Biswas2023} & Sentence-Transformers + Pegasus & Agmarknet \& KVK Feeds & Accuracy: 96.0\% on Query Map & Lacks buyer personalization \& logistics \\ \hline
-	Sedek et al. \cite{Sedek2021} & Cloud Data Platform + Spark & National Agri Pilot Data & High pipeline elasticity & No mobile buyer app or voice UI \\ \hline
-	Glaros et al. \cite{Glaros2023} & Open Food Network Case Study & ~1,000 Local Food Hubs & Identifies vendor lock-in & No algorithmic recommendation engine \\ \hline
-	\textbf{AgriLink (Proposed)} & \textbf{Hybrid SVD + Indic RAG + 3NF} & \textbf{4,250+ Verified Records} & \textbf{NDCG: 96.2\%, 68\% Payout} & \textbf{Unified Market, AI Recs \& Voice} \\ \hline
-	\end{tabular}
-	}
+\centering
+\caption{Comparative Positioning of AgriLink Against Existing Agricultural and Delivery Platforms.}
+\label{tab:platform_positioning}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|p{6cm}|p{6.5cm}|}
+\hline
+\textbf{Platform Category} & \textbf{Strength Documented in Literature} & \textbf{Structural Gap AgriLink Intends to Address} \\ \hline
+e-NAM (Govt.\ of India) & National digital trading network across 1,000+ mandis; electronic auctioning and price discovery. & Post-trade physical commerce, warehouse batching, customer ordering, cold transit, and instant UPI settlements. \\ \hline
+Ninjacart & High-throughput B2B farm procurement, automated collection centers, and restaurant supply. & Pure B2B focus; lacks direct-to-consumer marketplace, customer personalization, and visible farm traceability. \\ \hline
+BigBasket / Amazon Fresh & Streamlined consumer grocery browsing, high catalog density, and planned slot fulfillment. & Produce passes through centralized dark warehouses; lacks visible farm origin, harvest timestamps, and direct farmer payout share. \\ \hline
+Swiggy / Zomato / Zepto & Ultra-fast delivery assignment, dynamic routing, and consumer mobile application UX. & Tailored for cooked food or dark-store FMCG; lacks agricultural inventory models, seasonality pricing, quality grading, and bulk farm batching. \\ \hline
+\textbf{AgriLink (Proposed)} & \textbf{Integrated direct farm-to-consumer marketplace and operational workflow.} & \textbf{Unifies farm listings, digital assay traceability, multi-supplier fulfillment, hybrid recommendation, dynamic APMC pricing, and 68\% direct farmer payout.} \\ \hline
+\end{tabular}
+}
 \end{table}
 
-\section{Motivation}
+As delineated in Table~\ref{tab:platform_positioning}, AgriLink's design philosophy is grounded in covering the complete product lifecycle rather than isolating a single intermediary phase. The platform synthesizes marketplace discovery (as seen in food delivery apps), fresh-transit speed (as seen in quick-commerce), and predictable recurring demand (as seen in produce subscription models like Sprink and Milkbasket) directly into the farm-to-consumer supply network.
+
+\section{Recommendation in Grocery and Agricultural Commerce}
+\label{sec:LitRev_rec}
+Recommendation systems in agricultural and grocery commerce differ fundamentally from conventional media or book recommenders. Grocery shopping exhibits high repeat consumption, multi-item baskets, tight price sensitivity, and strict perishability constraints.
+
+\subsection{Collaborative Filtering and Matrix Factorization}
+Collaborative filtering (CF) uses interaction patterns across users and items to predict preferences. In user-based CF \cite{Resnick1994, Sarwar2001}, each customer is represented by an interaction vector $\mathbf{x}_u$. The cosine similarity between two users $u$ and $v$ is computed as:
+\begin{equation}
+\text{cosine}(u, v) = \frac{\mathbf{x}_u^\top \mathbf{x}_v}{\|\mathbf{x}_u\|_2 \|\mathbf{x}_v\|_2}
+\label{eqn:cosine_lit}
+\end{equation}
+Products purchased by nearest neighbors $\mathcal{N}(u)$ that have not yet been purchased by user $u$ can then be scored and recommended. Matrix factorization techniques, notably Singular Value Decomposition (SVD) formalized by Koren et al. \cite{Koren2009, Koren2010}, map both customers and produce listings into a joint latent factor space of dimensionality $k$. While highly interpretable and effective for established items, collaborative filtering suffers severe degradation when applied to perishable produce due to the acute cold-start problem: a freshly harvested batch of tomatoes listed 3 hours ago has zero prior ratings or transaction history.
+
+\subsection{Next-Basket Recommendation (NBR) and Repeat Consumption}
+Unlike static Top-$N$ recommendation, Next-Basket Recommendation (NBR) explicitly predicts the next ordered basket based on a chronologically ordered sequence of prior transactions \cite{Yu2016}. In grocery shopping, a substantial proportion of orders consist of repeat purchases. Ariannezhad et al. \cite{Ariannezhad2022} formulated \textit{ReCANet}, a repeat consumption-aware neural network demonstrating that explicitly modeling recently and frequently purchased items significantly outperforms general sequential models. Faggioli et al. \cite{Faggioli2020} investigated recency-aware collaborative filtering for online grocery shopping, demonstrating that applying time-decay weighting to user interactions captures seasonal and perishable replenishment cycles far more accurately than unweighted models.
+
+\subsection{Association Rule Mining and Co-Purchase Bundling}
+Association-rule mining discovers products frequently co-purchased within the same transaction basket. Agrawal and Srikant \cite{Agrawal1994} established the Apriori principle, which was subsequently optimized by Han et al. \cite{Han2000} via the Frequent Pattern Growth (FP-Growth) algorithm. FP-Growth compresses transactional datasets into an FP-tree and mines frequent itemsets without candidate generation. Association rules $A \Rightarrow B$ are evaluated using support, confidence, and lift:
+\begin{equation}
+\text{support}(A \Rightarrow B) = P(A \cup B), \quad \text{confidence}(A \Rightarrow B) = \frac{P(A \cup B)}{P(A)}, \quad \text{lift}(A \Rightarrow B) = \frac{P(A \cup B)}{P(A)P(B)}
+\end{equation}
+Co-purchase rules are invaluable for real-time cart upsell and bundle recommendations (e.g., suggesting coriander and green chillies when onions and tomatoes are in the cart).
+
+\subsection{Sequential, Transformer, and Graph-Based Recommenders}
+Advanced recommendation paradigms have explored sequential neural representations and graph neural networks. Sun et al. \cite{Sun2019} proposed \textit{BERT4Rec}, adapting bidirectional Transformer encoders to model user behavior sequences with Cloze masking. In graph collaborative filtering, He et al. \cite{He2020} introduced \textit{LightGCN}, showing that removing feature transformations and non-linear activations from graph convolutional networks yields superior collaborative embeddings through neighborhood propagation. Kula \cite{Kula2015} developed \textit{LightFM}, a hybrid matrix factorization model representing users and items as linear combinations of their metadata features, effectively bridging collaborative filtering and content-based recommendation for cold-start listings.
+
+\subsection{Synthesis of Candidate Recommendation Approaches}
+Table~\ref{tab:candidate_approaches} outlines the nine distinct recommendation approaches evaluated during AgriLink's system design, detailing their algorithmic signals and implementation status.
+
+\begin{table}[h]
+\centering
+\caption{Recommendation Approaches Considered in the AgriLink Research Plan.}
+\label{tab:candidate_approaches}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Approach} & \textbf{Signal Used} & \textbf{AgriLink Subsystem \& Implementation Status} \\ \hline
+Buy Again / Repeat & Customer purchase history and re-order frequency & Implemented (Model 1): Recency-frequency composite score on Home Dashboard. \\ \hline
+FP-Growth Co-purchase & Intra-basket item co-occurrence & Implemented (Model 2): Association rule mining on transaction baskets for cart additions. \\ \hline
+User-Based CF & Cosine similarity across customer interaction vectors & Implemented (Model 3): Weighted neighbor collaborative filtering for personalized ranking. \\ \hline
+Next-Basket (NBR) & Chronological order sequences & Implemented (Model 4): Personal frequency baseline with global fallback on Discover Dashboard. \\ \hline
+Recency-Weighted & Temporal timestamps and exponential decay & Implemented (Model 5): Time-decay score ($\lambda=0.03$, half-life $\approx 23$ days). \\ \hline
+Price-Aware Hybrid & Historical price profile and current catalog rate & Implemented (Model 6): Weighted median budget fit blended with global order popularity. \\ \hline
+Local Popularity & Customer delivery zone and regional transactions & Implemented (Model 7): Mode-zone regional trending across Karnataka districts. \\ \hline
+Listing-Level Hybrid & Crop, seller, farm, batch, price, and freshness metadata & Implemented (LightFM Engine): Incorporates organic bonus and distance penalties. \\ \hline
+Dual-Stage Blended & Collaborative latent factors + TF-IDF content similarity & Implemented (Core Orchestrator): Smoothly transitions from content to collaborative scores. \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\section{Multilingual NLP and Voice Advisory Systems}
+\label{sec:LitRev_nlp}
+Providing localized, voice-driven agronomic guidance to rural farming communities is critical to overcoming literacy and linguistic exclusion. Rehman et al. \cite{Rehman2024} developed \textit{KisanQRS}, an automated query-response system trained on 34 million Kisan Call Centre (KCC) call logs. Evaluating over 300,000 samples, their LSTM query mapper achieved an F1-score of 96.58\% and NDCG of 96.20\%. However, KisanQRS was designed purely as a detached advisory portal with no integration into a commercial trading platform.
+
+Rahman et al. \cite{Rahman2025} built a speech-driven conversational assistant using fine-tuned OpenAI Whisper-base ASR, Sentence-Transformers, a FAISS vector database, and 4-bit quantized Llama-2-7B. Tested on extension agronomy documents, the system achieved an 18.5\% Word Error Rate (WER) and 3.5-second latency. Abhishek et al. \cite{Abhishek2025} developed \textit{AgriTalk}, integrating AI4Bharat IndicTrans2 across 22 official Indian languages with dense multilingual MiniLM embeddings, validating high translation fidelity in Kannada, Telugu, Hindi, and Malayalam. Reddy et al. \cite{Reddy2025} developed \textit{Agri Assist}, combining stacked ensemble regressors for soil-crop yield forecasting with FastText embeddings (99.32\% accuracy). Biswas and Goyal \cite{Biswas2023} combined Sentence-Transformers with Pegasus summarization to ingest Agmarknet mandi feeds, demonstrating 96.0\% question-mapping precision.
+
+A comparative synthesis of these research benchmarks is presented in Table~\ref{tab:lit_comparison}.
+
+\begin{table}[h]
+\centering
+\caption{Comparative Synthesis of Agricultural Digital Platforms and NLP Decision Systems.}
+\label{tab:lit_comparison}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Study / Author} & \textbf{Core Methodology \& Stack} & \textbf{Dataset / Scale} & \textbf{Key Empirical Results} & \textbf{Identified Research Gap} \\ \hline
+Rehman et al. \cite{Rehman2024} & LSTM + Semantic Clustering & 34M KCC Call Logs & F1: 96.58\%, NDCG: 96.20\% & Pure advisory; no e-marketplace \\ \hline
+Rahman et al. \cite{Rahman2025} & Whisper ASR + FAISS + Llama-2 & 5.92k Agri Documents & WER: 18.5\%, Latency: 3.5s & Heavy compute; no transactional hooks \\ \hline
+Reddy et al. \cite{Reddy2025} & Stacked Ensemble + FastText & Soil \& Climatic Records & Accuracy: 99.32\%, Cosine: 0.88 & Soil focus; lacks multi-sided trading \\ \hline
+Abhishek et al. \cite{Abhishek2025} & IndicTrans2 + MiniLM + gTTS & Multilingual Agri QA & High Indic translation fidelity & Static QA; no live mandi price sync \\ \hline
+Biswas \& Goyal \cite{Biswas2023} & Sentence-Transformers + Pegasus & Agmarknet \& KVK Feeds & Accuracy: 96.0\% on Query Map & Lacks buyer personalization \& logistics \\ \hline
+Sedek et al. \cite{Sedek2021} & Cloud Data Platform + Spark & National Agri Pilot Data & High pipeline elasticity & No mobile buyer app or voice UI \\ \hline
+Glaros et al. \cite{Glaros2023} & Open Food Network Case Study & ~1,000 Local Food Hubs & Identifies vendor lock-in & No algorithmic recommendation engine \\ \hline
+\textbf{AgriLink (Proposed)} & \textbf{Seven-Model Hybrid + Indic RAG + 3NF} & \textbf{4,250+ Verified Records} & \textbf{NDCG: 96.2\%, 68\% Payout} & \textbf{Unified Market, AI Recs \& Voice} \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\section{Identified Research Gaps and Motivation}
 \label{sec:Motivation}
-A critical synthesis of the state of the art reveals four distinct, unresolved research gaps that severely limit the efficacy of contemporary agricultural platforms:
+A synthesis of existing academic literature and industrial systems reveals four critical, unaddressed research gaps:
 
 \begin{enumerate}[label=\textbf{Gap \arabic*:}, leftmargin=2cm]
-	\item \textbf{The Transaction-Advisory Silo}: Existing systems treat agricultural guidance and market commerce as completely disjointed domains. Farmers must consult disconnected helplines \cite{Rehman2024} or standalone chatbots \cite{Rahman2025, Abhishek2025} for agronomic counsel, but must subsequently submit to exploitative APMC commission agents to sell their actual produce. AgriLink bridges this gap by embedding real-time multilingual voice advisories directly into an active, multi-stakeholder commercial clearinghouse.
+	\item \textbf{The Transaction-Advisory Silo}: Existing systems treat agricultural guidance and market commerce as disjoint domains. Farmers consult disconnected helplines \cite{Rehman2024} or standalone chatbots \cite{Rahman2025, Abhishek2025} for agronomic advice, but are forced to surrender to exploitative APMC commission agents to sell their actual harvest. AgriLink bridges this gap by directly embedding multilingual voice advisory into an active commercial clearinghouse.
 	
-	\item \textbf{Linguistic Exclusion and Acoustic Dialect Fragility}: While Indian agriculture spans over twenty major linguistic families and hundreds of hyper-local rural dialects, existing commercial applications remain heavily English-centric. Dialect-aware systems \cite{Abhishek2025} have predominantly remained laboratory prototypes detached from live market indices. AgriLink integrates fine-tuned Whisper ASR with AI4Bharat IndicTrans2 to deliver bidirectional speech-to-speech interaction across Kannada, Telugu, Hindi, Malayalam, and English, directly wired to real-time mandi price APIs.
+	\item \textbf{Linguistic Exclusion and Acoustic Dialect Fragility}: While Indian agriculture spans over twenty major linguistic families, existing commercial apps remain heavily English-centric. Dialect-aware models \cite{Abhishek2025} have largely remained laboratory prototypes detached from live market prices. AgriLink integrates fine-tuned Whisper ASR with AI4Bharat IndicTrans2 across Kannada, Telugu, Hindi, Malayalam, and English, directly wired to real-time Agmarknet mandi feeds.
 	
-	\item \textbf{Cold-Start Fragility in Perishable Crop Recommendation}: E-commerce recommendation engines \cite{Sarwar2001, Koren2009} assume stable item catalogs with enduring lifecycles. In contrast, peri-urban horticultural listings feature extreme batch volatility; a specific harvest of tomatoes is listed, sold, and consumed within 48 hours. AgriLink bridges this algorithmic deficiency through a hybrid model that blends Truncated SVD collaborative latent factors with content-based TF-IDF metadata representations and FP-Growth association rules, ensuring high recommendation quality even for freshly logged harvest batches.
+	\item \textbf{Cold-Start Fragility in Perishable Produce Recommendation}: Conventional recommendation models \cite{Sarwar2001, Koren2009} assume static, long-lived item catalogs. In agricultural supply, fresh produce exhibits short 48-to-72 hour lifecycles. AgriLink overcomes this through a seven-model hybrid recommendation engine combining collaborative filtering with content-based fallback, FP-Growth co-purchase rules, Next-Basket Prediction, recency decay, price fitting, and local popularity.
 	
-	\item \textbf{Economic Exploitation and Opacity in Traditional Middleman Chains}: Smallholders continue to capture less than 35\% of the terminal consumer rupee due to multi-layered commissions and unstandardized manual weighment. AgriLink bridges this structural injustice through an algorithmic 68-10-14-8 fair-share economic distribution model, combining digital quality assay receipts with tamper-proof Layer-2 smart ledger verification to guarantee that 68\% of every transaction is instantly and irreversibly disbursed to the cultivator.
+	\item \textbf{Economic Exploitation and Opacity in Middleman Chains}: Smallholders capture less than 35\% of the terminal consumer rupee due to multi-layered broker markups. AgriLink bridges this structural injustice through an algorithmic 68-10-14-8 fair-share economic distribution model, combining digital quality assay receipts with tamper-proof Layer-2 smart ledger verification to guarantee that 68\% of every transaction is instantly and irreversibly disbursed to the cultivator.
 \end{enumerate}
 
-By systematically resolving these four interconnected challenges within a unified, production-grade cyber-physical framework, AgriLink establishes a scalable, equitable paradigm for peri-urban agricultural supply networks.
-
 \chapterend
-\cleardoublepage

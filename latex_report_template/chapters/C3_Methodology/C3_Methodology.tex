@@ -1,96 +1,321 @@
-\chapter{Implementation Details}
+\chapter{System Design and Implementation}
 \label{ch:Imp}
-\noindent{\textbf{\huge T}}his chapter presents the comprehensive architectural, mathematical, and algorithmic implementation details of AgriLink. We formalize the dual-stage hybrid recommendation model, dynamic fair-pricing formulations, speech-to-speech advisory pipeline, multi-tier cyber-physical workflow, and underlying hardware-software infrastructure. To contextualize these engineering components within the broader problem scope, refer to Chapter \ref{ch:Intro}, or Section \ref{sec:Methodology}.
+\noindent{\textbf{\huge T}}his chapter presents the comprehensive architectural, mathematical, full-stack software, and algorithmic implementation details of AgriLink. We formalize the multi-tier platform architecture, the role-based multi-client frontend, the microservices and enterprise backend API layer, the relational data model across 47 tables with Row-Level Security, the seven-model hybrid recommendation engine, the NLP query engine, the fair-pricing formulation, the end-to-end multi-supplier fulfillment workflow, and the supporting hardware and software stack.
 
-\section{Methodology}
+\section{Overall System Concept and Proposed Architecture}
+\label{sec:system_concept}
+AgriLink is architected as an intelligent direct farm-to-consumer digital supply ecosystem. The platform connects five distinct stakeholder groups: smallholder farmers, village-level aggregators (including women's Self-Help Groups and PACS cooperatives), retail consumers, institutional bulk buyers (hostel messes, hospital canteens), and local delivery partners, governed under unified administrative oversight.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.95\textwidth]{Figures/C3_Methodology/agrilink_platform_arch.png}
+	\caption{AgriLink High-Level Multi-Tier System Architecture Illustrating Multilingual Mobile Clients, Aggregator Hubs, Central Database, Microservices, and Fleet Logistics.}
+	\label{fig:agrilink_platform_arch}
+\end{figure}
+
+As depicted in Fig.~\ref{fig:agrilink_platform_arch}, the system is organized into four logical tiers:
+\begin{enumerate}
+    \item \textbf{Client Presentation Layer}: Cross-platform mobile applications developed in Flutter / Dart for Android and iOS, providing role-customized experiences for Farmers, Aggregators, Customers, and Delivery Partners, complemented by a web portal for Administrators and Institutional buyers.
+    \item \textbf{Backend Microservices Layer}: Dual-service architecture combining an asynchronous Python FastAPI service (handling real-time dynamic pricing, NLP queries, and the seven-model recommendation engine) with a high-throughput Java Spring Boot enterprise service (managing order state machines, multi-supplier inventory reservation, and payment settlement workflows), supported by Node.js/Express API gateways.
+    \item \textbf{Relational Persistence Layer}: PostgreSQL 17 / Supabase relational database normalized to 3NF/BCNF across 47 production tables with granular Row-Level Security (RLS) policies, supplemented by Redis for cache acceleration.
+    \item \textbf{Trust and Integration Layer}: Third-party service boundaries including Razorpay payment gateway with idempotent webhooks, Firebase Cloud Messaging (FCM) for push notifications, Twilio SMS for offline farmer alerts, OpenStreetMap/Google Maps for geospatial routing, and a Polygon Layer-2 smart ledger for cryptographic proof of provenance.
+\end{enumerate}
+
+\section{Full-Stack Application Design}
+\label{sec:fullstack_design}
+
+\subsection{Role-Based Client Applications}
+The client applications are engineered using Flutter to ensure identical business logic and native performance across Android, iOS, and Web. The interface dynamically adapts based on the authenticated user's assigned role:
+\begin{itemize}
+    \item \textbf{Farmer Interface}: Enables harvest declarations up to 72 hours in advance, crop listing creation with photo uploads, live inventory tracking, today's APMC mandi benchmark viewing, net 68\% payout dashboard, and voice-assisted advisory in Kannada, Telugu, Hindi, and English.
+    \item \textbf{Aggregator Hub Interface}: Manages a local network of farmers within a 15--30~km radius, records digital weighments from Bluetooth scales, assigns quality grades (A, B, C) with AI photo suggestions, generates digital assay receipts, and consolidates micro-batches into dispatch manifests.
+    \item \textbf{Customer Interface}: Allows browsing produce across 15 agricultural categories, text and voice search, personalized recommendations across Home and Discover dashboards, transparent price breakdown viewing, UPI/card checkout, real-time live delivery tracking, and QR provenance scanning.
+    \item \textbf{Institutional Buyer Portal}: Tailored for bulk buyers (hostels, hospitals), supporting bulk weight ordering (e.g., 200~kg potatoes), recurring weekly standing orders, multi-level purchase approval hierarchies, and consolidated GST invoices.
+    \item \textbf{Delivery Partner Interface}: Provides dynamic task acceptance, AI-optimized multi-stop turn-by-turn routes, QR scan verification at hub pickup, and OTP-confirmed proof of delivery.
+    \item \textbf{Admin Console}: Enforces Role-Based Access Control (RBAC), listing moderation, live fleet tracking, APMC sync configuration, dispute resolution, and settlement audits.
+\end{itemize}
+
+\subsection{Four-Method Enterprise Authentication and Session Security}
+\label{subsec:auth_design}
+To accommodate the disparate operational constraints of rural growers, urban consumers, and commercial institutional buyers, AgriLink provides a flexible, secure four-tier authentication architecture managed via Supabase Auth and integrated into Flutter:
+\begin{enumerate}
+    \item \textbf{Google OAuth 2.0 Identity Management}: Provides one-tap frictionless authentication for urban retail buyers and institutional canteen managers. On Flutter Web running in modern desktop and mobile browsers, the client captures the origin window (\texttt{Uri.base.origin}) and forwards the authorization code through Supabase OAuth callbacks, automatically mapping user metadata into the \texttt{public.profiles} table with default \texttt{CUSTOMER} permissions. On mobile clients, the handshake safely defaults to custom deep linking (\texttt{io.supabase.agrilink://login-callback/}).
+    \item \textbf{Transactional Gmail SMTP Email OTP Verification}: Smallholders and commercial buyers without active Google Play Services or OAuth sessions can authenticate via standard email. AgriLink strictly enforces verified \texttt{@gmail.com} syntax through robust regular expression validation (\texttt{\textasciicircum[a-zA-Z0-9.\_\%+-]+@gmail\textbackslash.com\$}). An 8-digit cryptographically random numeric One-Time Password (OTP) with a 600-second Time-To-Live (TTL) is dispatched directly through a secure Google Cloud Gmail SMTP relay (\texttt{smtp.gmail.com:587} with TLS encryption) using a 16-character dedicated application password. This guarantees zero recurring third-party transactional email charges while safeguarding deliverability.
+    \item \textbf{Short Message Service (SMS) OTP Authentication}: Rural farmers lacking active internet access or email accounts can request a 6-digit SMS OTP delivered to their registered mobile numbers via telephony gateways.
+    \item \textbf{WhatsApp OTP Messaging}: Leveraging the ubiquitous adoption of WhatsApp in rural peri-urban agrarian belts, growers can receive verified OTP codes directly within their chat application through official business messaging endpoints.
+\end{enumerate}
+
+To facilitate rigorous field testing and offline demonstrations without cellular dependency, AgriLink incorporates an automated PostgreSQL database retrieval function (\texttt{get\_account\_autofill}) that securely retrieves role-mapped test credentials across all five stakeholder archetypes upon email selection.
+
+\subsection{Product Lifecycle and Stakeholder Workflows}
+The complete lifecycle of produce on AgriLink traverses twelve structured stages:
+(1) Farmer registration and mobile OTP KYC verification; (2) Farm GPS registration; (3) Crop registration and harvest logging; (4) Physical aggregation, digital weighment, and quality grading at the village hub; (5) Active marketplace publishing; (6) AI recommendation matching; (7) Customer cart review and order placement; (8) Distributed inventory reservation across farms and hubs; (9) Payment authorization and quote snapshot locking; (10) Capacitated fleet delivery with QR/OTP verification; (11) Instant 68-10-14-8 revenue disbursement via UPI; and (12) Analytics and demand forecasting for next-season planning.
+
+\subsection{Backend Services and API Contracts}
+AgriLink decouples computational intelligence from transactional order processing. The Python FastAPI service exposes 15 dedicated endpoints at base path \texttt{/api/v1/} (detailed in Table~\ref{tab:endpoints}), managing recommendations, intent classification, and dynamic pricing calculations within a sub-150~ms SLA. Concurrently, the Java Spring Boot enterprise service manages ACID transaction boundaries for order creation, inventory reservations, delivery partner assignments, and payment reconciliation across the 47 database entities.
+
+\section{Database Domain Model and Persistence Layer}
+\label{sec:database_design}
+The AgriLink database is implemented in PostgreSQL 17 (hosted on Supabase) and is fully normalized to Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF). The complete schema comprises 47 production entities organized across eight core functional modules, using UUID primary keys, foreign key constraints with cascade safeguards, and explicit timestamps.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{Figures/C3_Methodology/database_schema.jpg}
+	\caption{AgriLink Comprehensive Relational Database Entity-Relationship Diagram (47 Tables, Normalized 3NF/BCNF with Full Referential Constraints).}
+	\label{fig:database_schema}
+\end{figure}
+
+As mapped in the comprehensive ER diagram in Fig.~\ref{fig:database_schema}, the 47 tables are partitioned into eight operational domains:
+\begin{enumerate}
+    \item \textbf{Identity and Access Management (Tables 1--6)}: \texttt{ROLE}, \texttt{USER}, \texttt{PARTY}, \texttt{CUSTOMER}, \texttt{CUSTOMER\_ADDRESS}, and \texttt{LOCATION}. Decouples authentication credentials from party business profiles and spatial delivery coordinates.
+    \item \textbf{Farmer and Farm Management (Tables 7--11)}: \texttt{FARMER}, \texttt{FARM}, \texttt{FARMER\_CROP}, \texttt{CROP\_CATEGORY}, and \texttt{CROP}. Captures acreage, soil type, crop varieties, harvest dates, and organic status.
+    \item \textbf{Aggregator and Warehouse Management (Tables 12--17)}: \texttt{AGGREGATOR}, \texttt{WAREHOUSE}, \texttt{PROCUREMENT}, \texttt{AGGREGATOR\_INVENTORY}, \texttt{INVENTORY\_RESERVATION}, and \texttt{QUALITY\_CHECK}. Tracks farm receipts, digital weighments, cold storage capacity, and quality grading.
+    \item \textbf{Order, Fulfillment and Logistics (Tables 18--28)}: \texttt{ORDER}, \texttt{ORDER\_ITEM}, \texttt{ORDER\_ALLOCATION}, \texttt{FULFILLMENT\_SOURCE}, \texttt{DELIVERY}, \texttt{DELIVERY\_ASSIGNMENT}, \texttt{DELIVERY\_PARTNER}, \texttt{VEHICLE}, \texttt{DELIVERY\_ROUTE}, \texttt{DELIVERY\_PROOF}, and \texttt{ORDER\_TRACKING}. Supports multi-supplier split allocations, vehicle route planning, and OTP delivery verification.
+    \item \textbf{Payment and Settlement Coordination (Tables 29--31)}: \texttt{PAYMENT}, \texttt{SETTLEMENT}, and \texttt{SETTLEMENT\_DETAIL}. Enforces immutable transaction records and automated 68-10-14-8 split disbursements.
+    \item \textbf{Customer Engagement and Feedback (Tables 32--37)}: \texttt{CART}, \texttt{CART\_ITEM}, \texttt{WISHLIST}, \texttt{REVIEW}, \texttt{COUPON}, and \texttt{COUPON\_USAGE}. Powers active cart persistence, promotion codes, and verified reviews.
+    \item \textbf{System Support, Notifications and Alerts (Tables 38--39)}: \texttt{NOTIFICATION} and \texttt{NOTIFICATION\_STATUS}. Tracks multi-channel alerts across FCM push and Twilio SMS.
+    \item \textbf{Pricing, ML, Returns and Adjustments (Tables 40--47)}: \texttt{PRICE\_HISTORY}, \texttt{ML\_PRICE\_PREDICTION}, \texttt{RETURN}, \texttt{RETURN\_ITEM}, \texttt{REFUND}, \texttt{INVENTORY\_MOVEMENT}, \texttt{INVENTORY\_ADJUSTMENT}, and \texttt{BATCH\_EXPIRY\_ALERT}. Stores historical market feeds, predicted price corridors, return authorizations, and batch write-offs.
+\end{enumerate}
+
+Table~\ref{tab:database_modules} consolidates the core database modules and their primary architectural responsibilities.
+
+\begin{table}[h]
+\centering
+\caption{Consolidated Functional Database Modules and Key Entities (47 Tables).}
+\label{tab:database_modules}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|p{6cm}|p{7cm}|}
+\hline
+\textbf{Functional Module} & \textbf{Key Relational Tables} & \textbf{Operational Responsibility} \\ \hline
+Identity \& Authentication & ROLE, USER, PARTY & Role assignment, OTP authentication, KYC verification state. \\ \hline
+Customer Profile & CUSTOMER, CUSTOMER\_ADDRESS, LOCATION & Loyalty tracking, multiple delivery addresses, geospatial coordinates. \\ \hline
+Farmer \& Farm & FARMER, FARM, CROP, CROP\_CATEGORY, FARMER\_CROP & Farm acreage, crop varieties, harvest pre-declarations, organic status. \\ \hline
+Aggregator \& Hub & AGGREGATOR, WAREHOUSE, PROCUREMENT, AGGREGATOR\_INVENTORY, QUALITY\_CHECK & Digital weighment logs, batch receipts, cold storage slots, assay grades. \\ \hline
+Orders \& Multi-Fulfillment & ORDER, ORDER\_ITEM, ORDER\_ALLOCATION, FULFILLMENT\_SOURCE & Customer orders, multi-farm split fulfillment, stock reservation. \\ \hline
+Delivery \& Fleet & DELIVERY, DELIVERY\_PARTNER, DELIVERY\_ASSIGNMENT, DELIVERY\_ROUTE, DELIVERY\_PROOF, VEHICLE & VRP route optimization, custody transfer scans, OTP proof of delivery. \\ \hline
+Payment \& Settlement & PAYMENT, SETTLEMENT, SETTLEMENT\_DETAIL & Payment gateway references, immutable 68-10-14-8 split ledgers. \\ \hline
+Customer Engagement & CART, CART\_ITEM, WISHLIST, REVIEW, COUPON, COUPON\_USAGE & Persistent shopping cart, item ratings, promotional discounts. \\ \hline
+Pricing \& ML Analytics & PRICE\_HISTORY, ML\_PRICE\_PREDICTION & Agmarknet daily mandi feeds, 7-day price forecasts, demand signals. \\ \hline
+Returns \& Stock Movements & RETURN, RETURN\_ITEM, REFUND, INVENTORY\_MOVEMENT, INVENTORY\_ADJUSTMENT, BATCH\_EXPIRY\_ALERT & Quality dispute refunds, damage adjustments, and perishable expiry alerts. \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\section{AgriLink Algorithmic Framework}
 \label{sec:Methodology}
-AgriLink formulates agricultural supply chain optimization through an integrated multi-tier algorithmic methodology. The system models users as an indexed set $\mathcal{U} = \{u_1, u_2, \dots, u_m\}$ representing retail buyers, commercial kitchens, and institutional mess managers, and produce inventory as an active batch set $\mathcal{I} = \{i_1, i_2, \dots, i_n\}$ comprising perishable produce harvested across peri-urban farmlands. Let $n_{ij}$ denote the total number of interaction events (page impressions, search queries, cart additions, and confirmed purchases) registered by user $u_i$ on produce listing $i_j$. For arbitrary index dimensions, let $n$, $n_{ij}$, $n^2$, and $n^{ij}$ represent standard discrete cardinality counts and tensor dimensions.
+AgriLink formulates agricultural supply chain optimization through an integrated multi-tier algorithmic methodology. The system models users as an indexed set $\mathcal{U} = \{u_1, u_2, \dots, u_m\}$ representing retail buyers, commercial kitchens, and institutional mess managers, and produce inventory as an active batch set $\mathcal{I} = \{i_1, i_2, \dots, i_n\}$ comprising perishable produce harvested across peri-urban farmlands. Let $n_{ij}$ denote the total number of interaction events registered by user $u_i$ on produce listing $i_j$.
 
-In conventional unconstrained representation, the discrete transaction observation tensor across $c$ user clusters, $v$ produce varieties, and $n_{ij}$ temporal intervals is defined as:
-\begin{center}
-$\mathcal{X} = \left \{ \textbf{x}_{ijk} \mid i=1,\cdots,c; \;\; j=1,\cdots,v; \;\; k=1,\cdots,n_{ij} \right \}$
-\end{center}
+\subsection{Seven-Model Hybrid Recommendation Engine}
+\label{subsec:rec_engine}
+AgriLink implements a seven-model recommendation engine to address the diverse discovery needs of customers, farmers, and aggregators. The models are organized into two dashboard tiers served from the FastAPI backend at \texttt{/api/v1/recommendations/*}.
 
-To formally predict user preference ratings while solving the extreme cold-start sparsity inherent in fresh agricultural commodities, AgriLink implements a dual-stage hybrid recommendation formulation. The predicted preference score $\hat{R}_{u, i}$ for user $u$ on crop item $i$ is defined by the parameterized convex combination:
+\subsubsection{Model 1 --- Buy Again (Recency-Frequency Scoring)}
+The Buy Again model ranks previously purchased listings using a composite weighted score. Let $d$ denote days since last purchase. The exponential decay recency score, min-max normalized frequency $\hat{f}$, and normalized quantity $\hat{q}$ are combined as \cite{Hu2008, Koren2010}:
+\begin{equation}
+\text{score}_{u,i} = 0.50 \cdot e^{-d/30} + 0.30 \cdot \hat{f}_{u,i} + 0.20 \cdot \hat{q}_{u,i}
+\label{eqn:buy_again}
+\end{equation}
+where $\hat{x} = (x - x_{\min})/(x_{\max} - x_{\min})$ for any quantity $x$. This model surfaces produce that the customer has historically purchased with high frequency and has ordered recently.
 
+\subsubsection{Model 2 --- FP-Growth Association Rules (Co-Purchase Bundles)}
+The FP-Growth algorithm \cite{Han2000} is applied to order transaction baskets, each comprising the set of crop names in a single order. Association rules are extracted and scored by:
+\begin{equation}
+\text{rule\_score} = \text{confidence}(A \Rightarrow B) \times \text{lift}(A \Rightarrow B)
+\label{eqn:fp_score}
+\end{equation}
+Parameters are set to $\text{min\_support} = 0.02$ and $\text{min\_confidence} = 0.15$. Recommendations match the current cart contents against rule antecedents, with a single-item fallback when multi-item matches are exhausted.
+
+\subsubsection{Model 3 --- User-Based Collaborative Filtering}
+User-based collaborative filtering \cite{Resnick1994, Sarwar2001} constructs a customer--listing interaction weight matrix and computes cosine similarity between customers:
+\begin{equation}
+\text{sim}(u, v) = \frac{\mathbf{r}_u \cdot \mathbf{r}_v}{\|\mathbf{r}_u\|_2 \|\mathbf{r}_v\|_2}
+\label{eqn:cosine_cf}
+\end{equation}
+Interaction events are mapped to weights: VIEW $= 1.0$, CART $= 5.0$, PURCHASE $= 10.0$, RATING $= 4.0$. The recommendation score for an unseen listing $j$ is:
+\begin{equation}
+\text{score}(j) = \sum_{u \in \mathcal{N}(c)} \text{sim}(c, u) \cdot w_u(j)
+\label{eqn:cf_score}
+\end{equation}
+where $\mathcal{N}(c)$ is the neighborhood of users similar to target customer $c$, and $w_u(j)$ is user $u$'s interaction weight with listing $j$.
+
+\subsubsection{Model 4 --- Next-Basket Prediction (NBR Frequency Baseline)}
+The Next-Basket Recommendation model predicts what a customer will purchase in their next order based on their chronological basket sequence history \cite{Yu2016}:
+\begin{equation}
+\text{score}(r) = 1.0 - r \times 0.06
+\label{eqn:next_basket}
+\end{equation}
+where $r$ is the zero-indexed rank of the item across historical baskets. Items present in the most recent basket are excluded.
+
+\subsubsection{Model 5 --- Recency-Weighted (Exponential Time-Decay)}
+An exponential time-decay function is applied per purchase row before aggregating per product \cite{Ding2005, Koren2010}:
+\begin{equation}
+\text{WeightedScore}_i = Q_i \cdot e^{-\lambda \cdot d_i}, \quad \text{RecencyScore}(p) = \sum_{i:\,\text{product}_i = p} \text{WeightedScore}_i
+\label{eqn:rw_product}
+\end{equation}
+where $Q_i$ is purchased quantity, $d_i$ is age in days, and $\lambda = 0.03$ (half-life $\approx 23$ days).
+
+\subsubsection{Model 6 --- Price-Aware (Budget-Fit + Popularity Hybrid)}
+The customer's preferred price $P^*$ is estimated as the weighted median of their purchase history \cite{Ricci2015}:
+\begin{equation}
+P^* = \text{WeightedMedian}\!\left(\{P_i\},\, \{Q_i\}\right)
+\label{eqn:wmedian}
+\end{equation}
+The price-fit score is blended with platform-wide order popularity:
+\begin{equation}
+\text{PriceFitScore}(p) = \exp\!\left(\frac{-|P_p - P^*|}{\max(|P^*|,\, 1.0)}\right), \quad \text{HybridScore}(p) = 0.5 \cdot \text{PriceFitScore}(p) + 0.5 \cdot \text{PopScore}(p)
+\label{eqn:hybrid_price}
+\end{equation}
+
+\subsubsection{Model 7 --- Local Popularity (Region-Based Trending)}
+The customer's delivery zone is inferred as the statistical mode of past delivery locations \cite{Ye2011}. Products are ranked by local order count, unique local customers, and aggregate volume in that geographic zone.
+
+\subsubsection{Listing-Level Hybrid LightFM and Business Scoring}
+To rank specific seller batches taking into account freshness, location, and organic status, AgriLink integrates a listing-level LightFM hybrid model \cite{Kula2015}. The raw model affinity $A(u, i)$ is combined with operational business rules to compute the final listing rank score:
+\begin{equation}
+S(u, i) = 0.70 \cdot A(u, i) + 0.15 \cdot F(i) + O(i) - D(u, i)
+\label{eqn:lightfm_score}
+\end{equation}
+where $F(i) \in [0, 1]$ is normalized batch freshness (hours since harvest), $O(i) = 0.05$ is an organic certification bonus, and $D(u, i) \le 0.20$ is a capped geospatial distance penalty.
+
+\subsection{Dual-Stage Hybrid Formulation (Models 1--3 Orchestrator)}
+\label{subsec:dual_hybrid}
+The core customer models are orchestrated by \texttt{customer\_hybrid.py}, implementing a dual-stage blended recommendation. The predicted preference score $\hat{R}_{u, i}$ is:
 \begin{equation}
 \label{eqn:hybrid_rec}
-\hat{R}_{u, i} = \alpha \cdot \left( \mu + b_u + b_i + \mathbf{p}_u^T \mathbf{q}_i \right) + (1 - \alpha) \cdot \left( \frac{\mathbf{c}_u \cdot \mathbf{v}_i}{\|\mathbf{c}_u\|_2 \|\mathbf{v}_i\|_2} \right)
+\hat{R}_{u, i} = \alpha \cdot \left( \mu + b_u + b_i + \mathbf{p}_u^\top \mathbf{q}_i \right) + (1 - \alpha) \cdot \left( \frac{\mathbf{c}_u \cdot \mathbf{v}_i}{\|\mathbf{c}_u\|_2 \|\mathbf{v}_i\|_2} \right)
 \end{equation}
-
-where $\mu \in \mathbb{R}$ represents the global mean interaction rating, $b_u \in \mathbb{R}$ and $b_i \in \mathbb{R}$ denote user and item baseline bias offsets respectively, $\mathbf{p}_u \in \mathbb{R}^k$ represents the $k$-dimensional latent preference factor vector of buyer $u$, and $\mathbf{q}_i \in \mathbb{R}^k$ denotes the latent attribute vector of produce listing $i$. The second term represents the normalized cosine similarity between the buyer's explicit preference vector $\mathbf{c}_u$ (e.g., historical organic affinity, typical order quantity, dietary categories) and the TF-IDF semantic metadata vector $\mathbf{v}_i$ extracted from the produce batch description, variety, and farmer origin. The hyperparameter $\alpha \in [0, 1]$ adaptively balances collaborative latent factors with content-based representations based on the interaction density of user $u$.
-
-To optimize the latent factor vectors $\mathbf{p}_u$ and $\mathbf{q}_i$, the objective function minimizes the regularized empirical squared error over known interaction ratings $\mathcal{K} = \{(u, i) : R_{u, i} \text{ is observed}\}$:
-
+where $\mu$ is global mean rating, $b_u, b_i$ are user/item bias offsets, $\mathbf{p}_u, \mathbf{q}_i \in \mathbb{R}^k$ are latent vectors, and $\alpha \in [0,1]$ balances collaborative and content-based signals. The regularized SVD training loss is:
 \begin{equation}
 \label{eqn:svd_loss_multiline}
-\begin{split}
-\mathcal{L}_{\text{SVD}} = & \sum_{(u, i) \in \mathcal{K}} \left( R_{u, i} - \left( \mu + b_u + b_i + \mathbf{p}_u^T \mathbf{q}_i \right) \right)^2 \\
-& + \lambda \left( b_u^2 + b_i^2 + \|\mathbf{p}_u\|_2^2 + \|\mathbf{q}_i\|_2^2 \right) + \gamma \sum_{j \in \mathcal{N}_i} \|\mathbf{q}_i - \mathbf{q}_j\|_2^2
-\end{split}
+\mathcal{L}_{\text{SVD}} = \sum_{(u, i) \in \mathcal{K}} \left( R_{u, i} - \hat{R}_{u, i} \right)^2 + \lambda \left( b_u^2 + b_i^2 + \|\mathbf{p}_u\|_2^2 + \|\mathbf{q}_i\|_2^2 \right) + \gamma \sum_{j \in \mathcal{N}_i} \|\mathbf{q}_i - \mathbf{q}_j\|_2^2
 \end{equation}
 
-In Eq. \ref{eqn:svd_loss_multiline}, $\lambda$ denotes the $L_2$ regularization penalty mitigating overfitting on sparse interaction logs, while $\gamma$ enforces a manifold smoothness regularization over neighbor items $\mathcal{N}_i$ sharing identical botanical families or perishability degradation classes. The parameters are updated iteratively via Stochastic Gradient Descent (SGD):
-\begin{align}
-e_{u, i} &\leftarrow R_{u, i} - \hat{R}_{u, i}^{\text{SVD}} \\
-\mathbf{p}_u &\leftarrow \mathbf{p}_u + \eta \left( e_{u, i} \mathbf{q}_i - \lambda \mathbf{p}_u \right) \\
-\mathbf{q}_i &\leftarrow \mathbf{q}_i + \eta \left( e_{u, i} \mathbf{p}_u - \lambda \mathbf{q}_i \right)
-\end{align}
-where $\eta$ is the learning rate.
+Algorithm~\ref{alg:hybrid_rec} formalizes the operational execution of the hybrid engine.
 
-Complementing personalized recommendation, AgriLink enforces algorithmic price transparency through a dynamic fair-pricing formula that benchmarks real-time APMC mandi modal feeds while guaranteeing the farmer's 68\% direct share. The consumer retail price $P_{\text{consumer}}$ per kilogram is computed as:
+\begin{algorithm}[h]
+\caption{Seven-Model Hybrid Produce Recommendation Algorithm}
+\label{alg:hybrid_rec}
+\begin{algorithmic}[1]
+\STATE \textbf{Input:} Customer $u$, Candidate listings $\mathcal{I}_{\text{active}}$, Latent matrices $\mathbf{P}, \mathbf{Q}$, Purchase history $\mathcal{H}_u$, Cart contents $\mathcal{C}_u$, Target count $K$, Request context (Home or Discover).
+\STATE \textbf{Output:} Top-$K$ ranked produce items $\mathcal{R}_K$ per section.
+\IF{Request = \textit{Home Dashboard}}
+    \STATE Compute $\text{Buy Again scores}$ via Eq.~\ref{eqn:buy_again} on $\mathcal{H}_u$
+    \STATE Mine $\text{FP-Growth rules}$ via Eq.~\ref{eqn:fp_score}; match against $\mathcal{C}_u$
+    \STATE Compute $\text{CF scores}$ via Eq.~\ref{eqn:cf_score} from interaction matrix
+    \STATE Blend via Eq.~\ref{eqn:hybrid_rec}; return top-$K$ per section
+\ELSIF{Request = \textit{Discover Dashboard}}
+    \STATE Compute \textit{Next-Basket} via Eq.~\ref{eqn:next_basket} on basket sequences
+    \STATE Compute \textit{Recency-Weighted} via Eq.~\ref{eqn:rw_product} with $\lambda = 0.03$
+    \STATE Compute \textit{Price-Aware} via Eq.~\ref{eqn:hybrid_price}, $P^* =$ Eq.~\ref{eqn:wmedian}
+    \STATE Compute \textit{Local Popularity} from zone $z = \text{mode}(\text{locations}(u))$
+    \STATE Return top-$K$ per section
+\ELSE
+    \STATE \textit{Cold-start}: Return globally popular items by harvest freshness
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
 
+Table~\ref{tab:endpoints} summarizes all 15 REST API endpoints exposed at base path \texttt{/api/v1/}.
+
+\begin{table}[h]
+    \centering
+    \caption{AgriLink Recommendation and NLP REST API Endpoints.}
+    \label{tab:endpoints}
+    \resizebox{\columnwidth}{!}{
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    \textbf{Method} & \textbf{Endpoint} & \textbf{Model} & \textbf{Role} \\ \hline
+    POST & \texttt{/recommendations/interact}             & Interaction Logger  & All \\ \hline
+    GET  & \texttt{/recommendations/customer-home/\{id\}} & Models 1--3 Unified & Customer \\ \hline
+    GET  & \texttt{/recommendations/buy-again/\{id\}}     & Model 1             & Customer \\ \hline
+    GET  & \texttt{/recommendations/you-may-also-want/\{id\}} & Model 2         & Customer \\ \hline
+    GET  & \texttt{/recommendations/picked-for-you/\{id\}}& Model 3             & Customer \\ \hline
+    GET  & \texttt{/recommendations/replacement/\{lid\}}  & Replacement         & Customer \\ \hline
+    GET  & \texttt{/recommendations/farmer/\{fid\}}       & Crop Opportunity    & Farmer \\ \hline
+    GET  & \texttt{/recommendations/aggregator/match}     & Supplier Matching   & Aggregator \\ \hline
+    GET  & \texttt{/recommendations/next-basket/\{id\}}   & Model 4             & Customer \\ \hline
+    GET  & \texttt{/recommendations/recency-weighted/\{id\}} & Model 5          & Customer \\ \hline
+    GET  & \texttt{/recommendations/price-aware/\{id\}}   & Model 6             & Customer \\ \hline
+    GET  & \texttt{/recommendations/local-popularity}     & Model 7             & Customer \\ \hline
+    GET  & \texttt{/recommendations/discover/\{id\}}      & Models 4--7 Unified & Customer \\ \hline
+    POST & \texttt{/nlp/query}                            & NLP Engine          & All Roles \\ \hline
+    GET  & \texttt{/health}                               & Health \& Model Load& Ops / Monitoring \\ \hline
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Decoupled Modular NLP Query Engine --- AgriTalk AI}
+\label{subsec:nlp_engine}
+To maximize maintainability and eliminate monolithic coupling, the natural language query processing pipeline has been architecturally refactored into a standalone modular package (\texttt{nlp\_engine/}) with clean dependency boundaries:
+\begin{itemize}
+    \item \textbf{Conversational Retrieval Core (\texttt{query\_engine.py})}: Interrogates the database strictly through Row-Level Security (RLS) constraints \cite{Manning2008, Salton1983}. The query engine validates that the authenticated \texttt{user\_id} resolves to the farmer's verified profile, ensuring zero cross-tenant leakage between competing producers.
+    \item \textbf{Multilingual Crop Entity Dictionary (\texttt{crop\_dictionary.py})}: Implements an agricultural Named Entity Recognition (NER) dictionary recognizing 18+ crops across English, Kannada (ಕನ್ನಡ), and Hindi (हिन्दी), mapping localized agrarian variants (e.g., \textit{ಟೊಮ್ಯಾಟೊ}, \textit{ಈರುಳ್ಳಿ}, \textit{ಆಲೂಗಡ್ಡೆ}, \textit{टमाटर}, \textit{प्याज}, \textit{आलू}) to canonical commodity identifiers.
+    \item \textbf{Intent Classification Engine (\texttt{intent\_classifier.py})}: Employs a TF-IDF bigram vectorizer ($\text{ngram\_range} = (1,2)$) \cite{Pedregosa2011} trained on template sentences across six agricultural intent classes. At inference, cosine similarity selects the intent:
+    \begin{equation}
+    \text{intent} = \arg\max_i \; \text{cos\_sim}\!\left(\mathbf{q}_{\text{tfidf}},\; \mathbf{t}_i\right)
+    \label{eqn:intent_cls}
+    \end{equation}
+    For similarity scores below $0.15$, keyword-override heuristics are applied (Table~\ref{tab:intents}).
+    \item \textbf{Data Ingestion Layer (\texttt{data\_loader.py})}: Loads structured transactional and inventory entities directly from CSV repositories and PostgreSQL tables with fail-safe fallbacks.
+    \item \textbf{Backward-Compatibility Layer (\texttt{nlp\_query\_engine.py})}: Implements transparent shims supporting legacy imports (\texttt{from ml.nlp\_query\_engine import FarmerDatabaseNLPQueryEngine}), preserving end-to-end compatibility across the entire microservice fleet.
+\end{itemize}
+
+\begin{table}[h]
+    \centering
+    \caption{NLP Intent Classes with Override Keywords.}
+    \label{tab:intents}
+    \begin{tabular}{|l|l|}
+    \hline
+    \textbf{Intent} & \textbf{Override Keyword Triggers} \\ \hline
+    \texttt{INVENTORY\_LOOKUP}        & stock, inventory, available, quantity, kg \\ \hline
+    \texttt{PRICING\_PREDICTION}      & price, rate, cost, mandi, apmc \\ \hline
+    \texttt{BUYER\_DEMAND\_GAP}       & demand, gap, opportunity, plant, grow \\ \hline
+    \texttt{ORDER\_PAYOUT\_HISTORY}   & order, earning, payout, payment, income \\ \hline
+    \texttt{LISTING\_RATING\_QUALITY} & rating, review, score, star \\ \hline
+    \texttt{PEST\_DISEASE\_ADVISORY}  & pest, disease, blight, spray, fungus \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Fair-Pricing Formulation and Real-Time Mandi Ingestion}
+\label{subsec:fair_pricing}
+AgriLink eliminates broker speculation by anchoring all dynamic price discovery to live agricultural terminal market rates. Rather than relying on synthetic estimates, the platform integrates an open-source, keyless cloud Mandi Price API (\texttt{https://mandi-api.onrender.com/v1/prices?state=Karnataka}) that streams daily commodity modal prices per quintal across 65+ Karnataka market yards including Channapatna APMC, Ramanagara APMC, Mandya APMC, and Bengaluru APMC. 
+
+To ensure continuous resilience against transient network partitions in rural cellular zones, the client module (\texttt{mandi\_api\_client.py}) incorporates a 1-hour in-memory Time-To-Live (TTL) cache backed by a verified offline APMC fallback dataset. A retrained native scikit-learn 1.9+ \texttt{RandomForestRegressor} pipeline (\texttt{pricing\_engine.joblib}) ingests these live modal prices alongside quality grade, organic certification, and perishability indices to predict fair consumer pricing:
 \begin{equation}
 \label{eqn:fair_pricing}
 P_{\text{consumer}} = \frac{\text{APMC}_{\text{modal}} \cdot (1 + \alpha_{\text{grade}}) \cdot (1 + \beta_{\text{organic}}) + C_{\text{transport}}(\text{dist}_{\text{km}})}{1 - M_{\text{overhead}}}
 \end{equation}
-
-where:
-\begin{itemize}[leftmargin=1.5cm]
-	\item $\text{APMC}_{\text{modal}}$: The official daily modal price indexed from the Directorate of Marketing \& Inspection (Agmarknet) for the nearest terminal mandi (e.g., APMC Yeshwanthpur or Binny Mills).
-	\item $\alpha_{\text{grade}}$: Empirical quality multiplier verified during aggregator hub assaying ($+0.15$ for Grade A+, $0.00$ for Grade A, and $-0.10$ for Grade B).
-	\item $\beta_{\text{organic}}$: Verified organic certification markup ($+0.20$ for certified zero-chemical produce).
-	\item $C_{\text{transport}}$: Energy and fleet logistics cost dynamically calculated over corridor distance $\text{dist}_{\text{km}}$ via capacitated vehicle routing.
-	\item $M_{\text{overhead}}$: Consolidated multi-tier operational margin fraction ($10\% \text{ Hub} + 14\% \text{ Logistics} + 8\% \text{ Platform} = 32\%$).
-\end{itemize}
-
-Under Eq. \ref{eqn:fair_pricing}, the net payout directly released to the farmer is given by:
+where $\alpha_{\text{grade}}$ is the quality multiplier ($+0.15$ for Grade A+, $0.00$ for Grade B, $-0.10$ for Grade C), $\beta_{\text{organic}} = +0.20$ for certified organic produce, and $M_{\text{overhead}} = 0.32$ (10\% Hub + 14\% Logistics + 8\% Platform). The net farmer payout is:
 \begin{equation}
 \label{eqn:farmer_payout}
 P_{\text{farmer}} = P_{\text{consumer}} \times 0.68
 \end{equation}
-guaranteeing a substantial 35\% to 48\% income uplift over distress farmgate rates.
+The price quote is locked at the moment of order placement.
 
-The operational execution of the hybrid recommendation engine is formalized in Algorithm \ref{alg:hybrid_rec}.
+\subsection{Operational Scenario: Multi-Supplier Fulfillment}
+When a customer or commercial mess places an order exceeding a single farmer's available inventory, AgriLink's order orchestration module automatically splits fulfillment across multiple sources. Table~\ref{tab:split_scenario} illustrates an order for 100~kg of Grade A tomatoes, drawing from two local farms and one hub warehouse.
 
-\begin{algorithm}[h]
-\caption{Dual-Stage Hybrid Produce Recommendation Algorithm}
-\label{alg:hybrid_rec}
-\begin{algorithmic}[1]
-\STATE \textbf{Input:} User identifier $u$, Candidate active batch set $\mathcal{I}_{\text{active}}$, Latent factor matrices $\mathbf{P}, \mathbf{Q}$, Bias terms $b_u, \mathbf{b}$, User profile vector $\mathbf{c}_u$, Metadata matrix $\mathbf{V}$, Target recommendation count $K$.
-\STATE \textbf{Output:} Top-$K$ ranked personalized harvest batches $\mathcal{R}_K$.
-\STATE Initialize candidate score list $\mathcal{S} \leftarrow \emptyset$
-\FOR{\textbf{each} produce listing $i \in \mathcal{I}_{\text{active}}$}
-	\IF{User interaction count $|\mathcal{K}_u| \ge \tau_{\text{warm}}$}
-		\STATE Compute collaborative score: $\hat{S}_{\text{SVD}}(u, i) = \mu + b_u + b_i + \mathbf{p}_u^T \mathbf{q}_i$
-		\STATE Compute content cosine similarity: $\hat{S}_{\text{content}}(u, i) = \frac{\mathbf{c}_u \cdot \mathbf{v}_i}{\|\mathbf{c}_u\|_2 \|\mathbf{v}_i\|_2}$
-		\STATE Blend composite score: $\hat{R}_{u, i} = \alpha \cdot \hat{S}_{\text{SVD}}(u, i) + (1 - \alpha) \cdot \hat{S}_{\text{content}}(u, i)$
-	\ELSE
-		\STATE // Cold-start fallback: Weight content similarity and freshness decay
-		\STATE Retrieve harvest freshness interval: $\Delta t = t_{\text{current}} - t_{\text{harvest}}(i)$
-		\STATE $\hat{R}_{u, i} = \frac{\mathbf{c}_u \cdot \mathbf{v}_i}{\|\mathbf{c}_u\|_2 \|\mathbf{v}_i\|_2} \times \exp(-\lambda_{\text{decay}} \Delta t)$
-	\ENDIF
-	\STATE Append pair $(i, \hat{R}_{u, i})$ to $\mathcal{S}$
-\ENDFOR
-\STATE Sort $\mathcal{S}$ in descending order of $\hat{R}_{u, i}$
-\STATE Extract top-$K$ produce items: $\mathcal{R}_K \leftarrow \text{Slice}(\mathcal{S}, 1, K)$
-\STATE \textbf{return} $\mathcal{R}_K$
-\end{algorithmic}
-\end{algorithm}
+\begin{table}[h]
+\centering
+\caption{Illustrative Multi-Supplier Split Fulfillment and Transparent Settlement Scenario (100 kg Tomatoes).}
+\label{tab:split_scenario}
+\begin{tabular}{|l|c|c|r|}
+\hline
+\textbf{Fulfillment Source} & \textbf{Quantity Allocated} & \textbf{Unit Farmgate Price} & \textbf{Supplier Subtotal} \\ \hline
+Farmer A (Direct Farm, Mandya) & 40 kg & Rs.~30.00 / kg & Rs.~1,200.00 \\ \hline
+Farmer B (Direct Farm, Maddur) & 30 kg & Rs.~32.00 / kg & Rs.~960.00 \\ \hline
+Aggregator Hub A (Crate Reserve) & 30 kg & Rs.~34.00 / kg & Rs.~1,020.00 \\ \hline
+\textbf{Total Produce Cost} & \textbf{100 kg} & --- & \textbf{Rs.~3,180.00} \\ \hline
+Logistics \& Last-Mile Delivery & --- & --- & Rs.~100.00 \\ \hline
+\textbf{Customer Order Total} & --- & --- & \textbf{Rs.~3,280.00} \\ \hline
+\end{tabular}
+\end{table}
 
-\section{Workflow}
+Upon OTP-confirmed delivery, the automated escrow engine disburses payouts: Farmer A receives Rs.~1,200.00, Farmer B receives Rs.~960.00, Aggregator Hub A receives Rs.~1,020.00, the delivery partner receives Rs.~180.00, and the platform retains Rs.~140.00, maintaining complete financial reconciliation.
+
+\section{End-to-End Platform Workflow}
 \label{sec:workflow}
-The end-to-end technical workflow of AgriLink encompasses five tightly coordinated operational stages spanning farmgate harvesting to final doorstep fulfillment, illustrated in Fig. \ref{fig:workflow_diagram}.
+The end-to-end technical workflow encompasses five tightly coordinated operational stages, illustrated in Fig.~\ref{fig:workflow_diagram}.
 
 \begin{figure}[h]
 	\centering
@@ -99,57 +324,55 @@ The end-to-end technical workflow of AgriLink encompasses five tightly coordinat
 	\label{fig:workflow_diagram}
 \end{figure}
 
-The five sequential workflow stages operate as follows:
-
 \begin{enumerate}[label=\textbf{Stage \arabic*:}, leftmargin=2cm]
-	\item \textbf{Harvest Declaration and Optical Assay}: Smallholders pre-declare impending crop harvest batches 24 to 72 hours prior to physical harvest via the multilingual mobile application or voice interface. Farmers specify estimated yield (kg), crop variety, field GPS coordinates, and upload high-resolution crate photographs for automated optical color and defect grading.
-	
-	\item \textbf{Rural Micro-Hub Aggregation}: Harvested crates are delivered to local consolidation micro-hubs located within a 15--30 km radius (e.g., Devanahalli or Doddaballapur hubs). The hub manager performs digital gross-tare weighment using Bluetooth-enabled industrial scales and records certified quality grades ($A+$, $A$, $B$) into the Supabase PostgreSQL platform. An immutable digital assay receipt is instantly generated and pushed to the farmer's mobile interface.
-	
-	\item \textbf{Algorithmic Matching, Pricing and Escrow Lock}: Upon batch verification, the listing is dynamically published to the catalog. The hybrid recommendation engine (Algorithm \ref{alg:hybrid_rec}) matches listings to registered retail and institutional buyers. When an order is placed, the dynamic fair pricing engine computes unit costs using Eq. \ref{eqn:fair_pricing}, and consumer payment is locked in a non-custodial smart escrow contract.
-	
-	\item \textbf{Capacitated Fleet Transit}: Orders are clustered using $K$-Means spatial partitioning, and optimized multi-drop routes are solved via Capacitated Vehicle Routing Problem (VRP) heuristics. Clean electric three-wheeler cargo fleets transport consolidated crates from rural hubs to urban distribution points along the 85 km corridor in sub-12 hour transit windows, preserving post-harvest moisture and nutritional integrity.
-	
-	\item \textbf{Proof of Delivery and Instant Escrow Settlement}: Upon doorstep arrival, the recipient inspects produce freshness and confirms receipt by providing a secure One-Time Password (OTP) to the courier. The rider app verifies the OTP hash against the backend API, triggering instantaneous automated UPI escrow payout: exactly 68\% is credited to the farmer's bank account, 10\% to the aggregator hub, 14\% to the logistics carrier, and 8\% to platform maintenance.
+	\item \textbf{Harvest Declaration and Optical Assay}: Smallholders pre-declare crop harvest batches 24--72 hours prior to physical harvest via the Flutter mobile app or voice interface. Farmers specify estimated yield, variety, GPS location, and upload crate photos for optical grading.
+	\item \textbf{Rural Micro-Hub Aggregation}: Harvested crates are brought to local hubs (within 15--30~km). The hub manager performs digital gross-tare weighment on Bluetooth scales, records certified grades into Supabase, and generates digital assay receipts.
+	\item \textbf{Algorithmic Matching, Pricing and Escrow Lock}: The seven-model recommendation engine matches listings to registered buyers. The pricing engine computes unit costs via Eq.~\ref{eqn:fair_pricing}, and consumer payment is locked in smart escrow.
+	\item \textbf{Capacitated Fleet Transit}: Orders are clustered using $K$-Means spatial partitioning and routed via Capacitated Vehicle Routing Problem (VRP) heuristics \cite{Dantzig1959}. Electric cargo vehicles transport consolidated crates along the 85~km Mandya--Bengaluru corridor in sub-12 hour transit windows.
+	\item \textbf{Proof of Delivery and Instant Escrow Settlement}: Upon doorstep arrival, the recipient confirms receipt via a secure OTP. Verification triggers automated UPI escrow payout: 68\% to the farmer, 10\% to the aggregator hub, 14\% to logistics, and 8\% to platform maintenance.
 \end{enumerate}
 
 \section{Tools and Technologies Used}
 \label{sec:Tools}
-The implementation of AgriLink leverages production-grade hardware infrastructure and a modular modern software stack.
 
 \subsection{Hardware Details}
 \label{subsec:Hw_Spec}
-The development, model training, and performance benchmarking of AgriLink were executed on the following hardware environments:
-
 \begin{itemize}[leftmargin=1.5cm]
-	\item \textbf{Deep Learning Acceleration Server}: Equipped with an NVIDIA GeForce RTX 4090 GPU (24 GB GDDR6X VRAM, 16,384 CUDA cores, 512 Fourth-Generation Tensor Cores), Intel Core i9-14900K processor (24 cores, 32 threads, up to 6.0 GHz), and 64 GB DDR5 6000 MHz RAM. This workstation was dedicated to fine-tuning Whisper-base ASR acoustic models, generating multilingual sentence embeddings, and compiling dense FAISS index caches.
-	\item \textbf{Cloud Application Hosting Server}: Hosted on an enterprise Linux server running Ubuntu 22.04 LTS with 8 vCPUs, 32 GB RAM, and high-speed NVMe solid-state storage with gigabit symmetric fiber uplinks.
-	\item \textbf{Edge Client Devices}: Mobile testing was conducted on commercial Android smartphones (Snapdragon 778G / 8 Gen 2, 8 GB RAM, running Android 13/14) and iOS devices (Apple A16 Bionic, iOS 17) to ensure responsive rendering and sub-second speech streaming under rural 3G/4G bandwidth constraints.
-	\item \textbf{IoT Micro-Hub Peripherals}: Industrial digital weighing scales equipped with HC-05 Bluetooth modules for direct serial telemetry ingestion into aggregator mobile tablets.
+	\item \textbf{Development Workstation}: ASUS VivoBook 15 laptop equipped with Intel Core i7 H-series processor, 16 GB DDR4 RAM, and 512 GB NVMe SSD for full-stack service integration and recommendation modeling.
+	\item \textbf{Deep Learning Acceleration Server}: NVIDIA GeForce RTX 4090 GPU (24 GB GDDR6X), Intel Core i9-14900K, 64 GB DDR5 RAM for Whisper-base ASR fine-tuning and FAISS vector index compilation.
+	\item \textbf{Cloud Application Hosting}: Ubuntu 22.04 LTS, 8 vCPUs, 32 GB RAM, gigabit network connectivity.
+	\item \textbf{Edge Devices \& IoT Peripherals}: Android smartphones (Snapdragon 778G / 8 Gen 2, Android 13/14), Apple iPhones (iOS 17), and HC-05 Bluetooth industrial weighing scales.
 \end{itemize}
 
 \subsection{Software Details}
 \label{subsec:Sw_Spec}
-AgriLink integrates a high-performance, open-source software stack organized across four architectural tiers:
-
 \begin{itemize}[leftmargin=1.5cm]
-	\item \textbf{Backend Web Services}: Developed with Python 3.11 and the asynchronous \textbf{FastAPI} microservices framework running atop \textbf{Uvicorn ASGI}. High-throughput concurrency is achieved via non-blocking asynchronous event loops (`async`/`await`), with automated schema validation enforced by \textbf{Pydantic v2}.
-	\item \textbf{Database and Spatial Infrastructure}: Powered by an enterprise \textbf{Supabase PostgreSQL 15} relational instance strictly normalized to 3NF and BCNF standards across 18 core relational tables. Geospatial proximity queries (farmgate radius and VRP routing) are computed using the \textbf{PostGIS} extension. Semantic vector search for chatbot caching is accelerated using the \textbf{pgvector} extension. Database security is enforced via granular \textbf{Row Level Security (RLS)} policies.
-	\item \textbf{Machine Learning and NLP Frameworks}:
-	\begin{itemize}
-		\item \textbf{PyTorch 2.2} and \textbf{Hugging Face Transformers} for neural network inference.
-		\item \textbf{OpenAI Whisper-base} for Automatic Speech Recognition (ASR).
-		\item \textbf{AI4Bharat IndicTrans2} for high-fidelity translation across Indic languages (Kannada, Telugu, Hindi, Malayalam).
-		\item \textbf{Facebook AI Similarity Search (FAISS)} for dense vector nearest-neighbor retrieval over agricultural agronomy corpora.
-		\item \textbf{Scikit-learn} and \textbf{SciPy} for Truncated SVD matrix decomposition and TF-IDF feature extraction.
-	\end{itemize}
-	\item \textbf{Frontend and Client Interfaces}:
-	\begin{itemize}
-		\item Cross-platform mobile application engineered with \textbf{Flutter 3.x} / Dart, supporting offline caching and speech recording.
-		\item Web portal developed using \textbf{React 18} and \textbf{Next.js}, styled with modern responsive components and interactive Leaflet map layers.
-	\end{itemize}
-	\item \textbf{Blockchain Ledger Integration}: Smart contracts deployed on the \textbf{Polygon (MATIC) Layer-2} proof-of-stake network using Solidity 0.8.20 and Web3.py for cryptographic hash anchoring and automated non-custodial escrow release.
+	\item \textbf{Backend Web Services}: Python 3.11 with \textbf{FastAPI} and \textbf{Uvicorn ASGI}, Java 21 with \textbf{Spring Boot 3.x} (Maven), and \textbf{Node.js v24.16.0} with Express.
+	\item \textbf{Database and Persistence}: \textbf{PostgreSQL 17} / \textbf{Supabase} (3NF/BCNF, 47 relational tables, Row-Level Security, PostGIS spatial extensions), with \textbf{SQLite} for local testing.
+	\item \textbf{Machine Learning \& Data Science Stack}: \textbf{PyTorch 2.2}, \textbf{LightFM} \cite{Kula2015}, \textbf{scikit-learn} \cite{Pedregosa2011}, \textbf{mlxtend} (FP-Growth), \textbf{pandas}, \textbf{NumPy}, \textbf{OpenAI Whisper} \cite{Hannun2014}, and \textbf{AI4Bharat IndicTrans2}.
+	\item \textbf{Client Frontend}: \textbf{Flutter 3.44.1} / Dart \cite{Flutter2024} with \texttt{speech\_to\_text} \cite{PubdevSTT} across six Indic locales, alongside \textbf{React 18} for administrative portals.
+	\item \textbf{Integration and Trust Services}: \textbf{Razorpay} payment gateway, \textbf{Firebase Cloud Messaging} (FCM), \textbf{Twilio} SMS API, \textbf{Google Cloud Gmail SMTP} (port 587 TLS), and \textbf{Polygon (MATIC)} Layer-2 smart contracts (Solidity 0.8.20).
 \end{itemize}
 
+\subsection{Cloud Architecture, CI/CD Pipeline, and Deployment Topology}
+\label{subsec:Cloud_CI_CD}
+AgriLink is engineered under an intentional \textbf{Hybrid Edge-Cloud Distributed Architecture} that balances centralized cloud analytics with rural edge survivability:
+\begin{enumerate}
+    \item \textbf{Centralized Cloud Tier (Supabase, Google Cloud, and Render)}:
+    \begin{itemize}
+        \item \textit{Database and Auth Cloud}: The primary relational data store is hosted on Supabase Cloud (AWS \texttt{ap-southeast-1} regional cluster) running PostgreSQL 17 with Row-Level Security (RLS) policies. Authentication handshakes are routed through Supabase Auth, Google Cloud OAuth 2.0 endpoints, and a transactional Gmail SMTP relay.
+        \item \textit{Microservice Cloud Deployment (Render)}: The asynchronous Python FastAPI ML and NLP engine is containerized and hosted as an auto-scaling cloud web service on Render (\texttt{render.yaml}), executing via Uvicorn ASGI on Python 3.11 with live APMC mandi ingestion.
+        \item \textit{Frontend Web Hosting (GitHub Pages)}: The cross-platform Flutter Web application is continuously built and published to GitHub Pages, providing zero-downtime global content distribution across desktop and mobile browsers.
+    \end{itemize}
+    
+    \item \textbf{Edge and Rural Gateway Tier}: In rural agricultural corridors (e.g., Mandya and Doddaballapur), continuous high-bandwidth internet connectivity cannot be guaranteed for field workers. AgriLink's architecture decouples critical transactional logic and offline fallback datasets so that regional aggregator micro-hubs maintain local Bluetooth weighment, optical grading, and offline caching ($< 15\text{ ms}$ response latency) even during transient cellular blackouts.
+    
+    \item \textbf{Continuous Integration and Continuous Deployment (CI/CD)}: The engineering lifecycle is governed by an enterprise 3-job GitHub Actions workflow triggered on every repository commit:
+    \begin{itemize}
+        \item \texttt{backend-ml-nlp-ci}: Spawns an Ubuntu 22.04 virtual machine with Python 3.11, installing scikit-learn and FastAPI dependencies to execute six comprehensive test suites (modular NLP unit tests, conversational vernacular tests, farmer RLS isolation, live Mandi APMC feed, recommendation multi-model contracts, and full system regression).
+        \item \texttt{mobile-app-ci}: Sets up Temurin Java 17 and Flutter stable SDK, executing dependency resolution (\texttt{flutter pub get}), static analysis (\texttt{flutter analyze}), and production web bundling.
+        \item \texttt{deploy-github-pages}: Automatically packages the Flutter Web build with parameterized base-href routing and deploys directly to GitHub Pages using \texttt{actions/deploy-pages@v4}.
+    \end{itemize}
+\end{enumerate}
+
 \chapterend
-\cleardoublepage
