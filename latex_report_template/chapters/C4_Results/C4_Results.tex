@@ -10,7 +10,7 @@ The quantitative validation of AgriLink was conducted using a pilot dataset comp
 
 We evaluated the predictive precision and ranking quality of the three core recommendation models on a held-out test split (20\%). The benchmark compared four architectural variants: Pure Collaborative Filtering (SVD), Pure Content-Based TF-IDF, FP-Growth association rules, and the proposed AgriLink Dual-Stage Hybrid Model. Table~\ref{tab:rec_results} reports RMSE, MAE, Precision@5, Recall@5, and NDCG@10.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Quantitative Performance Comparison of Produce Recommendation Architectures.}
 	\label{tab:rec_results}
@@ -33,7 +33,7 @@ As shown in Table~\ref{tab:rec_results}, the proposed AgriLink hybrid model achi
 
 Table~\ref{tab:extended_models} evaluates the four extended recommendation models served by the Discover dashboard, assessed on Recall@5, NDCG@10, and average cold-start coverage.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Extended Recommendation Model Performance on Discover Dashboard.}
 	\label{tab:extended_models}
@@ -56,7 +56,7 @@ All four extended models achieve 100\% cold-start coverage, as each implements a
 
 Table~\ref{tab:role_models} summarizes evaluation results for the three role-specific models serving farmers and aggregators.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Role-Specific Recommendation Evaluation.}
 	\label{tab:role_models}
@@ -75,7 +75,7 @@ Table~\ref{tab:role_models} summarizes evaluation results for the three role-spe
 
 The AgriTalk NLP engine was evaluated on 500 held-out query samples across six intent classes in three languages (English, Kannada, Hindi). Table~\ref{tab:nlp_intent} reports intent classification accuracy per class, and Table~\ref{tab:nlp_results} reports speech pipeline metrics.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{NLP Intent Classification Accuracy by Class (TF-IDF Cosine Similarity).}
 	\label{tab:nlp_intent}
@@ -92,7 +92,7 @@ The AgriTalk NLP engine was evaluated on 500 held-out query samples across six i
 	\end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Multilingual Speech-to-Speech Advisory Pipeline Performance across Indic Dialects.}
 	\label{tab:nlp_results}
@@ -116,7 +116,7 @@ The Flutter \texttt{VoiceInputField} widget \cite{PubdevSTT, Flutter2024}, integ
 
 The asynchronous FastAPI backend was stress-tested under simulated concurrent user traffic (50, 200, and 500 simultaneous requests) using Locust, benchmarked against Flask and Node.js baselines. Table~\ref{tab:api_benchmarks} reports throughput and latency.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Backend Gateway Throughput and API Response Latency Under Heavy Concurrency.}
 	\label{tab:api_benchmarks}
@@ -141,7 +141,7 @@ The asynchronous FastAPI backend was stress-tested under simulated concurrent us
 
 The dynamic pricing engine was evaluated against 1,200 real APMC daily transaction records from Karnataka market yards (Channapatna, Ramanagara, Mandya, and Bengaluru). The native scikit-learn 1.9+ \texttt{RandomForestRegressor} pipeline was trained on five numerical and categorical feature dimensions (APMC modal price, grade multiplier, organic certification, distance, and perishability index). Table~\ref{tab:pricing_metrics} summarizes the predictive accuracy and latency metrics.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Dynamic Pricing Engine and Mandi Cloud API Performance.}
 	\label{tab:pricing_metrics}
@@ -164,7 +164,7 @@ The live Mandi API client maintained a 99.8\% availability rate during continuou
 
 Table~\ref{tab:auth_benchmarks} evaluates the end-to-end response latency, completion rate, and security characteristics across the four supported authentication mechanisms.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Four-Method Authentication Suite Latency and Completion Rates.}
 	\label{tab:auth_benchmarks}
@@ -193,7 +193,7 @@ The automated GitHub Actions CI/CD pipeline was evaluated across 25 consecutive 
 
 Table~\ref{tab:economic_impact} presents a field economic impact study comparing 120 completed AgriLink orders against historical APMC mandi trading records for identical crop grades.
 
-\begin{table}[h]
+\begin{table}[htbp]
 	\centering
 	\caption{Microeconomic Welfare and Supply Chain Efficiency Impact Evaluation.}
 	\label{tab:economic_impact}

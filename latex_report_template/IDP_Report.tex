@@ -1,118 +1,60 @@
 \documentclass{idp_report}
-\usepackage[intoc]{nomencl}
-\usepackage{lipsum}
-%create the list of symbols page
-\makenomenclature
-%rename nomenclature to List of Symbols
-%\renewcommand{\nomname}{List of Symbols}
 
 \setlength\parindent{24pt}
 
+% Math packages
 \usepackage{amsmath}
 \usepackage{amsfonts}
-%\usepackage{amssymb}
-%\usepackage{array}
-%\usepackage{fullpage}
-\usepackage{threeparttable}
-\usepackage{wasysym}
-%\usepackage{graphicx}
-%\usepackage{multicol}
-%\usepackage{multirow}
-\usepackage{url}
-\usepackage{xcolor}
-\usepackage{verbatim} 
-\usepackage{csquotes}
-%\usepackage{booktabs}
-%\usepackage[ruled,linesnumbered]{algorithm2e}
-%\usepackage{algorithmic}
-%\usepackage[lofdepth,lotdepth]{subfig}
-\usepackage{tikz}
-\usepackage{tikz,lipsum,lmodern}
-\usepackage[most]{tcolorbox}
-%\usetikzlibrary{matrix,calc}
-%\newtheorem{definition}{Definition}
-%\usepackage{algorithm} 
-%\usepackage{algpseudocode} 
-\usepackage{ragged2e}
-\usepackage{float}
-\usepackage{lineno}
-%\usepackage{wrapfig}
-%\usepackage{amssymb}
-\usepackage{enumerate}
-%\usepackage{caption}
-%\usepackage{multirow,bigstrut}
-%\usepackage{subfigure}
-%\usepackage{algorithm}
-%\usepackage{algorithmic}
-%\usepackage[ruled, linesnumbered]{algorithm2e}
-\usepackage{setspace}
-\usepackage{enumitem}
-%to set the page numbers properly, include the package 'savepage'
-%\newcounter{savepage}
-\usepackage{pifont}
-\usepackage{fourier-orns}
-%\usepackage{adforn}
-\usepackage{tikz}
-\usepackage{PTSansNarrow}
-\usepackage[T1]{fontenc}
-\usetikzlibrary{matrix}
-%\usepackage{rotating}
-\usepackage{adjustbox}
-%\usepackage[nottoc]{tocbibind}
-\usepackage{pdfpages} % For including pdf files
+\usepackage{amssymb}
+\usepackage{mathtools}
 
-%*** For bookmarks ***
-%\usepackage[depth=3]{bookmark}% Show up to level 4 (\paragraph) in bookmarks. Use it with booktabs package.
-\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
-%\setcounter{tocdepth}{3}
+% Font and encoding
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Table packages
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{threeparttable}
+\newcolumntype{M}{>{$\vcenter\bgroup\hbox\bgroup}c<{\egroup\egroup$}}
+
+% Figures and formatting
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{pdfpages}
+\usepackage{ragged2e}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{csquotes}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{wasysym}
+\usepackage{fourier-orns}
+
+% Algorithms (idp_report.cls already loads algorithm)
+\usepackage{algcompatible}
+
+% Section numbering depth
 \setcounter{secnumdepth}{3}
 
-%*** For Printing the Abbrevations Alphabetically ***
-%\usepackage[acronym]{glossaries}
-%\makeglossaries
-
+% Custom ornaments and commands
 \newcommand\crulefill[1][1ex]{\leavevmode\leaders\hrule depth \dimexpr-#1+0.4pt height #1\hfill\kern0pt}
 \newcommand\ornline[2][1ex]{\trivlist\item\crulefill[#1]#2\crulefill[#1]\endtrivlist}
-
 \newcommand{\chapterend}{\ornline[0.6ex]{\decofourleft\decofourleft\decosix\decoone\decosix\decofourright\decofourright}}
 
 \newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
 \newcommand{\tab}[1]{\hspace{.2\textwidth}\rlap{#1}}
 
-
 \newtheorem{definition}{Definition}[chapter]
 
-\usepackage{array}
-\newcolumntype{M}{>{$\vcenter\bgroup\hbox\bgroup}c<{\egroup\egroup$}}
-
-%
-%\graphicspath{ {./chapters/Chapter_3/} {./chapters/Chapter_4/} {./chapters/Chapter_5/}{./chapters/Chapter_6/}{./chapters/Chapter_7/}}
-
-
-% *** MATH PACKAGES : for symbols ***
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{mathtools}
-
-% *** GRAPHICS PACKAGES : For subfigures ***
-\usepackage{subcaption}
-
-% *** For Algorithms ***
-\usepackage{algorithm}
-\usepackage{algcompatible}
-
-% *** ALIGNMENT PACKAGES : for tables ***
-%\usepackage{array}
-%\usepackage{booktabs}
-
-%*** For Hyperlinks and reference links ***
+% Hyperref setup (hyperref is already loaded in idp_report.cls)
 \hypersetup{
-    colorlinks=false,
-    pdfborder={0 0 0},
-}						% Removes the colored boxes around the hyperlinks
-
-\usepackage{hyperref}
-\hypersetup{backref, colorlinks=true, linkcolor={black}, citecolor={cyan}, anchorcolor={green}, urlcolor={magenta}}
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=cyan,
+    urlcolor=magenta
+}
 
 
 
@@ -175,8 +117,7 @@
 \addcontentsline{toc}{chapter}{\numberline{}List of Tables}
 \clearpage
 
-%% list of symbols. You may comment this part if you do not have any symbols or abbreviations that you need to define separately.
-\printnomenclature
+%% list of symbols and abbreviations
 \input{./symbols_glossary/symbols.tex}
 \clearpage
 %\cleardoublepage

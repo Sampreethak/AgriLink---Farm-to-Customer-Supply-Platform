@@ -6,7 +6,7 @@
 \label{sec:system_concept}
 AgriLink is architected as an intelligent direct farm-to-consumer digital supply ecosystem. The platform connects five distinct stakeholder groups: smallholder farmers, village-level aggregators (including women's Self-Help Groups and PACS cooperatives), retail consumers, institutional bulk buyers (hostel messes, hospital canteens), and local delivery partners, governed under unified administrative oversight.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.95\textwidth]{Figures/C3_Methodology/agrilink_platform_arch.png}
 	\caption{AgriLink High-Level Multi-Tier System Architecture Illustrating Multilingual Mobile Clients, Aggregator Hubs, Central Database, Microservices, and Fleet Logistics.}
@@ -58,7 +58,7 @@ AgriLink decouples computational intelligence from transactional order processin
 \label{sec:database_design}
 The AgriLink database is implemented in PostgreSQL 17 (hosted on Supabase) and is fully normalized to Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF). The complete schema comprises 47 production entities organized across eight core functional modules, using UUID primary keys, foreign key constraints with cascade safeguards, and explicit timestamps.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 	\centering
 	\includegraphics[width=\textwidth]{Figures/C3_Methodology/database_schema.jpg}
 	\caption{AgriLink Comprehensive Relational Database Entity-Relationship Diagram (47 Tables, Normalized 3NF/BCNF with Full Referential Constraints).}
@@ -79,7 +79,7 @@ As mapped in the comprehensive ER diagram in Fig.~\ref{fig:database_schema}, the
 
 Table~\ref{tab:database_modules} consolidates the core database modules and their primary architectural responsibilities.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Consolidated Functional Database Modules and Key Entities (47 Tables).}
 \label{tab:database_modules}
@@ -217,7 +217,7 @@ Algorithm~\ref{alg:hybrid_rec} formalizes the operational execution of the hybri
 
 Table~\ref{tab:endpoints} summarizes all 15 REST API endpoints exposed at base path \texttt{/api/v1/}.
 
-\begin{table}[h]
+\begin{table}[htbp]
     \centering
     \caption{AgriLink Recommendation and NLP REST API Endpoints.}
     \label{tab:endpoints}
@@ -260,7 +260,7 @@ To maximize maintainability and eliminate monolithic coupling, the natural langu
     \item \textbf{Backward-Compatibility Layer (\texttt{nlp\_query\_engine.py})}: Implements transparent shims supporting legacy imports (\texttt{from ml.nlp\_query\_engine import FarmerDatabaseNLPQueryEngine}), preserving end-to-end compatibility across the entire microservice fleet.
 \end{itemize}
 
-\begin{table}[h]
+\begin{table}[htbp]
     \centering
     \caption{NLP Intent Classes with Override Keywords.}
     \label{tab:intents}
@@ -295,7 +295,7 @@ The price quote is locked at the moment of order placement.
 \subsection{Operational Scenario: Multi-Supplier Fulfillment}
 When a customer or commercial mess places an order exceeding a single farmer's available inventory, AgriLink's order orchestration module automatically splits fulfillment across multiple sources. Table~\ref{tab:split_scenario} illustrates an order for 100~kg of Grade A tomatoes, drawing from two local farms and one hub warehouse.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \caption{Illustrative Multi-Supplier Split Fulfillment and Transparent Settlement Scenario (100 kg Tomatoes).}
 \label{tab:split_scenario}
@@ -317,7 +317,7 @@ Upon OTP-confirmed delivery, the automated escrow engine disburses payouts: Farm
 \label{sec:workflow}
 The end-to-end technical workflow encompasses five tightly coordinated operational stages, illustrated in Fig.~\ref{fig:workflow_diagram}.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.92\textwidth]{Figures/C3_Methodology/workflow.png}
 	\caption{AgriLink Multi-Tier End-to-End System Workflow Architecture.}
