@@ -265,18 +265,21 @@
 \newcommand{\tbox}{%
     \ifsupervisortwo
         \begin{minipage}{.45\textwidth}
-            \textbf{\@supervisoronename}\par
+            \centering
+            \textbf{\@supervisoronename}\\
             \@supervisoronedesignation
         \end{minipage}%
+        \hfill
         \begin{minipage}{.45\textwidth}
-            \begin{flushright}
-                \textbf{\@supervisortwoname}\par
-                \@supervisortwodesignation
-            \end{flushright}
+            \centering
+            \textbf{\@supervisortwoname}\\
+            \@supervisortwodesignation
         \end{minipage}%
     \else
-        \textbf{\@supervisoronename}\par
-        \@supervisoronedesignation
+        \begin{tabular}{c}
+            \textbf{\@supervisoronename} \\
+            \@supervisoronedesignation
+        \end{tabular}%
     \fi
 }
 
@@ -288,14 +291,15 @@
     \ifsupervisortwo
         \noindent
         \begin{minipage}{.50\textwidth}
-            {\large \textbf{\@supervisoronename}}\par
-            {\large \@supervisoronedesignation}\par
+            {\large \textbf{\@supervisoronename}}\\
+            {\large \@supervisoronedesignation}\\
             {\large Email: \@supervisoroneemail}
         \end{minipage}%
+        \hfill
         \begin{minipage}{.50\textwidth}
             \begin{flushright}
-                {\large \textbf{\@supervisortwoname}}\par
-                {\large \@supervisortwodesignation}\par
+                {\large \textbf{\@supervisortwoname}}\\
+                {\large \@supervisortwodesignation}\\
                 {\large Email: \@supervisortwoemail}
             \end{flushright}
         \end{minipage}%
@@ -303,16 +307,16 @@
             \vspace{8pt}\par
             \noindent
             \begin{minipage}{\textwidth}
-                {\large \textbf{\@hodname}}\par
-                {\large \@hoddesignation}\par
+                {\large \textbf{\@hodname}}\\
+                {\large \@hoddesignation}\\
                 {\large Email: \@hodemail}
             \end{minipage}%
         \fi
     \else
         \noindent
         \begin{minipage}{\textwidth}
-            {\large \textbf{\@supervisoronename}}\par
-            {\large \@supervisoronedesignation}\par
+            {\large \textbf{\@supervisoronename}}\\
+            {\large \@supervisoronedesignation}\\
             {\large Email: \@supervisoroneemail}
         \end{minipage}%
     \fi
@@ -348,10 +352,9 @@
         \fi
     \else
         \begin{flushleft}
-            \makebox[2.5in]{\hrulefill}
-            
-            \@supervisoronename
-            
+            \makebox[2.5in]{\hrulefill}\\
+            \vspace{4pt}
+            \@supervisoronename\\
             (Project Guide)
         \end{flushleft}
     \fi
@@ -387,9 +390,9 @@
 		in\\[0.2 in]
 		{\large {\textbf{\@program}}}\\[0.4 in]
 		by\\[0.2 in]
-		\authorsblock\\[0.4 in]
-		{\large {\textit {Under the supervision of}}}\\[0.2 in]
-		{\large {\textbf{\tbox}}}\\[0.4 in]
+		\authorsblock\\[0.3 in]
+		{\large {\textit {Under the supervision of}}}\\[0.12 in]
+		{\large \tbox}\\[0.3 in]
 		{\large {\textbf{{\color{black} Course Name: Interdisciplinary Project}}}}\\ % 
         {\large {\textbf{Course Code: DATA802}}}\\[0.1 in] % 
         \includegraphics[scale=0.5]{vu_logo.pdf}
