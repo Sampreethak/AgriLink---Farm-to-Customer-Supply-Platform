@@ -18,5 +18,9 @@ python-dotenv>=1.0.0
 python-multipart>=0.0.6
 httpx>=0.24.0
 
+# Database Drivers
+psycopg2-binary>=2.9.0
+sqlalchemy>=1.4.0
+
 # Excel & Data Import
 openpyxl>=3.0.0

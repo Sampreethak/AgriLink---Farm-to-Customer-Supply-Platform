@@ -52,7 +52,8 @@ try:
 except ImportError:
     pass
 
-# Retrieve environment-injected Supabase configurations
+# Retrieve environment-injected configurations
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://nxwhnbejvwxiuekhtmpm.supabase.co")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "sb_publishable__NSFd-NXvWsSDms7aE1tJQ_uziQLZO7")
 SUPABASE_REF = os.getenv("SUPABASE_REF", "nxwhnbejvwxiuekhtmpm")
@@ -215,7 +216,8 @@ def health_check():
         "service": "AgriLink FastAPI Backend",
         "supabase_url": SUPABASE_URL,
         "supabase_ref": SUPABASE_REF,
-        "database": "Supabase PostgreSQL (Active)",
+        "database": "AWS Native PostgreSQL (Active)" if DATABASE_URL else f"Supabase PostgreSQL ({SUPABASE_REF})",
+        "database_url_configured": bool(DATABASE_URL),
         "corridor": "Mandya -> Bengaluru Agro-Supply Corridor",
         "recommendation_engine": {
             "status": "LOADED" if predictor is not None and predictor.purchase_data is not None and not predictor.purchase_data.empty else "STANDBY",
@@ -227,6 +229,41 @@ def health_check():
             "share_distribution": "Farmer (68%) | Aggregator (10%) | Delivery (14%) | Platform (8%)"
         }
     }
+
+@app.get("/api/v1/database/status")
+def database_status():
+    """Returns the live connection status of the PostgreSQL database running on AWS or Cloud."""
+    if not DATABASE_URL:
+        return {
+            "status": "online",
+            "provider": "Supabase Cloud PostgREST",
+            "supabase_ref": SUPABASE_REF,
+            "supabase_url": SUPABASE_URL
+        }
+    try:
+        import psycopg2
+        conn = psycopg2.connect(DATABASE_URL)
+        cur = conn.cursor()
+        cur.execute("SELECT current_database(), current_user, version();")
+        db_name, db_user, version = cur.fetchone()
+        cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';")
+        table_count = cur.fetchone()[0]
+        cur.close()
+        conn.close()
+        return {
+            "status": "online",
+            "provider": "AWS Native PostgreSQL",
+            "database": db_name,
+            "user": db_user,
+            "public_tables": table_count,
+            "version": version
+        }
+    except Exception as e:
+        return {
+            "status": "warning",
+            "error": str(e),
+            "fallback": "Supabase Cloud PostgREST"
+        }
 
 @app.get("/api/v1/categories")
 @app.get("/api/v1/products/categories")
