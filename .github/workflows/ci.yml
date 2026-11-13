@@ -152,3 +152,38 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # ============================================================================
+  # 5. CONTINUOUS DEPLOYMENT TO AWS EC2 (AUTOMATIC ON GIT PUSH)
+  # ============================================================================
+  deploy-aws-ec2:
+    name: Deploy to AWS EC2
+    needs: [backend-ml-nlp-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Deploy updates to AWS EC2 via SSH
+        env:
+          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
+          AWS_EC2_USER: ${{ secrets.AWS_EC2_USER || 'ubuntu' }}
+          AWS_EC2_SSH_KEY: ${{ secrets.AWS_EC2_SSH_KEY }}
+        run: |
+          if [ -z "$AWS_EC2_HOST" ] || [ -z "$AWS_EC2_SSH_KEY" ]; then
+            echo "ℹ️ AWS_EC2_HOST or AWS_EC2_SSH_KEY secrets not set in GitHub repository settings. Skipping EC2 auto-deploy."
+            echo "To enable auto-deploy on git push, add AWS_EC2_HOST and AWS_EC2_SSH_KEY in Settings -> Secrets and variables -> Actions."
+            exit 0
+          fi
+          mkdir -p ~/.ssh
+          echo "$AWS_EC2_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$AWS_EC2_HOST" >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=no "$AWS_EC2_USER@$AWS_EC2_HOST" << 'EOF'
+            cd ~/AgriLink---Farm-to-Customer-Supply-Platform || exit 0
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart agrilink
+            echo "✅ AgriLink live on AWS EC2 updated successfully!"
+          EOF
