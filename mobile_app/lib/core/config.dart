@@ -28,7 +28,7 @@ class AppConfig {
   // FastAPI ML / Logistics Core API Gateway
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:8000/api/v1',
+    defaultValue: 'https://agrilink-backend-ml.onrender.com/api/v1',
   );
 
   // Environment Mode (development | staging | production)

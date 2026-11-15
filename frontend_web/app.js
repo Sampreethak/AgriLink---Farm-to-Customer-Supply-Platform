@@ -1,6 +1,6 @@
 // AgriLink Multi-Model Customer Recommendation Web Dashboard Logic
 
-const API_ML_URL = "http://127.0.0.1:8000";
+const API_ML_URL = "https://agrilink-backend-ml.onrender.com";
 let currentCustomerId = "d48b9f71-c110-4f5f-83da-7b65dbfbc328";
 let currentCart = [];
 
