@@ -31,3 +31,27 @@ build/
 # Logs & temp files
 *.log
 ~$*.docx
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Documents, Reports, Slides, Diagrams & Academic Research Papers (Keep code only on Git)
+# ─────────────────────────────────────────────────────────────────────────────
+*.docx
+*.pptx
+*.pdf
+*.zip
+AgriLink_*_Report.*
+AgriLink_Architecture_Diagram.html
+AgriLink_SIH*
+AgriLink_SFIC*
+docs/
+Research Papers/
+latex_report_template/
+Diagrams/
+_idp_work/
+
+# Temporary / Scratch scripts
+apply_*.py
+patch_*.py
+verify_*.py
+ocr_diagrams.ps1
+start_all_servers.py
