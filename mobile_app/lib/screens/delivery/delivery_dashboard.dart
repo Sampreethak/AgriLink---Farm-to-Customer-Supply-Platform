@@ -1,3 +1,5 @@
+import '../auth/login_screen.dart';
+import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../../services/platform_state.dart';
@@ -73,12 +75,15 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
-                (route) => false,
-              );
+            onPressed: () async {
+              await AuthService().logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
             },
           )
         ],

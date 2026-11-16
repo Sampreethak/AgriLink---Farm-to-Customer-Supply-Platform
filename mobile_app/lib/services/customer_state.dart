@@ -185,6 +185,18 @@ class CustomerState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void resetProfile() {
+    name = "AgriLink Member";
+    email = "";
+    phone = "";
+    location = "Bengaluru / Mandya Corridor";
+    role = "Individual Customer";
+    customerId = "99999999-9999-9999-9999-999999999999";
+    _cart.clear();
+    _orders.clear();
+    notifyListeners();
+  }
+
   // Cart Items State: key is produce name
   final Map<String, CartItemModel> _cart = {};
 

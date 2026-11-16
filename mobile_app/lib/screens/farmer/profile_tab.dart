@@ -1,3 +1,4 @@
+import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/platform_state.dart';
@@ -232,16 +233,18 @@ class ProfileTab extends StatelessWidget {
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
                           ),
-                          onPressed: () {
-
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
-                              ),
-                              (route) => false,
-                            );
-
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await AuthService().logout();
+                            if (context.mounted) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            }
                           },
                           child: const Text("Logout"),
                         ),

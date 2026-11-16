@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
       final session = data.session;
-      if (session != null && mounted) {
+      if (data.event == AuthChangeEvent.signedIn && session != null && mounted) {
         final authService = AuthService();
         final user = await authService.restoreSession();
         if (user != null && mounted) {

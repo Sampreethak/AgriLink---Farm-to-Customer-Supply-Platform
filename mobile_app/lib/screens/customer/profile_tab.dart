@@ -1,3 +1,4 @@
+import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../../services/customer_state.dart';
@@ -173,12 +174,38 @@ class _ProfileTabState extends State<ProfileTab> {
               context,
               "Logout",
               Icons.logout,
-              () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (route) => false,
+              () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text("Logout"),
+                    content: const Text("Are you sure you want to sign out from AgriLink?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text("Logout"),
+                      ),
+                    ],
+                  ),
                 );
+                if (confirm == true && context.mounted) {
+                  await AuthService().logout();
+                  if (context.mounted) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  }
+                }
               },
               isDestructive: true,
             ),

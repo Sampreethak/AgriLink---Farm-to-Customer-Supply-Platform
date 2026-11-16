@@ -1,3 +1,5 @@
+import '../auth/login_screen.dart';
+import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../auth/role_selection_screen.dart';
@@ -40,12 +42,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
-                (route) => false,
-              );
+            onPressed: () async {
+              await AuthService().logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
             },
           )
         ],

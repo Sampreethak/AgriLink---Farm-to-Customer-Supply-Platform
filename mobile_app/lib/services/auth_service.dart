@@ -438,6 +438,8 @@ class AuthService {
       await _supabase.auth.signOut();
     } catch (_) {}
     await _storageService.clearAll();
+    clearUrlHashOnWeb();
+    CustomerState().resetProfile();
   }
 
   // ─────────────────────────────────────────────
