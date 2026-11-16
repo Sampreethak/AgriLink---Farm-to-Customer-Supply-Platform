@@ -26,7 +26,7 @@ class AuthService {
   // ─────────────────────────────────────────────
   Future<void> signInWithGoogle() async {
     final redirectUrl = kIsWeb
-        ? Uri.base.origin
+        ? Uri.base.toString().split('#').first.split('?').first
         : 'io.supabase.agrilink://login-callback/';
 
     if (kIsWeb) {
