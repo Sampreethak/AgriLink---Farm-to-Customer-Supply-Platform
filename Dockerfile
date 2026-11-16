@@ -1,27 +1,27 @@
 # ==============================================================================
-# AgriLink FastAPI & Machine Learning Core - Production Dockerfile
+# AgriLink FastAPI & Machine Learning Core - High-Speed Production Dockerfile
 # ==============================================================================
 
 FROM python:3.11-slim
 
-# Prevent Python from writing bytecode files and enable unbuffered logging
+# Prevent bytecode generation, enable unbuffered logs, and force pre-compiled wheels
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    PIP_PREFER_BINARY=1 \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
-# Install minimal OS dependencies for C compilation, PostgreSQL libraries & curl
+# Install minimal runtime utility (curl for healthcheck)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python and ML dependencies
+# Install pre-compiled binary packages instantly
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --only-binary :all: -r requirements.txt || pip install -r requirements.txt
 
 # Copy application source code and ML models
 COPY backend_fastapi/ /app/backend_fastapi/
