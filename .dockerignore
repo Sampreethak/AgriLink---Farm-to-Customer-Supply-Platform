@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+.github
+
+# Python caches and environments
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Local configs and sensitive files
+.env
+*.pem
+*.key
+
+# IDE configs
+.vscode
+.idea
+
+# Bulky reports and binaries
+*.zip
+*.docx
+*.pptx
+*.pdf
+latex_report_template/
+Diagrams/
+_idp_work/
+
+# Mobile and frontend sources (built separately)
+mobile_app/
+frontend/
+frontend_web/

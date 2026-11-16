@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   contents: read
+  packages: write
   pages: write
   id-token: write
 
@@ -65,7 +66,75 @@ jobs:
           python verify_full_system_integrity.py
 
   # ============================================================================
-  # 2. FLUTTER MOBILE & WEB CLIENT ANALYSIS + BUILD
+  # 2. DOCKER-BASED CONTAINERIZED CI PIPELINE
+  # ============================================================================
+  docker-ci:
+    name: Docker Container Build, In-Container Tests & Healthcheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Image with Layer Caching
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: |
+            agrilink-backend:ci
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Full Test Suite INSIDE the Docker Container
+        run: |
+          echo ">>> 1. Running NLP Engine Tests inside Docker Container..."
+          docker run --rm agrilink-backend:ci python nlp_engine/test_engine.py
+
+          echo ">>> 2. Running Farmer Vernacular Chatbot Tests inside Docker Container..."
+          docker run --rm agrilink-backend:ci python test_farmer_nlp_chatbot.py
+
+          echo ">>> 3. Verifying Farmer Row-Level Security (RLS) inside Docker Container..."
+          docker run --rm agrilink-backend:ci python verify_farmer_rls_nlp.py
+
+          echo ">>> 4. Running APMC Mandi Pricing Regressor Tests inside Docker Container..."
+          docker run --rm agrilink-backend:ci python test_mandi_pricing_integration.py
+
+          echo ">>> 5. Running Full System Integrity Regression inside Docker Container..."
+          docker run --rm agrilink-backend:ci python verify_full_system_integrity.py
+
+      - name: Spin Up Container and Verify Live HTTP Healthcheck
+        run: |
+          docker run -d -p 8000:8000 --name agrilink-test-server agrilink-backend:ci
+          sleep 6
+          docker ps
+          curl --fail --retry 5 --retry-delay 3 http://localhost:8000/health
+          echo "Docker container live healthcheck passed successfully!"
+          docker stop agrilink-test-server
+          docker rm agrilink-test-server
+
+      - name: Push Container to GitHub Container Registry (Main Branch Only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker push ghcr.io/${{ github.repository }}:latest
+          echo "Successfully published Docker container to GitHub Packages!"
+
+  # ============================================================================
+  # 3. FLUTTER MOBILE & WEB CLIENT ANALYSIS + BUILD
   # ============================================================================
   mobile-app-ci:
     name: Flutter Mobile Client Analysis & Build Check
@@ -139,7 +208,7 @@ jobs:
   # ============================================================================
   deploy-github-pages:
     name: Deploy to GitHub Pages
-    needs: [backend-ml-nlp-ci, mobile-app-ci, web-frontend-ci]
+    needs: [backend-ml-nlp-ci, docker-ci, mobile-app-ci, web-frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
