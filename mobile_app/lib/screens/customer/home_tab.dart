@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/colors.dart';
 import '../../services/product_service.dart';
 import '../../services/customer_state.dart';
@@ -28,7 +29,7 @@ class _HomeTabState extends State<HomeTab> {
   final ProductService _productService = ProductService();
   final RecommendationService _recService = RecommendationService();
 
-  String _activeCustomerId = "d48b9f71-c110-4f5f-83da-7b65dbfbc328";
+  late String _activeCustomerId;
   List<Map<String, dynamic>> _buyAgainRecs = [];
   List<Map<String, dynamic>> _pickedForYouRecs = [];
   List<Map<String, dynamic>> _youMayAlsoWantRecs = [];
@@ -313,6 +314,14 @@ class _HomeTabState extends State<HomeTab> {
 
     if (delta > 0) {
       _recService.recordInteraction(_activeCustomerId, name, "CART");
+      try {
+        if (_activeCustomerId.length == 36) {
+          Supabase.instance.client.from('user_interactions').insert({
+            'buyer_id': _activeCustomerId,
+            'interaction_type': 'ADD_TO_CART',
+          }).catchError((_) {});
+        }
+      } catch (_) {}
     }
     _loadRecommendations();
 

@@ -44,7 +44,7 @@ class _CartTabState extends State<CartTab> {
 
     await Future.delayed(const Duration(milliseconds: 900));
 
-    final newOrder = _customerState.placeOrder(
+    final newOrder = await _customerState.placeOrder(
       deliveryAddress: _addressController.text.trim(),
       paymentMethod: _paymentMethod,
     );

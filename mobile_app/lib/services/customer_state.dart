@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'recommendation_service.dart';
 import 'platform_state.dart';
 import 'user_registry.dart';
 
@@ -176,7 +178,10 @@ class CustomerState extends ChangeNotifier {
         ),
       ]);
     }
-    // New registered users start with fresh, empty orders list!
+    // For real Supabase / Google authenticated users, fetch placed orders from Supabase DB
+    if (user.id.length == 36 && !lowerEmail.endsWith("@agrilink.com")) {
+      _fetchUserOrdersFromSupabase(user.id);
+    }
     notifyListeners();
   }
 
@@ -256,7 +261,7 @@ class CustomerState extends ChangeNotifier {
     notifyListeners();
   }
 
-  CustomerOrderModel placeOrder({required String deliveryAddress, String paymentMethod = "RAZORPAY"}) {
+  Future<CustomerOrderModel> placeOrder({required String deliveryAddress, String paymentMethod = "RAZORPAY"}) async {
     final orderId = "ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
     final itemsList = _cart.values.map((item) => CartItemModel(
       id: item.id,
@@ -302,8 +307,95 @@ class CustomerState extends ChangeNotifier {
       totalAmount: orderTotal,
     );
 
+    // 1. Sync live to Supabase PostgreSQL Database (orders & order_items)
+    try {
+      final supabase = Supabase.instance.client;
+      if (customerId.length == 36) {
+        await supabase.from('profiles').upsert({
+          'id': customerId,
+          'user_id': customerId,
+          'full_name': name,
+          'email': email,
+          'user_role': 'CUSTOMER',
+        });
+
+        final orderRow = await supabase.from('orders').insert({
+          'buyer_id': customerId,
+          'total_amount': orderTotal,
+          'status': 'PAID',
+          'payment_method': paymentMethod,
+          'delivery_address': deliveryAddress,
+        }).select().maybeSingle();
+
+        final dbOrderId = orderRow?['id'];
+        for (final item in itemsList) {
+          if (dbOrderId != null) {
+            await supabase.from('order_items').insert({
+              'order_id': dbOrderId,
+              'crop_name': item.name,
+              'quantity': item.qty,
+              'unit_price': item.priceNum,
+              'total_price': item.priceNum * item.qty,
+            });
+          }
+          await supabase.from('user_interactions').insert({
+            'buyer_id': customerId,
+            'interaction_type': 'PURCHASE',
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('[CustomerState] Supabase sync note: $e');
+    }
+
+    // 2. Feed purchase events into the Render Machine Learning Recommendation Engine
+    for (final item in itemsList) {
+      try {
+        final recService = RecommendationService();
+        await recService.recordInteraction(customerId, item.name, "PURCHASE");
+      } catch (_) {}
+    }
+
     _cart.clear();
     notifyListeners();
     return order;
+  }
+
+  Future<void> _fetchUserOrdersFromSupabase(String uid) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final rows = await supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .eq('buyer_id', uid)
+          .order('created_at', ascending: false);
+
+      if (rows is List && rows.isNotEmpty) {
+        _orders.clear();
+        for (final r in rows) {
+          final itemsRaw = r['order_items'] as List<dynamic>? ?? [];
+          final items = itemsRaw.map((it) => CartItemModel(
+            id: it['id']?.toString() ?? it['crop_name'] ?? 'item',
+            name: it['crop_name'] ?? 'Fresh Produce',
+            priceNum: (it['unit_price'] as num?)?.toDouble() ?? 30.0,
+            priceStr: "₹${it['unit_price'] ?? 30}/kg",
+            imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600",
+            farmer: "Direct Producer",
+            qty: (it['quantity'] as num?)?.toInt() ?? 1,
+          )).toList();
+
+          _orders.add(CustomerOrderModel(
+            orderId: r['id']?.toString().substring(0, 8).toUpperCase() ?? 'ORD-LIVE',
+            items: items,
+            totalAmount: (r['total_amount'] as num?)?.toDouble() ?? 0.0,
+            date: "Placed recently",
+            status: r['status'] ?? 'PAID',
+            paymentMethod: r['payment_method'] ?? 'RAZORPAY',
+            address: r['delivery_address'] ?? 'Verified Address',
+          ));
+        }
+        notifyListeners();
+      }
+    } catch (_) {}
   }
 }

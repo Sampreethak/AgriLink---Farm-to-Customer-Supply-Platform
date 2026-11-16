@@ -5,6 +5,7 @@ import 'profile/edit_profile_screen.dart';
 import 'profile/notifications_screen.dart';
 import 'profile/settings_screen.dart';
 import '../auth/login_screen.dart';
+import '../farmer/farmer_dashboard.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -120,6 +121,18 @@ class _ProfileTabState extends State<ProfileTab> {
             const SizedBox(height: 22),
 
             // Menu Items
+            _menuTile(
+              context,
+              "🌾 Switch to Farmer Dashboard",
+              Icons.agriculture,
+              () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FarmerDashboard()),
+                );
+              },
+            ),
+
             _menuTile(
               context,
               "Edit Profile Details",

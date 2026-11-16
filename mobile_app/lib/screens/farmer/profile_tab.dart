@@ -5,6 +5,7 @@ import 'profile/edit_profile_screen.dart';
 import 'profile/notifications_screen.dart';
 import 'profile/settings_screen.dart';
 import '../auth/login_screen.dart';
+import '../customer/customer_dashboard.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -128,6 +129,27 @@ class ProfileTab extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => const NotificationsScreen(),
                     ),
+                  );
+                },
+              ),
+            ),
+
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFF2E7D32),
+                  child: Icon(Icons.storefront, color: Colors.white),
+                ),
+                title: const Text("🛒 Switch to Customer Marketplace"),
+                subtitle: const Text("Browse farm-direct produce & recommendations"),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CustomerDashboard()),
                   );
                 },
               ),
