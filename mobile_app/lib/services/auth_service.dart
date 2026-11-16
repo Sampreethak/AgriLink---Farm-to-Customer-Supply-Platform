@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'web_auth_redirect.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'storage_service.dart';
 import 'user_registry.dart';
@@ -27,6 +28,15 @@ class AuthService {
     final redirectUrl = kIsWeb
         ? Uri.base.origin
         : 'io.supabase.agrilink://login-callback/';
+
+    if (kIsWeb) {
+      final res = await _supabase.auth.getOAuthSignInUrl(
+        provider: OAuthProvider.google,
+        redirectTo: redirectUrl,
+      );
+      openUrlOnWeb(res.url);
+      return;
+    }
 
     await _supabase.auth.signInWithOAuth(
       OAuthProvider.google,

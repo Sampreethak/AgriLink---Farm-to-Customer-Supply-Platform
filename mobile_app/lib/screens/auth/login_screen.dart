@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/colors.dart';
@@ -30,6 +32,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  StreamSubscription<AuthState>? _authSub;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -48,6 +51,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+      final session = data.session;
+      if (session != null && mounted) {
+        final authService = AuthService();
+        final user = await authService.restoreSession();
+        if (user != null && mounted) {
+          _routeToDashboard(user);
+        }
+      }
+    });
     _loadAccountsFromDb();
 
     // Trigger database password lookup whenever email field loses focus
@@ -60,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _authSub?.cancel();
     _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
