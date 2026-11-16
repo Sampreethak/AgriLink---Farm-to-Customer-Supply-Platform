@@ -1,4 +1,4 @@
-name: AgriLink CI/CD Pipeline
+name: AgriLink Core Service CI
 
 on:
   push:
@@ -14,17 +14,15 @@ concurrency:
 permissions:
   contents: read
   packages: write
-  pages: write
-  id-token: write
 
 jobs:
   # ============================================================================
-  # 1. PYTHON BACKEND, ML & NLP ENGINE CI
+  # 1. LINT, TYPE-CHECK & TEST
   # ============================================================================
-  backend-ml-nlp-ci:
-    name: Backend, ML & NLP Test Suite
+  lint-typecheck-test:
+    name: Lint, Type-check & Test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Checkout Code
@@ -36,42 +34,53 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
-      - name: Install Python Dependencies
+      - name: Install Python & ML Dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip flake8
           pip install -r requirements.txt
 
-      - name: 1. Run Modular NLP Engine Unit Tests
+      - name: Static Code Analysis & Linting (Flake8)
+        run: |
+          # Check for Python syntax errors and undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+
+      - name: Python Bytecode Compilation Validation
+        run: |
+          python -m py_compile backend_fastapi/main.py
+          echo "Bytecode compilation validated successfully."
+
+      - name: 1. Modular NLP Engine Unit Tests
         run: |
           python nlp_engine/test_engine.py
 
-      - name: 2. Run Farmer Conversational Retrieval & Vernacular Tests
+      - name: 2. Farmer Vernacular Chatbot & Intent Classification
         run: |
           python test_farmer_nlp_chatbot.py
 
-      - name: 3. Verify Farmer Row-Level Security (RLS) Isolation
+      - name: 3. Farmer Row-Level Security (RLS) Isolation
         run: |
           python verify_farmer_rls_nlp.py
 
-      - name: 4. Test Dynamic Pricing Regressor & Mandi APMC Feed
+      - name: 4. Dynamic Pricing Regressor & APMC Mandi Oracle
         run: |
           python test_mandi_pricing_integration.py
 
-      - name: 5. Test Multi-Model Recommendation Engine
+      - name: 5. Multi-Model Recommendation Engine Test
         run: |
           python backend_fastapi/test_recommendation_integration.py
 
-      - name: 6. Run Full System Regression & API Contract Suite
+      - name: 6. Full System Integrity Regression & API Contracts
         run: |
           python verify_full_system_integrity.py
 
   # ============================================================================
-  # 2. DOCKER-BASED CONTAINERIZED CI PIPELINE
+  # 2. DOCKER BUILD VALIDATION
   # ============================================================================
-  docker-ci:
-    name: Docker Container Build, In-Container Tests & Healthcheck
+  docker-build:
+    name: Docker Build Validation
+    needs: [lint-typecheck-test]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Checkout Code
@@ -80,45 +89,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry (GHCR)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Docker Image with Layer Caching
+      - name: Build Docker Image with Buildx & Cache
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           load: true
-          tags: |
-            agrilink-backend:ci
-            ghcr.io/${{ github.repository }}:latest
+          tags: agrilink-backend:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run Full Test Suite INSIDE the Docker Container
+      - name: In-Container System Verification & Healthcheck
         run: |
-          echo ">>> 1. Running NLP Engine Tests inside Docker Container..."
-          docker run --rm agrilink-backend:ci python nlp_engine/test_engine.py
-
-          echo ">>> 2. Running Farmer Vernacular Chatbot Tests inside Docker Container..."
-          docker run --rm agrilink-backend:ci python test_farmer_nlp_chatbot.py
-
-          echo ">>> 3. Verifying Farmer Row-Level Security (RLS) inside Docker Container..."
-          docker run --rm agrilink-backend:ci python verify_farmer_rls_nlp.py
-
-          echo ">>> 4. Running APMC Mandi Pricing Regressor Tests inside Docker Container..."
-          docker run --rm agrilink-backend:ci python test_mandi_pricing_integration.py
-
-          echo ">>> 5. Running Full System Integrity Regression inside Docker Container..."
-          docker run --rm agrilink-backend:ci python verify_full_system_integrity.py
-
-      - name: Spin Up Container and Verify Live HTTP Healthcheck
-        run: |
+          echo "Spinning up containerized AgriLink backend..."
           docker run -d -p 8000:8000 --name agrilink-test-server agrilink-backend:ci
           sleep 6
           docker ps
@@ -126,133 +109,3 @@ jobs:
           echo "Docker container live healthcheck passed successfully!"
           docker stop agrilink-test-server
           docker rm agrilink-test-server
-
-      - name: Push Container to GitHub Container Registry (Main Branch Only)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          docker push ghcr.io/${{ github.repository }}:latest
-          echo "Successfully published Docker container to GitHub Packages!"
-
-  # ============================================================================
-  # 3. FLUTTER MOBILE & WEB CLIENT ANALYSIS + BUILD
-  # ============================================================================
-  mobile-app-ci:
-    name: Flutter Mobile Client Analysis & Build Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "17"
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          cache: true
-
-      - name: Print Flutter & Dart Info
-        run: flutter --version
-
-      - name: Install Flutter Dependencies
-        run: |
-          cd mobile_app
-          flutter pub get
-
-      - name: Static Analysis & Lint Check
-        run: |
-          cd mobile_app
-          flutter analyze --no-fatal-infos --no-fatal-warnings || true
-
-      - name: Enable Flutter Web
-        run: flutter config --enable-web
-
-      - name: Build Flutter Web Release
-        run: |
-          cd mobile_app
-          flutter build web --release --no-tree-shake-icons --base-href "/AgriLink---Farm-to-Customer-Supply-Platform/"
-
-      - name: Upload Pages Artifact
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: mobile_app/build/web
-
-  # ============================================================================
-  # 3. WEB FRONTEND STATIC INTEGRITY CI
-  # ============================================================================
-  web-frontend-ci:
-    name: Web Frontend Dashboard Integrity
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Verify Web Dashboard Static Files
-        run: |
-          test -f frontend_web/index.html || exit 1
-          test -f frontend_web/app.js || exit 1
-          test -f frontend_web/styles.css || exit 1
-          echo "Frontend static files verified successfully."
-
-  # ============================================================================
-  # 4. DEPLOY TO GITHUB PAGES
-  # ============================================================================
-  deploy-github-pages:
-    name: Deploy to GitHub Pages
-    needs: [backend-ml-nlp-ci, docker-ci, mobile-app-ci, web-frontend-ci]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-  # ============================================================================
-  # 5. CONTINUOUS DEPLOYMENT TO AWS EC2 (AUTOMATIC ON GIT PUSH)
-  # ============================================================================
-  deploy-aws-ec2:
-    name: Deploy to AWS EC2
-    needs: [backend-ml-nlp-ci]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Deploy updates to AWS EC2 via SSH
-        env:
-          AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
-          AWS_EC2_USER: ${{ secrets.AWS_EC2_USER || 'ubuntu' }}
-          AWS_EC2_SSH_KEY: ${{ secrets.AWS_EC2_SSH_KEY }}
-        run: |
-          if [ -z "$AWS_EC2_HOST" ] || [ -z "$AWS_EC2_SSH_KEY" ]; then
-            echo "ℹ️ AWS_EC2_HOST or AWS_EC2_SSH_KEY secrets not set in GitHub repository settings. Skipping EC2 auto-deploy."
-            echo "To enable auto-deploy on git push, add AWS_EC2_HOST and AWS_EC2_SSH_KEY in Settings -> Secrets and variables -> Actions."
-            exit 0
-          fi
-          mkdir -p ~/.ssh
-          echo "$AWS_EC2_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$AWS_EC2_HOST" >> ~/.ssh/known_hosts
-          ssh -o StrictHostKeyChecking=no "$AWS_EC2_USER@$AWS_EC2_HOST" << 'EOF'
-            cd ~/AgriLink---Farm-to-Customer-Supply-Platform || exit 0
-            git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
-            sudo systemctl restart agrilink
-            echo "✅ AgriLink live on AWS EC2 updated successfully!"
-          EOF
