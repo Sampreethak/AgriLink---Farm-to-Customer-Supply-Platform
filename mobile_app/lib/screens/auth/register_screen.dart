@@ -5,6 +5,11 @@ import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
 import '../../core/validators.dart';
+import '../customer/customer_dashboard.dart';
+import '../farmer/farmer_dashboard.dart';
+import '../aggregator/aggregator_dashboard.dart';
+import '../delivery/delivery_dashboard.dart';
+import '../admin/admin_dashboard.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -83,21 +88,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Account registered for ${_selectedRole.toUpperCase()}!\nPassword saved in database for autofill.",
-            ),
-            backgroundColor: AppColors.success,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-        // Return the registered email and password to the Login Screen
-        Navigator.pop(context, {
-          'email': regEmail,
-          'password': regPassword,
-          'role': _selectedRole,
-        });
+        // Auto-login after registration
+        try {
+          final user = await authService.login(
+            identifier: regEmail,
+            password: regPassword,
+          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Welcome, ${user.fullName}! Registered as ${_selectedRole.toUpperCase()}.",
+                ),
+                backgroundColor: AppColors.success,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+            // Navigate directly to the correct dashboard
+            Widget targetDashboard;
+            switch (AuthService.normalizeRole(_selectedRole)) {
+              case 'farmer':
+                targetDashboard = const FarmerDashboard();
+                break;
+              case 'aggregator':
+                targetDashboard = const AggregatorDashboard();
+                break;
+              case 'delivery':
+                targetDashboard = const DeliveryDashboard();
+                break;
+              case 'admin':
+                targetDashboard = const AdminDashboard();
+                break;
+              case 'customer':
+              default:
+                targetDashboard = const CustomerDashboard();
+                break;
+            }
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => targetDashboard),
+              (route) => false,
+            );
+          }
+        } catch (_) {
+          // If auto-login fails, fall back to returning to login screen
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Registered as ${_selectedRole.toUpperCase()}! Please login.",
+                ),
+                backgroundColor: AppColors.success,
+              ),
+            );
+            Navigator.pop(context, {
+              'email': regEmail,
+              'password': regPassword,
+              'role': _selectedRole,
+            });
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
