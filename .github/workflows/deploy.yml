@@ -44,9 +44,9 @@ jobs:
             sudo nginx -t
             sudo systemctl reload nginx
 
-            # 5. Verify local health check
-            sleep 3
-            curl -f http://127.0.0.1:8000/health
+            # 5. Verify local health check (retry until ML models finish loading)
+            echo "Waiting for ML models and API server to initialize..."
+            curl --retry 10 --retry-delay 2 --retry-connrefused -f http://127.0.0.1:8000/health
             echo ""
             echo "================================================="
             echo "✅ Successfully deployed! Latest app is live."
