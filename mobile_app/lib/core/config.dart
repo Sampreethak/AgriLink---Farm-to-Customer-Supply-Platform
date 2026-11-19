@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// ==============================================================================
 /// AgriLink Enterprise Configuration Module
 /// ==============================================================================
@@ -28,7 +30,7 @@ class AppConfig {
   // FastAPI ML / Logistics Core API Gateway
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://agrilink-backend-ml.onrender.com/api/v1',
+    defaultValue: 'http://52.66.246.170/api/v1',
   );
 
   // Environment Mode (development | staging | production)

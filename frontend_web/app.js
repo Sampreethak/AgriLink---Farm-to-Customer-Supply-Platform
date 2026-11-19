@@ -1,6 +1,7 @@
 // AgriLink Multi-Model Customer Recommendation Web Dashboard Logic
 
-const API_ML_URL = "https://agrilink-backend-ml.onrender.com";
+// Dynamically detect current host (AWS EC2, custom domain, or localhost)
+const API_ML_URL = window.location.origin;
 let currentCustomerId = "d48b9f71-c110-4f5f-83da-7b65dbfbc328";
 let currentCart = [];
 
