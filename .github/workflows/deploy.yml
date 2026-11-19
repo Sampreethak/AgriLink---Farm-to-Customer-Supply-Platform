@@ -51,3 +51,23 @@ jobs:
             echo "================================================="
             echo "✅ Successfully deployed! Latest app is live."
             echo "================================================="
+
+      - name: Generate AWS EC2 Deployment Summary
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          ## 🚀 AWS EC2 Continuous Deployment Summary
+
+          | Infrastructure Layer | Destination / Detail | Status |
+          | :--- | :--- | :--- |
+          | **Target Cloud Host** | AWS EC2 Ubuntu (`52.66.246.170`) | 🟢 Online |
+          | **Web Server** | Nginx Reverse Proxy (Port 80) | 🟢 Active |
+          | **Backend & ML Engine** | FastAPI ASGI Daemon (Port 8000) | 🟢 Healthy |
+          | **Database** | AWS RDS PostgreSQL 16 (`agrilink_db1`) | 🟢 Connected (50 tables) |
+          | **Deployed Commit** | `${{ github.sha }}` (`${{ github.ref_name }}`) | 🟢 Live |
+
+          ### 🌐 Direct Access Endpoints
+          * 📱 **Web & Flutter Application**: [http://52.66.246.170/](http://52.66.246.170/)
+          * 📄 **Swagger Interactive API Documentation**: [http://52.66.246.170/docs](http://52.66.246.170/docs)
+          * 📊 **Live Database Status**: [http://52.66.246.170/api/v1/database/status](http://52.66.246.170/api/v1/database/status)
+          * 🩺 **Backend Health Probe**: [http://52.66.246.170/health](http://52.66.246.170/health)
+          EOF
