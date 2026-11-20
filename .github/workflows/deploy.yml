@@ -11,11 +11,42 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy to AWS EC2
+    name: Build Flutter Web & Deploy to AWS EC2
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
+      # 1. Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Flutter SDK and build web release
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Flutter Web
+        working-directory: mobile_app
+        run: |
+          flutter pub get
+          flutter build web --release --no-tree-shake-icons
+          echo "✅ Flutter web build complete"
+
+      # 3. Upload built web files to EC2
+      - name: Upload Flutter Web Build to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "mobile_app/build/web/*"
+          target: "~/agrilink-flutter-build"
+          strip_components: 3
+
+      # 4. Deploy backend + frontend on EC2 via SSH
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -37,19 +68,27 @@ jobs:
             source venv/bin/activate
             pip install --no-cache-dir -r requirements.txt
 
-            # 3. Restart FastAPI & ML background service
+            # 3. Deploy Flutter Web build to Nginx serving directory
+            echo "📱 Deploying Flutter Web frontend..."
+            sudo rm -rf /var/www/html/agrilink/*
+            sudo mkdir -p /var/www/html/agrilink
+            sudo cp -r ~/agrilink-flutter-build/* /var/www/html/agrilink/
+            sudo chown -R www-data:www-data /var/www/html/agrilink
+            echo "✅ Flutter Web deployed to Nginx"
+
+            # 4. Restart FastAPI & ML background service
             sudo systemctl restart agrilink
 
-            # 4. Reload Nginx
+            # 5. Reload Nginx
             sudo nginx -t
             sudo systemctl reload nginx
 
-            # 5. Verify local health check (retry until ML models finish loading)
+            # 6. Verify local health check (retry until ML models finish loading)
             echo "Waiting for ML models and API server to initialize..."
             curl --retry 10 --retry-delay 2 --retry-connrefused -f http://127.0.0.1:8000/health
             echo ""
             echo "================================================="
-            echo "✅ Successfully deployed! Latest app is live."
+            echo "✅ Successfully deployed! Backend + Frontend live."
             echo "================================================="
 
       - name: Generate AWS EC2 Deployment Summary
