@@ -45,6 +45,8 @@ jobs:
           source: "mobile_app/build/web/*"
           target: "~/agrilink-flutter-build"
           strip_components: 3
+          rm: true
+          overwrite: true
 
       # 4. Deploy backend + frontend on EC2 via SSH
       - name: Deploy to EC2 via SSH
@@ -70,18 +72,20 @@ jobs:
 
             # 3. Deploy Flutter Web build to Nginx serving directory
             echo "📱 Deploying Flutter Web frontend..."
+            sudo rm -rf /var/www/html/*
+            sudo cp -rf ~/agrilink-flutter-build/* /var/www/html/
             sudo mkdir -p /var/www/html/agrilink
-            sudo cp -r ~/agrilink-flutter-build/* /var/www/html/
-            sudo cp -r ~/agrilink-flutter-build/* /var/www/html/agrilink/
+            sudo cp -rf ~/agrilink-flutter-build/* /var/www/html/agrilink/
             sudo chown -R www-data:www-data /var/www/html
-            echo "✅ Flutter Web deployed to Nginx"
+            echo "✅ Flutter Web deployed to Nginx directory /var/www/html"
+            ls -la /var/www/html/ | head -n 15
 
             # 4. Restart FastAPI & ML background service
             sudo systemctl restart agrilink
 
-            # 5. Reload Nginx
+            # 5. Restart Nginx to flush all file caches
             sudo nginx -t
-            sudo systemctl reload nginx
+            sudo systemctl restart nginx
 
             # 6. Verify local health check (retry until ML models finish loading)
             echo "Waiting for ML models and API server to initialize..."
