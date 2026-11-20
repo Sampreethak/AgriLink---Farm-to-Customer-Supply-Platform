@@ -35,12 +35,18 @@ class AuthService {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: redirectUrl,
+        queryParams: {
+          'prompt': 'select_account',
+        },
       );
     } catch (e) {
       if (kIsWeb) {
         final res = await _supabase.auth.getOAuthSignInUrl(
           provider: OAuthProvider.google,
           redirectTo: redirectUrl,
+          queryParams: {
+            'prompt': 'select_account',
+          },
         );
         openUrlOnWeb(res.url);
         return;
@@ -126,7 +132,7 @@ class AuthService {
         type: OtpType.sms,
       );
       if (res.user != null) {
-        return _buildUserFromSupabaseUser(res.user!, phone: cleanPhone);
+        return buildUserFromSupabaseUser(res.user!, phone: cleanPhone);
       }
     } catch (_) {}
 
@@ -484,7 +490,7 @@ class AuthService {
     try {
       final session = _supabase.auth.currentSession;
       if (session != null) {
-        return await _buildUserFromSupabaseUser(session.user);
+        return await buildUserFromSupabaseUser(session.user);
       }
     } catch (e) {
       debugPrint('[restoreSession Supabase error]: $e');
@@ -593,16 +599,16 @@ class AuthService {
     return null;
   }
 
-  Future<AppUserModel> _buildUserFromSupabaseUser(
+  Future<AppUserModel> buildUserFromSupabaseUser(
     User supabaseUser, {
     String? phone,
   }) async {
     final userId = supabaseUser.id;
-    final cleanEmail = (supabaseUser.email ?? '').trim().toLowerCase();
     final metadata = supabaseUser.userMetadata ?? {};
+    final cleanEmail = (supabaseUser.email ?? metadata['email'] ?? '').toString().trim().toLowerCase();
 
     try {
-      // 1. Check AWS RDS PostgreSQL FIRST for existing user profile
+      // 1. Check AWS RDS PostgreSQL for existing user profile
       Map<String, dynamic>? rdsProfile;
       if (cleanEmail.isNotEmpty) {
         rdsProfile = await fetchProfileFromAwsRds(cleanEmail);
@@ -621,11 +627,28 @@ class AuthService {
             .maybeSingle();
       } catch (_) {}
 
-      final fullName = rdsProfile?['full_name']?.toString() ??
-          profileRow?['full_name']?.toString() ??
-          metadata['full_name']?.toString() ??
-          metadata['name']?.toString() ??
-          (cleanEmail.isNotEmpty ? cleanEmail.split('@').first : 'AgriLink Member');
+      // Resolve full name: give strong preference to real Google metadata names
+      String fullName = '';
+      if (metadata['full_name'] != null && metadata['full_name'].toString().trim().isNotEmpty) {
+        fullName = metadata['full_name'].toString().trim();
+      } else if (metadata['name'] != null && metadata['name'].toString().trim().isNotEmpty) {
+        fullName = metadata['name'].toString().trim();
+      } else if (rdsProfile?['full_name'] != null &&
+                 rdsProfile!['full_name'].toString().trim().isNotEmpty &&
+                 rdsProfile['full_name'] != 'Google User' &&
+                 rdsProfile['full_name'] != 'AgriLink Member') {
+        fullName = rdsProfile['full_name'].toString().trim();
+      } else if (profileRow?['full_name'] != null &&
+                 profileRow!['full_name'].toString().trim().isNotEmpty &&
+                 profileRow['full_name'] != 'Google User' &&
+                 profileRow['full_name'] != 'AgriLink Member') {
+        fullName = profileRow['full_name'].toString().trim();
+      } else if (cleanEmail.isNotEmpty && !cleanEmail.startsWith('google.user@')) {
+        final part = cleanEmail.split('@').first;
+        fullName = part.split('.').map((s) => s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '').join(' ');
+      } else {
+        fullName = 'AgriLink Member';
+      }
 
       final userPhone = phone ??
           rdsProfile?['phone']?.toString() ??
@@ -636,10 +659,10 @@ class AuthService {
       // 3. Check if target role was selected right before Google OAuth redirect
       final targetGoogleRole = await _storageService.getTargetGoogleRole();
 
-      // 4. Resolve the definitive role (RDS > targetGoogleRole > Supabase profile > metadata > default)
+      // 4. Resolve the definitive role (targetGoogleRole takes precedence for fresh logins!)
       final rawRole = normalizeRole(
-        rdsProfile?['role']?.toString() ??
         targetGoogleRole ??
+        rdsProfile?['role']?.toString() ??
         profileRow?['user_role']?.toString() ??
         metadata['role']?.toString() ??
         'customer',

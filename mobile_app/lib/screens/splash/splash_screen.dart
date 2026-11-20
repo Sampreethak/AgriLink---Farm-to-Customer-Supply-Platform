@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/colors.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
+import '../../services/web_auth_redirect.dart';
 import '../../services/platform_state.dart';
 import '../../services/customer_state.dart';
 import '../../services/user_registry.dart';
@@ -89,14 +90,37 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // 1. Check if returning from Google OAuth redirect or if URL has OAuth callback tokens
     if (_isOAuthCallback() || targetRole != null) {
-      // Give Supabase a moment to parse the session
-      for (int i = 0; i < 8; i++) {
-        await Future.delayed(const Duration(milliseconds: 300));
-        if (!mounted || _hasNavigated) return;
+      final authService = AuthService();
+
+      // (A) Direct PKCE Code Exchange on Web
+      if (kIsWeb) {
+        final uri = Uri.base;
+        final code = uri.queryParameters['code'];
+        if (code != null && code.isNotEmpty) {
+          try {
+            final res = await Supabase.instance.client.auth.exchangeCodeForSession(code);
+            if (res.user != null) {
+              final user = await authService.buildUserFromSupabaseUser(res.user!);
+              clearUrlHashOnWeb();
+              if (mounted && !_hasNavigated) {
+                _hasNavigated = true;
+                _routeToDashboard(user);
+                return;
+              }
+            }
+          } catch (e) {
+            debugPrint('[exchangeCodeForSession Error]: $e');
+          }
+        }
+      }
+
+      // (B) Check if Supabase client already initialized an active session
+      final activeSession = Supabase.instance.client.auth.currentSession;
+      if (activeSession != null) {
         try {
-          final authService = AuthService();
-          final user = await authService.restoreSession();
-          if (user != null && mounted && !_hasNavigated) {
+          final user = await authService.buildUserFromSupabaseUser(activeSession.user);
+          clearUrlHashOnWeb();
+          if (mounted && !_hasNavigated) {
             _hasNavigated = true;
             _routeToDashboard(user);
             return;
@@ -104,7 +128,22 @@ class _SplashScreenState extends State<SplashScreen> {
         } catch (_) {}
       }
 
-      // If Supabase session is still resolving, directly extract JWT from URL or recover chosen role
+      // (C) Poll session resolution for up to 6 cycles
+      for (int i = 0; i < 6; i++) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (!mounted || _hasNavigated) return;
+        try {
+          final user = await authService.restoreSession();
+          if (user != null && mounted && !_hasNavigated) {
+            clearUrlHashOnWeb();
+            _hasNavigated = true;
+            _routeToDashboard(user);
+            return;
+          }
+        } catch (_) {}
+      }
+
+      // (D) Direct JWT Extraction from URL hash or current Supabase Auth user
       try {
         final uri = Uri.base;
         String? token;
@@ -120,9 +159,12 @@ class _SplashScreenState extends State<SplashScreen> {
         }
 
         final role = targetRole ?? 'customer';
-        String email = 'google.user@agrilink.com';
-        String fullName = 'Google User';
-        String uid = 'usr-google-${DateTime.now().millisecondsSinceEpoch}';
+        final sbUser = Supabase.instance.client.auth.currentUser;
+        String email = sbUser?.email ?? 'google.user@agrilink.com';
+        String fullName = sbUser?.userMetadata?['full_name']?.toString() ??
+            sbUser?.userMetadata?['name']?.toString() ??
+            (email.isNotEmpty && !email.startsWith('google.user@') ? email.split('@').first : 'AgriLink Member');
+        String uid = sbUser?.id ?? 'usr-google-${DateTime.now().millisecondsSinceEpoch}';
 
         if (token != null && token.isNotEmpty) {
           try {
@@ -137,9 +179,9 @@ class _SplashScreenState extends State<SplashScreen> {
               if (data['email'] != null) email = data['email'].toString();
               if (data['sub'] != null) uid = data['sub'].toString();
               final meta = (data['user_metadata'] as Map<String, dynamic>?) ?? {};
-              if (meta['full_name'] != null) {
+              if (meta['full_name'] != null && meta['full_name'].toString().isNotEmpty) {
                 fullName = meta['full_name'].toString();
-              } else if (meta['name'] != null) {
+              } else if (meta['name'] != null && meta['name'].toString().isNotEmpty) {
                 fullName = meta['name'].toString();
               } else if (email.contains('@')) {
                 fullName = email.split('@').first;
@@ -149,7 +191,6 @@ class _SplashScreenState extends State<SplashScreen> {
         }
 
         // Persist user directly to AWS RDS PostgreSQL
-        final authService = AuthService();
         await authService.syncProfileToAwsRds(
           id: uid,
           email: email,
@@ -177,6 +218,7 @@ class _SplashScreenState extends State<SplashScreen> {
         );
         if (token != null) await storage.saveToken(token);
         await storage.clearTargetGoogleRole();
+        clearUrlHashOnWeb();
 
         PlatformState().setCurrentUser(user);
         if (role == 'customer') CustomerState().setProfile(user);

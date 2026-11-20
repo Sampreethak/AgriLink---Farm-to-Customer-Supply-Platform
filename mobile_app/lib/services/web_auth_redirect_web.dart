@@ -7,7 +7,7 @@ void redirectToUrl(String url) {
 
 void clearWebUrlHash() {
   try {
-    if (html.window.location.hash.isNotEmpty) {
+    if (html.window.location.hash.isNotEmpty || (html.window.location.search != null && html.window.location.search!.isNotEmpty)) {
       html.window.history.replaceState(null, '', html.window.location.pathname);
     }
   } catch (_) {}
