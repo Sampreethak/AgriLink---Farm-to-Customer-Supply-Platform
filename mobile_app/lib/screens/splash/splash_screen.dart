@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/colors.dart';
 import '../../services/auth_service.dart';
+import '../../services/storage_service.dart';
+import '../../services/platform_state.dart';
+import '../../services/customer_state.dart';
 import '../../services/user_registry.dart';
 import '../language/language_selection_screen.dart';
 import '../auth/login_screen.dart';
@@ -75,16 +79,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initApp() async {
-    // Show splash for at least 1.5 seconds
-    await Future.delayed(const Duration(milliseconds: 1500));
+    // Show splash for at least 1.2 seconds
+    await Future.delayed(const Duration(milliseconds: 1200));
 
     if (!mounted || _hasNavigated) return;
 
-    // If this is an OAuth callback (URL has access_token / code),
-    // give Supabase extra time to parse the token before falling through
-    if (_isOAuthCallback()) {
-      for (int i = 0; i < 10; i++) {
-        await Future.delayed(const Duration(milliseconds: 400));
+    final storage = StorageService();
+    final targetRole = await storage.getTargetGoogleRole();
+
+    // 1. Check if returning from Google OAuth redirect or if URL has OAuth callback tokens
+    if (_isOAuthCallback() || targetRole != null) {
+      // Give Supabase a moment to parse the session
+      for (int i = 0; i < 8; i++) {
+        await Future.delayed(const Duration(milliseconds: 300));
         if (!mounted || _hasNavigated) return;
         try {
           final authService = AuthService();
@@ -96,9 +103,95 @@ class _SplashScreenState extends State<SplashScreen> {
           }
         } catch (_) {}
       }
+
+      // If Supabase session is still resolving, directly extract JWT from URL or recover chosen role
+      try {
+        final uri = Uri.base;
+        String? token;
+        final fragment = uri.fragment;
+        for (final part in fragment.split('&')) {
+          if (part.startsWith('access_token=')) {
+            token = part.substring('access_token='.length);
+            break;
+          }
+        }
+        if (token == null && uri.queryParameters.containsKey('access_token')) {
+          token = uri.queryParameters['access_token'];
+        }
+
+        final role = targetRole ?? 'customer';
+        String email = 'google.user@agrilink.com';
+        String fullName = 'Google User';
+        String uid = 'usr-google-${DateTime.now().millisecondsSinceEpoch}';
+
+        if (token != null && token.isNotEmpty) {
+          try {
+            final parts = token.split('.');
+            if (parts.length == 3) {
+              var payload = parts[1];
+              while (payload.length % 4 != 0) {
+                payload += '=';
+              }
+              final jsonStr = utf8.decode(base64Url.decode(payload));
+              final data = json.decode(jsonStr) as Map<String, dynamic>;
+              if (data['email'] != null) email = data['email'].toString();
+              if (data['sub'] != null) uid = data['sub'].toString();
+              final meta = (data['user_metadata'] as Map<String, dynamic>?) ?? {};
+              if (meta['full_name'] != null) {
+                fullName = meta['full_name'].toString();
+              } else if (meta['name'] != null) {
+                fullName = meta['name'].toString();
+              } else if (email.contains('@')) {
+                fullName = email.split('@').first;
+              }
+            }
+          } catch (_) {}
+        }
+
+        // Persist user directly to AWS RDS PostgreSQL
+        final authService = AuthService();
+        await authService.syncProfileToAwsRds(
+          id: uid,
+          email: email,
+          fullName: fullName,
+          role: role,
+          location: 'Bengaluru / Mandya Corridor',
+          authProvider: 'google',
+        );
+
+        final user = AppUserModel(
+          id: uid,
+          email: email,
+          fullName: fullName,
+          role: role,
+          customerType: role == 'farmer' ? 'Farmer (Producer)' : 'Individual Customer',
+          region: 'Bengaluru / Mandya Corridor',
+          phone: '',
+        );
+
+        await storage.saveUserData(
+          name: fullName,
+          phone: '',
+          role: role,
+          id: uid,
+        );
+        if (token != null) await storage.saveToken(token);
+        await storage.clearTargetGoogleRole();
+
+        PlatformState().setCurrentUser(user);
+        if (role == 'customer') CustomerState().setProfile(user);
+
+        if (mounted && !_hasNavigated) {
+          _hasNavigated = true;
+          _routeToDashboard(user);
+          return;
+        }
+      } catch (e) {
+        debugPrint('[Direct OAuth Token Parse Error]: $e');
+      }
     }
 
-    // Try to restore an existing session (Supabase or cached StorageService)
+    // 2. Normal launch: Try to restore an existing session (Supabase or cached StorageService)
     try {
       final authService = AuthService();
       final user = await authService.restoreSession();

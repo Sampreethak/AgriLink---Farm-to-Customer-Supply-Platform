@@ -31,19 +31,22 @@ class AuthService {
         ? Uri.base.toString().split('#').first.split('?').first
         : 'io.supabase.agrilink://login-callback/';
 
-    if (kIsWeb) {
-      final res = await _supabase.auth.getOAuthSignInUrl(
-        provider: OAuthProvider.google,
+    try {
+      await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
         redirectTo: redirectUrl,
       );
-      openUrlOnWeb(res.url);
-      return;
+    } catch (e) {
+      if (kIsWeb) {
+        final res = await _supabase.auth.getOAuthSignInUrl(
+          provider: OAuthProvider.google,
+          redirectTo: redirectUrl,
+        );
+        openUrlOnWeb(res.url);
+        return;
+      }
+      rethrow;
     }
-
-    await _supabase.auth.signInWithOAuth(
-      OAuthProvider.google,
-      redirectTo: redirectUrl,
-    );
   }
 
   // ─────────────────────────────────────────────

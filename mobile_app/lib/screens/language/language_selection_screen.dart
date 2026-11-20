@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/colors.dart';
 import '../../core/localization.dart';
+import '../../services/auth_service.dart';
 import '../auth/login_screen.dart';
+import '../customer/customer_dashboard.dart';
+import '../farmer/farmer_dashboard.dart';
+import '../aggregator/aggregator_dashboard.dart';
+import '../delivery/delivery_dashboard.dart';
+import '../admin/admin_dashboard.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   const LanguageSelectionScreen({super.key});
@@ -166,12 +172,34 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                   if (_selectedLanguageCode != null) {
                     await langProvider.setLanguage(_selectedLanguageCode!);
                     if (context.mounted) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LoginScreen(),
-                        ),
-                      );
+                      try {
+                        final authService = AuthService();
+                        final user = await authService.restoreSession();
+                        if (user != null && context.mounted) {
+                          Widget target;
+                          switch (AuthService.normalizeRole(user.role)) {
+                            case 'farmer':     target = const FarmerDashboard(); break;
+                            case 'aggregator': target = const AggregatorDashboard(); break;
+                            case 'delivery':   target = const DeliveryDashboard(); break;
+                            case 'admin':      target = const AdminDashboard(); break;
+                            default:           target = const CustomerDashboard(); break;
+                          }
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => target),
+                          );
+                          return;
+                        }
+                      } catch (_) {}
+
+                      if (context.mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      }
                     }
                   }
                 },
