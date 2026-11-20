@@ -11,7 +11,6 @@ import '../../services/platform_state.dart';
 import '../../services/customer_state.dart';
 import '../../services/user_registry.dart';
 import '../language/language_selection_screen.dart';
-import '../auth/login_screen.dart';
 import '../customer/customer_dashboard.dart';
 import '../farmer/farmer_dashboard.dart';
 import '../aggregator/aggregator_dashboard.dart';
@@ -99,14 +98,13 @@ class _SplashScreenState extends State<SplashScreen> {
         if (code != null && code.isNotEmpty) {
           try {
             final res = await Supabase.instance.client.auth.exchangeCodeForSession(code);
-            if (res.user != null) {
-              final user = await authService.buildUserFromSupabaseUser(res.user!);
-              clearUrlHashOnWeb();
-              if (mounted && !_hasNavigated) {
-                _hasNavigated = true;
-                _routeToDashboard(user);
-                return;
-              }
+            final sbUser = res.session.user;
+            final user = await authService.buildUserFromSupabaseUser(sbUser);
+            clearUrlHashOnWeb();
+            if (mounted && !_hasNavigated) {
+              _hasNavigated = true;
+              _routeToDashboard(user);
+              return;
             }
           } catch (e) {
             debugPrint('[exchangeCodeForSession Error]: $e');

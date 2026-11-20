@@ -87,7 +87,7 @@ class AuthService {
       type: OtpType.email,
     );
     if (res.user == null) return null;
-    return _buildUserFromSupabaseUser(res.user!);
+    return buildUserFromSupabaseUser(res.user!);
   }
 
   // ─────────────────────────────────────────────
@@ -332,7 +332,7 @@ class AuthService {
           .select('email, full_name, user_role, demo_password')
           .not('demo_password', 'is', null)
           .order('created_at', ascending: false);
-      if (rows is List && rows.isNotEmpty) {
+      if (rows.isNotEmpty) {
         return List<Map<String, dynamic>>.from(rows);
       }
     } catch (_) {}
