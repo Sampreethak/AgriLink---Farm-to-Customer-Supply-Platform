@@ -24,13 +24,13 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'
           channel: 'stable'
           cache: true
 
       - name: Build Flutter Web
         working-directory: mobile_app
         run: |
+          flutter --version
           flutter pub get
           flutter build web --release --no-tree-shake-icons
           echo "✅ Flutter web build complete"
@@ -70,10 +70,10 @@ jobs:
 
             # 3. Deploy Flutter Web build to Nginx serving directory
             echo "📱 Deploying Flutter Web frontend..."
-            sudo rm -rf /var/www/html/agrilink/*
             sudo mkdir -p /var/www/html/agrilink
+            sudo cp -r ~/agrilink-flutter-build/* /var/www/html/
             sudo cp -r ~/agrilink-flutter-build/* /var/www/html/agrilink/
-            sudo chown -R www-data:www-data /var/www/html/agrilink
+            sudo chown -R www-data:www-data /var/www/html
             echo "✅ Flutter Web deployed to Nginx"
 
             # 4. Restart FastAPI & ML background service
