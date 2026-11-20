@@ -28,10 +28,18 @@ class AppConfig {
   );
 
   // FastAPI ML / Logistics Core API Gateway
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://52.66.246.170/api/v1',
-  );
+  static String get baseUrl {
+    if (kIsWeb) {
+      final origin = Uri.base.origin;
+      if (origin.isNotEmpty && !origin.startsWith('file://')) {
+        return '$origin/api/v1';
+      }
+    }
+    return const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://52.66.246.170/api/v1',
+    );
+  }
 
   // Environment Mode (development | staging | production)
   static const String appEnv = String.fromEnvironment(

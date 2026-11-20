@@ -2,6 +2,7 @@ import os
 import sys
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -336,6 +337,22 @@ def rds_upsert_user_profile(user: dict) -> bool:
             pass
         return False
 
+@app.on_event("startup")
+def init_rds_seeds():
+    """Initializes AWS RDS PostgreSQL tables and default profiles on startup."""
+    try:
+        seeds = [
+            {"id": "usr-seed-farmer-01", "email": "ramesh.farmer@agrilink.com", "full_name": "Ramesh Kumar", "role": "FARMER", "customer_type": "Farmer (Producer)", "phone": "+91 98765 43210", "location": "Mandya, Karnataka", "auth_provider": "seed"},
+            {"id": "usr-seed-buyer-01", "email": "priya.buyer@agrilink.com", "full_name": "Priya Verma", "role": "CUSTOMER", "customer_type": "Individual Customer", "phone": "+91 91234 56789", "location": "Indiranagar, Bengaluru", "auth_provider": "seed"},
+            {"id": "usr-seed-agg-01", "email": "aggregator.kolar@agrilink.com", "full_name": "Kolar Market Yard Hub", "role": "AGGREGATOR", "customer_type": "Aggregator Hub", "phone": "+91 99887 76655", "location": "Kolar, Karnataka", "auth_provider": "seed"},
+            {"id": "usr-seed-del-01", "email": "delivery.partner@agrilink.com", "full_name": "Raju Express Delivery", "role": "DELIVERY", "customer_type": "Delivery Partner", "phone": "+91 98450 11223", "location": "Mandya -> Bengaluru Corridor", "auth_provider": "seed"},
+            {"id": "usr-seed-admin-01", "email": "admin@agrilink.com", "full_name": "System Administrator", "role": "ADMIN", "customer_type": "Admin", "phone": "+91 80000 00000", "location": "AgriLink HQ Bengaluru", "auth_provider": "seed"}
+        ]
+        for s in seeds:
+            rds_upsert_user_profile(s)
+    except Exception as e:
+        print(f"[Startup RDS Seed Warning]: {e}")
+
 def rds_get_user_profile(identifier: str) -> Optional[dict]:
     """Retrieves user profile from AWS RDS PostgreSQL by email, user_id, or phone."""
     conn = get_rds_connection()
@@ -375,6 +392,174 @@ def rds_get_user_profile(identifier: str) -> Optional[dict]:
         except Exception:
             pass
         return None
+
+def rds_get_all_users() -> List[dict]:
+    """Retrieves all user profiles from AWS RDS PostgreSQL public.profiles."""
+    conn = get_rds_connection()
+    if not conn:
+        return REGISTERED_USERS
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.profiles (
+                id VARCHAR(100) PRIMARY KEY,
+                user_id VARCHAR(100),
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255),
+                phone VARCHAR(50),
+                user_role VARCHAR(50) NOT NULL DEFAULT 'CUSTOMER',
+                customer_type VARCHAR(100),
+                location VARCHAR(255),
+                auth_provider VARCHAR(50) DEFAULT 'email',
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
+        cur.execute("""
+            SELECT id, user_id, full_name, email, phone, user_role, customer_type, location, auth_provider, created_at, updated_at
+            FROM public.profiles
+            ORDER BY updated_at DESC, created_at DESC;
+        """)
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        users = []
+        for row in rows:
+            users.append({
+                "id": row[0],
+                "user_id": row[1],
+                "full_name": row[2],
+                "email": row[3],
+                "phone": row[4] or "",
+                "role": (row[5] or "CUSTOMER").upper(),
+                "customer_type": row[6] or "",
+                "location": row[7] or "",
+                "auth_provider": row[8] or "email",
+                "created_at": str(row[9]),
+                "updated_at": str(row[10])
+            })
+        return users if users else REGISTERED_USERS
+    except Exception as e:
+        print(f"[RDS] Error getting all users: {e}")
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return REGISTERED_USERS
+
+def rds_save_listing(item: dict) -> bool:
+    """Persists crop listing into AWS RDS PostgreSQL public.crop_listings table."""
+    conn = get_rds_connection()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.crop_listings (
+                id SERIAL PRIMARY KEY,
+                farmer_name VARCHAR(255) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                crop_name VARCHAR(100) NOT NULL,
+                category_id INT DEFAULT 1,
+                description TEXT,
+                price_per_unit NUMERIC(10, 2) NOT NULL,
+                unit VARCHAR(20) DEFAULT 'kg',
+                available_quantity NUMERIC(10, 2) NOT NULL,
+                is_organic BOOLEAN DEFAULT FALSE,
+                grade VARCHAR(20) DEFAULT 'A',
+                location VARCHAR(255),
+                image_url TEXT,
+                status VARCHAR(50) DEFAULT 'ACTIVE',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
+        cur.execute("""
+            INSERT INTO public.crop_listings (
+                farmer_name, title, crop_name, category_id, description,
+                price_per_unit, unit, available_quantity, is_organic, grade, location, image_url, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """, (
+            item.get("farmer_name", "Farmer"),
+            item.get("title", "Crop Listing"),
+            item.get("crop_name", "Produce"),
+            item.get("category_id", 1),
+            item.get("description", ""),
+            item.get("price_per_unit", 30.0),
+            item.get("unit", "kg"),
+            item.get("available_quantity", 100.0),
+            item.get("is_organic", False),
+            item.get("grade", "A"),
+            item.get("location", "Mandya, Karnataka"),
+            item.get("image_url", ""),
+            item.get("status", "ACTIVE")
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[RDS] Error saving crop listing: {e}")
+        try:
+            conn.rollback()
+            conn.close()
+        except Exception:
+            pass
+        return False
+
+def rds_save_order(order: dict) -> bool:
+    """Persists customer order into AWS RDS PostgreSQL public.orders table."""
+    conn = get_rds_connection()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.orders (
+                order_id VARCHAR(100) PRIMARY KEY,
+                buyer_id VARCHAR(100),
+                listing_id INT,
+                crop_name VARCHAR(100),
+                quantity NUMERIC(10, 2),
+                unit_price NUMERIC(10, 2),
+                total_amount NUMERIC(10, 2),
+                payment_method VARCHAR(50) DEFAULT 'RAZORPAY',
+                razorpay_payment_id VARCHAR(100),
+                delivery_address TEXT,
+                status VARCHAR(50) DEFAULT 'PAID',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
+        cur.execute("""
+            INSERT INTO public.orders (
+                order_id, buyer_id, listing_id, crop_name, quantity,
+                unit_price, total_amount, payment_method, razorpay_payment_id, delivery_address, status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (order_id) DO NOTHING;
+        """, (
+            order.get("order_id"),
+            order.get("buyer_id"),
+            order.get("listing_id"),
+            order.get("crop_name"),
+            order.get("quantity"),
+            order.get("unit_price"),
+            order.get("total_amount"),
+            order.get("payment_method", "RAZORPAY"),
+            order.get("razorpay_payment_id"),
+            order.get("delivery_address"),
+            order.get("status", "PAID")
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[RDS] Error saving order: {e}")
+        try:
+            conn.rollback()
+            conn.close()
+        except Exception:
+            pass
+        return False
 
 class ProfileSyncPayload(BaseModel):
     id: str
@@ -472,6 +657,165 @@ def update_user_role_endpoint(payload: UpdateRolePayload):
         "profile": user_dict
     }
 
+# ==============================================================================
+# AWS RDS PostgreSQL User Inspection & Interactive Database Viewer
+# ==============================================================================
+@app.get("/api/v1/database/users")
+@app.get("/api/v1/users")
+def get_all_database_users():
+    """Returns all users registered in AWS RDS PostgreSQL public.profiles."""
+    users = rds_get_all_users()
+    return {
+        "status": "success",
+        "database": "AWS RDS PostgreSQL (agrilink_db1)",
+        "count": len(users),
+        "users": users
+    }
+
+@app.get("/api/v1/database/viewer", response_class=HTMLResponse)
+@app.get("/database-view", response_class=HTMLResponse)
+@app.get("/users-view", response_class=HTMLResponse)
+def get_database_viewer():
+    """Interactive HTML console to inspect AWS RDS PostgreSQL users, roles, and sync state."""
+    users = rds_get_all_users()
+    user_rows = ""
+    for u in users:
+        role = u.get("role", "CUSTOMER").upper()
+        role_colors = {
+            "FARMER": "background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;",
+            "CUSTOMER": "background:#e0f2f1;color:#00695c;border:1px solid #80cbc4;",
+            "AGGREGATOR": "background:#fff3e0;color:#e65100;border:1px solid #ffcc80;",
+            "DELIVERY": "background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;",
+            "ADMIN": "background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;"
+        }
+        badge_style = role_colors.get(role, "background:#f5f5f5;color:#424242;")
+        provider = u.get("auth_provider", "email")
+        provider_badge = f'<span style="background:#e8eaf6;color:#283593;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;">{provider}</span>'
+        if "google" in provider.lower():
+            provider_badge = '<span style="background:#fce4ec;color:#c2185b;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;">Google OAuth</span>'
+
+        user_rows += f"""
+        <tr style="border-bottom:1px solid #edf2f7;transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+            <td style="padding:14px 16px;font-family:monospace;font-size:12px;color:#64748b;">{u.get('id', '')[:16]}...</td>
+            <td style="padding:14px 16px;font-weight:600;color:#1e293b;">{u.get('full_name', '')}</td>
+            <td style="padding:14px 16px;color:#334155;">{u.get('email', '')}</td>
+            <td style="padding:14px 16px;"><span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;{badge_style}">{role}</span></td>
+            <td style="padding:14px 16px;">{provider_badge}</td>
+            <td style="padding:14px 16px;color:#64748b;font-size:13px;">{u.get('location', '') or 'Bengaluru / Mandya'}</td>
+            <td style="padding:14px 16px;color:#64748b;font-size:12px;">{u.get('updated_at', u.get('created_at', ''))[:19]}</td>
+        </tr>
+        """
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AgriLink - AWS RDS PostgreSQL Live Database Viewer</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <style>
+            * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }}
+            body {{ background: #f8fafc; color: #0f172a; padding: 32px 24px; }}
+            .container {{ max-width: 1280px; margin: 0 auto; }}
+            .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }}
+            .title-area h1 {{ font-size: 26px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px; }}
+            .badge-live {{ background: #10b981; color: white; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }}
+            .subtitle {{ color: #64748b; font-size: 14px; margin-top: 4px; }}
+            .btn-group {{ display: flex; gap: 10px; }}
+            .btn {{ padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border: none; }}
+            .btn-primary {{ background: #16a34a; color: white; }}
+            .btn-secondary {{ background: white; color: #334155; border: 1px solid #cbd5e1; }}
+            .btn:hover {{ opacity: 0.9; }}
+            .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }}
+            .stat-card {{ background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }}
+            .stat-label {{ font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }}
+            .stat-value {{ font-size: 28px; font-weight: 800; color: #0f172a; margin-top: 6px; }}
+            .card {{ background: white; border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; }}
+            .card-header {{ padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }}
+            .card-title {{ font-size: 17px; font-weight: 700; color: #1e293b; }}
+            .search-box {{ padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13px; width: 280px; outline: none; }}
+            .table-wrap {{ overflow-x: auto; }}
+            table {{ width: 100%; border-collapse: collapse; text-align: left; }}
+            th {{ background: #f8fafc; padding: 14px 16px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }}
+            .empty-state {{ text-align: center; padding: 48px; color: #64748b; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="title-area">
+                    <h1>🌾 AgriLink AWS RDS PostgreSQL Console <span class="badge-live">Live</span></h1>
+                    <p class="subtitle">Direct visualization of <code>agrilink_db1</code> PostgreSQL database hosted on AWS RDS</p>
+                </div>
+                <div class="btn-group">
+                    <a href="/" class="btn btn-primary">📱 Open AgriLink App</a>
+                    <a href="/docs" class="btn btn-secondary">📖 API Docs</a>
+                    <button onclick="location.reload()" class="btn btn-secondary">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Registered Profiles</div>
+                    <div class="stat-value" style="color:#16a34a;">{len(users)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Database Provider</div>
+                    <div class="stat-value" style="font-size:18px;margin-top:12px;color:#0284c7;">AWS RDS PostgreSQL 16</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Target Database</div>
+                    <div class="stat-value" style="font-size:18px;margin-top:12px;color:#7c3aed;">agrilink_db1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Logistics Corridor</div>
+                    <div class="stat-value" style="font-size:16px;margin-top:14px;color:#ea580c;">Mandya &rarr; Bengaluru</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Stored User Profiles (<code>public.profiles</code>)</div>
+                    <input type="text" id="filterInput" class="search-box" placeholder="Filter by name, email, or role..." onkeyup="filterTable()">
+                </div>
+                <div class="table-wrap">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Auth Provider</th>
+                                <th>Location</th>
+                                <th>Last Synchronized</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {user_rows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function filterTable() {{
+                const input = document.getElementById("filterInput").value.toUpperCase();
+                const table = document.getElementById("usersTable");
+                const tr = table.getElementsByTagName("tr");
+                for (let i = 1; i < tr.length; i++) {{
+                    const text = tr[i].textContent || tr[i].innerText;
+                    tr[i].style.display = text.toUpperCase().indexOf(input) > -1 ? "" : "none";
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
 @app.get("/api/v1/categories")
 @app.get("/api/v1/products/categories")
 def get_categories():
@@ -549,6 +893,9 @@ def create_listing(item: ListingCreate):
             pass
 
     
+    # Persist to AWS RDS PostgreSQL
+    rds_saved = rds_save_listing(new_item)
+
     # Sync with Supabase cloud database
     supabase_synced = sync_to_supabase("seller_listing", {
         "title": item.title,
@@ -561,6 +908,7 @@ def create_listing(item: ListingCreate):
     return {
         "status": "CREATED",
         "message": "Crop listing published dynamically",
+        "saved_to_rds": rds_saved,
         "supabase_synced": supabase_synced,
         "listing": new_item
     }
@@ -794,6 +1142,9 @@ def create_order(order: OrderCreate):
     
     ACTIVE_ORDERS.insert(0, order_record)
     
+    # Persist to AWS RDS PostgreSQL
+    rds_saved = rds_save_order(order_record)
+    
     # Sync with Supabase cloud database
     supabase_synced = sync_to_supabase("order_item", {
         "listing_id": order.listing_id,
@@ -803,8 +1154,9 @@ def create_order(order: OrderCreate):
         "status": "PAID"
     })
     
+    order_record["saved_to_rds"] = rds_saved
     order_record["supabase_synced"] = supabase_synced
-    order_record["message"] = f"Order recorded in Supabase PostgreSQL project ({SUPABASE_REF})."
+    order_record["message"] = f"Order recorded in AWS RDS PostgreSQL & Supabase ({SUPABASE_REF})."
     return order_record
 
 ACTIVE_ORDERS = []

@@ -49,15 +49,18 @@ class _SplashScreenState extends State<SplashScreen> {
       final event = data.event;
       final session = data.session;
       if (session != null && mounted && !_hasNavigated) {
-        // signedIn or tokenRefreshed events indicate a valid session
         if (event == AuthChangeEvent.signedIn ||
             event == AuthChangeEvent.tokenRefreshed ||
             event == AuthChangeEvent.initialSession) {
-          final authService = AuthService();
-          final user = await authService.restoreSession();
-          if (user != null && mounted && !_hasNavigated) {
-            _hasNavigated = true;
-            _routeToDashboard(user);
+          try {
+            final authService = AuthService();
+            final user = await authService.restoreSession();
+            if (user != null && mounted && !_hasNavigated) {
+              _hasNavigated = true;
+              _routeToDashboard(user);
+            }
+          } catch (e) {
+            debugPrint('[OAuth Redirect Error]: $e');
           }
         }
       }
@@ -72,32 +75,30 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initApp() async {
-    // Show splash for at least 2 seconds
-    await Future.delayed(const Duration(seconds: 2));
+    // Show splash for at least 1.5 seconds
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted || _hasNavigated) return;
 
     // If this is an OAuth callback (URL has access_token / code),
     // give Supabase extra time to parse the token before falling through
     if (_isOAuthCallback()) {
-      // Wait up to 5 more seconds for onAuthStateChange to fire
       for (int i = 0; i < 10; i++) {
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 400));
         if (!mounted || _hasNavigated) return;
+        try {
+          final authService = AuthService();
+          final user = await authService.restoreSession();
+          if (user != null && mounted && !_hasNavigated) {
+            _hasNavigated = true;
+            _routeToDashboard(user);
+            return;
+          }
+        } catch (_) {}
       }
-      // Last attempt: try restoreSession directly
-      try {
-        final authService = AuthService();
-        final user = await authService.restoreSession();
-        if (user != null && mounted && !_hasNavigated) {
-          _hasNavigated = true;
-          _routeToDashboard(user);
-          return;
-        }
-      } catch (_) {}
     }
 
-    // Try to restore an existing Supabase session (normal app launch)
+    // Try to restore an existing session (Supabase or cached StorageService)
     try {
       final authService = AuthService();
       final user = await authService.restoreSession();
@@ -110,7 +111,7 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
     } catch (_) {
-      // No session or Supabase not reachable — continue to language selection
+      // Continue to language selection
     }
 
     if (!mounted || _hasNavigated) return;
@@ -123,7 +124,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _routeToDashboard(AppUserModel user) {
     Widget target;
-    switch (user.role.toLowerCase()) {
+    final r = AuthService.normalizeRole(user.role);
+    switch (r) {
       case 'farmer':
         target = const FarmerDashboard();
         break;

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,38 +10,78 @@ class StorageService {
 
   final _secureStorage = const FlutterSecureStorage();
 
-  // Secure Storage keys
+  // Storage keys
   static const String _keyToken = 'auth_token';
   static const String _keyRefreshToken = 'refresh_token';
 
-  // Save Token
+  // Save Token (safe on Web and HTTP without crypto.subtle errors)
   Future<void> saveToken(String token) async {
-    await _secureStorage.write(key: _keyToken, value: token);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyToken, token);
+    if (!kIsWeb) {
+      try {
+        await _secureStorage.write(key: _keyToken, value: token);
+      } catch (_) {}
+    }
   }
 
   // Get Token
   Future<String?> getToken() async {
-    return await _secureStorage.read(key: _keyToken);
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_keyToken);
+    if (token != null && token.isNotEmpty) return token;
+    if (!kIsWeb) {
+      try {
+        return await _secureStorage.read(key: _keyToken);
+      } catch (_) {}
+    }
+    return null;
   }
 
   // Delete Token
   Future<void> deleteToken() async {
-    await _secureStorage.delete(key: _keyToken);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyToken);
+    if (!kIsWeb) {
+      try {
+        await _secureStorage.delete(key: _keyToken);
+      } catch (_) {}
+    }
   }
 
   // Save Refresh Token
   Future<void> saveRefreshToken(String token) async {
-    await _secureStorage.write(key: _keyRefreshToken, value: token);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyRefreshToken, token);
+    if (!kIsWeb) {
+      try {
+        await _secureStorage.write(key: _keyRefreshToken, value: token);
+      } catch (_) {}
+    }
   }
 
   // Get Refresh Token
   Future<String?> getRefreshToken() async {
-    return await _secureStorage.read(key: _keyRefreshToken);
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_keyRefreshToken);
+    if (token != null && token.isNotEmpty) return token;
+    if (!kIsWeb) {
+      try {
+        return await _secureStorage.read(key: _keyRefreshToken);
+      } catch (_) {}
+    }
+    return null;
   }
 
   // Delete Refresh Token
   Future<void> deleteRefreshToken() async {
-    await _secureStorage.delete(key: _keyRefreshToken);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyRefreshToken);
+    if (!kIsWeb) {
+      try {
+        await _secureStorage.delete(key: _keyRefreshToken);
+      } catch (_) {}
+    }
   }
 
   // Save user details
@@ -96,12 +137,19 @@ class StorageService {
 
   // Clear all storage on logout
   Future<void> clearAll() async {
-    await _secureStorage.deleteAll();
+    if (!kIsWeb) {
+      try {
+        await _secureStorage.deleteAll();
+      } catch (_) {}
+    }
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyToken);
+    await prefs.remove(_keyRefreshToken);
     await prefs.remove('user_name');
     await prefs.remove('user_phone');
     await prefs.remove('user_role');
     await prefs.remove('user_id');
+    await prefs.remove('google_login_target_role');
   }
 
   Future<Map<String, String?>> getUserData() async {

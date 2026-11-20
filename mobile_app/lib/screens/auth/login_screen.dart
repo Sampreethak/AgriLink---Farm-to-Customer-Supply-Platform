@@ -59,10 +59,14 @@ class _LoginScreenState extends State<LoginScreen> {
           (event == AuthChangeEvent.signedIn ||
            event == AuthChangeEvent.tokenRefreshed ||
            event == AuthChangeEvent.initialSession)) {
-        final authService = AuthService();
-        final user = await authService.restoreSession();
-        if (user != null && mounted) {
-          _routeToDashboard(user);
+        try {
+          final authService = AuthService();
+          final user = await authService.restoreSession();
+          if (user != null && mounted) {
+            _routeToDashboard(user);
+          }
+        } catch (e) {
+          debugPrint('[AuthState Error in LoginScreen]: $e');
         }
       }
     });
