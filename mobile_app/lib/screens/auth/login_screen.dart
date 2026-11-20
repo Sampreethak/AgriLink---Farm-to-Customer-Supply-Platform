@@ -7,6 +7,7 @@ import '../../core/validators.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
+import '../../services/storage_service.dart';
 import '../../services/user_registry.dart';
 import 'register_screen.dart';
 import 'otp_verification_screen.dart';
