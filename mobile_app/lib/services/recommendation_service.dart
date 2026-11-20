@@ -8,7 +8,7 @@ class RecommendationService {
     receiveTimeout: const Duration(seconds: 5),
   ));
 
-  static const String _baseUrl = AppConfig.baseUrl;
+  static String get _baseUrl => AppConfig.baseUrl;
 
   /// Fetches unified 3-model dashboard payload (Buy Again, Picked For You, You May Also Want)
   Future<Map<String, dynamic>?> getCustomerHomeDashboard(String customerId, {List<String>? cartCrops}) async {

@@ -7,7 +7,7 @@ class PricingService {
     receiveTimeout: const Duration(seconds: 5),
   ));
 
-  static const String _baseUrl = AppConfig.baseUrl;
+  static String get _baseUrl => AppConfig.baseUrl;
 
   /// Fetches APMC government benchmark modal prices for Mandya-Bengaluru corridor
   Future<Map<String, double>> getApmcBenchmarks() async {
