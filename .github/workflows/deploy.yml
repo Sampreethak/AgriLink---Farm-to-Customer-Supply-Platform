@@ -76,13 +76,25 @@ jobs:
             cat /etc/nginx/sites-enabled/* || true
             grep -rn "root" /etc/nginx/sites-enabled/ || true
 
+            # Deploy directly to the actual Nginx root: /home/ubuntu/agrilink/frontend
+            echo "Copying Flutter Web build to /home/ubuntu/agrilink/frontend..."
+            sudo mkdir -p /home/ubuntu/agrilink/frontend
+            sudo rm -rf /home/ubuntu/agrilink/frontend/*
+            sudo cp -rf ~/agrilink-flutter-build/* /home/ubuntu/agrilink/frontend/
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/agrilink/frontend
+            sudo chmod -R 755 /home/ubuntu/agrilink/frontend
+            echo "✅ Flutter Web deployed to /home/ubuntu/agrilink/frontend"
+            ls -la /home/ubuntu/agrilink/frontend/ | head -n 15
+
+            # Also deploy to /var/www/html for complete coverage
+            sudo mkdir -p /var/www/html
             sudo rm -rf /var/www/html/*
             sudo cp -rf ~/agrilink-flutter-build/* /var/www/html/
             sudo mkdir -p /var/www/html/agrilink
             sudo cp -rf ~/agrilink-flutter-build/* /var/www/html/agrilink/
             sudo chown -R www-data:www-data /var/www/html
-            echo "✅ Flutter Web deployed to Nginx directory /var/www/html"
-            ls -la /var/www/html/ | head -n 15
+            sudo chmod -R 755 /var/www/html
+            echo "✅ Flutter Web deployed to /var/www/html"
 
             # 4. Restart FastAPI & ML background service
             sudo systemctl restart agrilink
