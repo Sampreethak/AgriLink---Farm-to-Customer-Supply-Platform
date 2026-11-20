@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/colors.dart';
@@ -23,18 +24,41 @@ class _SplashScreenState extends State<SplashScreen> {
   StreamSubscription<AuthState>? _authSub;
   bool _hasNavigated = false;
 
+  /// Check if the current URL contains an OAuth callback token (web only)
+  bool _isOAuthCallback() {
+    if (!kIsWeb) return false;
+    try {
+      final uri = Uri.base;
+      final fragment = uri.fragment;
+      final query = uri.queryParametersAll;
+      // Supabase OAuth returns tokens in the hash fragment or query params
+      return fragment.contains('access_token') ||
+          fragment.contains('refresh_token') ||
+          query.containsKey('code') ||
+          query.containsKey('access_token');
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     // Listen for OAuth redirects (e.g. Google Sign-In on Chrome)
     _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+      final event = data.event;
       final session = data.session;
       if (session != null && mounted && !_hasNavigated) {
-        final authService = AuthService();
-        final user = await authService.restoreSession();
-        if (user != null && mounted && !_hasNavigated) {
-          _hasNavigated = true;
-          _routeToDashboard(user);
+        // signedIn or tokenRefreshed events indicate a valid session
+        if (event == AuthChangeEvent.signedIn ||
+            event == AuthChangeEvent.tokenRefreshed ||
+            event == AuthChangeEvent.initialSession) {
+          final authService = AuthService();
+          final user = await authService.restoreSession();
+          if (user != null && mounted && !_hasNavigated) {
+            _hasNavigated = true;
+            _routeToDashboard(user);
+          }
         }
       }
     });
@@ -53,7 +77,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted || _hasNavigated) return;
 
-    // Try to restore an existing Supabase session
+    // If this is an OAuth callback (URL has access_token / code),
+    // give Supabase extra time to parse the token before falling through
+    if (_isOAuthCallback()) {
+      // Wait up to 5 more seconds for onAuthStateChange to fire
+      for (int i = 0; i < 10; i++) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted || _hasNavigated) return;
+      }
+      // Last attempt: try restoreSession directly
+      try {
+        final authService = AuthService();
+        final user = await authService.restoreSession();
+        if (user != null && mounted && !_hasNavigated) {
+          _hasNavigated = true;
+          _routeToDashboard(user);
+          return;
+        }
+      } catch (_) {}
+    }
+
+    // Try to restore an existing Supabase session (normal app launch)
     try {
       final authService = AuthService();
       final user = await authService.restoreSession();
