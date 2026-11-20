@@ -76,6 +76,24 @@ class StorageService {
     return prefs.getString('last_logged_in_email');
   }
 
+  // Save target Google role selected before OAuth redirect
+  Future<void> saveTargetGoogleRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('google_login_target_role', role);
+  }
+
+  // Get target Google role after OAuth redirect
+  Future<String?> getTargetGoogleRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('google_login_target_role');
+  }
+
+  // Clear target Google role
+  Future<void> clearTargetGoogleRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('google_login_target_role');
+  }
+
   // Clear all storage on logout
   Future<void> clearAll() async {
     await _secureStorage.deleteAll();

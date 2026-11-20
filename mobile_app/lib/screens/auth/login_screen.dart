@@ -170,6 +170,59 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Handle Google OAuth Sign-In
   Future<void> _handleGoogleSignIn() async {
+    final storage = StorageService();
+    String? chosenRole = _detectedRole;
+
+    if (chosenRole == null) {
+      chosenRole = await showModalBottomSheet<String>(
+        context: context,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (ctx) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Image.network(
+                      'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
+                      width: 24,
+                      height: 24,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata, color: Colors.blue, size: 28),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      "Continue with Google",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Select your AgriLink account role to open your dashboard:",
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                _buildRoleOptionTile(ctx, "Farmer", "Sell crops, check mandi pricing & voice assistant", Icons.agriculture, Colors.green.shade700),
+                _buildRoleOptionTile(ctx, "Customer", "Buy fresh farm produce directly from growers", Icons.shopping_basket, Colors.teal.shade700),
+                _buildRoleOptionTile(ctx, "Aggregator", "SHG collection point & quality grade sorting hub", Icons.warehouse, Colors.orange.shade800),
+                _buildRoleOptionTile(ctx, "Delivery", "Deliver orders & manage logistics corridor", Icons.local_shipping, Colors.blue.shade700),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (chosenRole == null) return;
+
+    await storage.saveTargetGoogleRole(chosenRole.toLowerCase());
+
     setState(() => _isGoogleLoading = true);
     try {
       final authService = AuthService();
@@ -188,6 +241,28 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) setState(() => _isGoogleLoading = false);
     }
+  }
+
+  Widget _buildRoleOptionTile(BuildContext ctx, String role, String desc, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        leading: CircleAvatar(
+          backgroundColor: color.withValues(alpha: 0.2),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        title: Text(role, style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 16)),
+        subtitle: Text(desc, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+        trailing: Icon(Icons.arrow_forward_ios, size: 14, color: color),
+        onTap: () => Navigator.pop(ctx, role.toLowerCase()),
+      ),
+    );
   }
 
   // Handle Primary Login Submission based on active method

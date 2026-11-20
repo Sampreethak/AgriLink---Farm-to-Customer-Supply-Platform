@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import '../core/config.dart';
 import 'web_auth_redirect.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'storage_service.dart';
@@ -217,7 +219,19 @@ class AuthService {
     // 3. Save local credentials for offline/local autofill fallback
     await _storageService.saveSavedPassword(resolvedEmail, resolvedPassword);
 
-    // 4. Build local AppUserModel
+    // 4. Save to AWS RDS PostgreSQL
+    await syncProfileToAwsRds(
+      id: userId,
+      email: resolvedEmail,
+      fullName: fullName,
+      role: cleanRole,
+      phone: phone,
+      location: region ?? 'Bengaluru / Mandya Corridor',
+      customerType: resolvedCustomerType,
+      authProvider: 'email',
+    );
+
+    // 5. Build local AppUserModel
     final user = AppUserModel(
       id: userId,
       email: resolvedEmail,
@@ -455,12 +469,74 @@ class AuthService {
     }
   }
 
+  // ─────────────────────────────────────────────
+  // AWS RDS PostgreSQL Profile Synchronization
+  // ─────────────────────────────────────────────
+  Future<bool> syncProfileToAwsRds({
+    required String id,
+    required String email,
+    required String fullName,
+    required String role,
+    String? phone,
+    String? location,
+    String? customerType,
+    String authProvider = 'google',
+  }) async {
+    try {
+      final dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 4)));
+      final url = '${AppConfig.baseUrl}/auth/sync-profile';
+      final res = await dio.post(
+        url,
+        data: {
+          'id': id,
+          'email': email.trim().toLowerCase(),
+          'full_name': fullName,
+          'role': role.toUpperCase(),
+          'phone': phone ?? '',
+          'location': location ?? 'Bengaluru / Mandya Corridor',
+          'customer_type': customerType,
+          'auth_provider': authProvider,
+        },
+      );
+      return res.statusCode == 200;
+    } catch (e) {
+      debugPrint('[AWS RDS Sync Warning]: $e');
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchProfileFromAwsRds(String emailOrId) async {
+    try {
+      final dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 4)));
+      final url = '${AppConfig.baseUrl}/auth/profile/${Uri.encodeComponent(emailOrId.trim())}';
+      final res = await dio.get(url);
+      if (res.statusCode == 200 && res.data['profile'] != null) {
+        return Map<String, dynamic>.from(res.data['profile']);
+      }
+    } catch (e) {
+      debugPrint('[AWS RDS Fetch Warning]: $e');
+    }
+    return null;
+  }
+
   Future<AppUserModel> _buildUserFromSupabaseUser(
     User supabaseUser, {
     String? phone,
   }) async {
     final userId = supabaseUser.id;
+    final cleanEmail = (supabaseUser.email ?? '').trim().toLowerCase();
+    final metadata = supabaseUser.userMetadata ?? {};
 
+    // 1. Check AWS RDS PostgreSQL FIRST for existing user profile
+    Map<String, dynamic>? rdsProfile;
+    if (cleanEmail.isNotEmpty) {
+      rdsProfile = await fetchProfileFromAwsRds(cleanEmail);
+    }
+    if (rdsProfile == null) {
+      rdsProfile = await fetchProfileFromAwsRds(userId);
+    }
+
+    // 2. Query Supabase profiles table
     Map<String, dynamic>? profileRow;
     try {
       profileRow = await _supabase
@@ -470,48 +546,75 @@ class AuthService {
           .maybeSingle();
     } catch (_) {}
 
-    final metadata = supabaseUser.userMetadata ?? {};
-
-    final fullName = profileRow?['full_name']?.toString() ??
+    final fullName = rdsProfile?['full_name']?.toString() ??
+        profileRow?['full_name']?.toString() ??
         metadata['full_name']?.toString() ??
         metadata['name']?.toString() ??
-        (supabaseUser.email != null && supabaseUser.email!.isNotEmpty
-            ? supabaseUser.email!.split('@').first
-            : 'AgriLink Member');
+        (cleanEmail.isNotEmpty ? cleanEmail.split('@').first : 'AgriLink Member');
 
     final userPhone = phone ??
+        rdsProfile?['phone']?.toString() ??
         profileRow?['phone']?.toString() ??
         metadata['phone']?.toString() ??
         '';
 
+    // 3. Check if target role was selected right before Google OAuth redirect
+    final targetGoogleRole = await _storageService.getTargetGoogleRole();
+
+    // 4. Resolve the definitive role (RDS > targetGoogleRole > Supabase profile > metadata > default)
     final rawRole = normalizeRole(
+      rdsProfile?['role']?.toString() ??
+      targetGoogleRole ??
       profileRow?['user_role']?.toString() ??
       metadata['role']?.toString() ??
       'customer',
     );
 
-    // If profile didn't exist in DB (e.g. brand-new Google OAuth login), auto-create it
-    if (profileRow == null) {
-      try {
-        await _supabase.from('profiles').upsert({
-          'id': userId,
-          'user_id': userId,
-          'full_name': fullName,
-          'email': supabaseUser.email ?? '',
-          'phone': userPhone,
-          'user_role': rawRole.toUpperCase(),
-          'location': 'Bengaluru / Mandya Corridor',
-        });
-      } catch (_) {}
+    // Consume the stored target role once used
+    if (targetGoogleRole != null) {
+      await _storageService.clearTargetGoogleRole();
     }
+
+    final location = rdsProfile?['location']?.toString() ??
+        profileRow?['location']?.toString() ??
+        'Bengaluru / Mandya Corridor';
+
+    final customerType = rdsProfile?['customer_type']?.toString() ??
+        profileRow?['customer_type']?.toString() ??
+        _defaultCustomerType(rawRole);
+
+    // 5. PERSIST DIRECTLY TO AWS RDS PostgreSQL DATABASE
+    await syncProfileToAwsRds(
+      id: userId,
+      email: cleanEmail,
+      fullName: fullName,
+      role: rawRole,
+      phone: userPhone,
+      location: location,
+      customerType: customerType,
+      authProvider: 'google',
+    );
+
+    // 6. Also sync with Supabase profiles table
+    try {
+      await _supabase.from('profiles').upsert({
+        'id': userId,
+        'user_id': userId,
+        'full_name': fullName,
+        'email': cleanEmail,
+        'phone': userPhone,
+        'user_role': rawRole.toUpperCase(),
+        'location': location,
+      });
+    } catch (_) {}
 
     final user = AppUserModel(
       id: userId,
-      email: supabaseUser.email ?? '',
+      email: cleanEmail,
       fullName: fullName,
       role: rawRole,
-      customerType: profileRow?['customer_type']?.toString() ?? _defaultCustomerType(rawRole),
-      region: profileRow?['location']?.toString() ?? 'Bengaluru / Mandya Corridor',
+      customerType: customerType,
+      region: location,
       phone: userPhone,
     );
 

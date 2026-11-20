@@ -4,6 +4,7 @@ import '../../core/colors.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/auth_service.dart';
+import '../../services/storage_service.dart';
 import '../../core/validators.dart';
 import '../customer/customer_dashboard.dart';
 import '../farmer/farmer_dashboard.dart';
@@ -41,6 +42,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    final storage = StorageService();
+    await storage.saveTargetGoogleRole(_selectedRole.toLowerCase());
+
     setState(() => _isGoogleLoading = true);
     try {
       final authService = AuthService();

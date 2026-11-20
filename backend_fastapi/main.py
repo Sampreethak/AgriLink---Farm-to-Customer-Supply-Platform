@@ -265,6 +265,213 @@ def database_status():
             "fallback": "Supabase Cloud PostgREST"
         }
 
+# ==============================================================================
+# AWS RDS PostgreSQL User Profile Persistence
+# ==============================================================================
+def get_rds_connection():
+    if not DATABASE_URL:
+        return None
+    try:
+        import psycopg2
+        return psycopg2.connect(DATABASE_URL)
+    except Exception as e:
+        print(f"[RDS] Connection failed: {e}")
+        return None
+
+def rds_upsert_user_profile(user: dict) -> bool:
+    """Saves or updates user profile directly in AWS RDS PostgreSQL public.profiles."""
+    conn = get_rds_connection()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.profiles (
+                id VARCHAR(100) PRIMARY KEY,
+                user_id VARCHAR(100),
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255),
+                phone VARCHAR(50),
+                user_role VARCHAR(50) NOT NULL DEFAULT 'CUSTOMER',
+                customer_type VARCHAR(100),
+                location VARCHAR(255),
+                auth_provider VARCHAR(50) DEFAULT 'email',
+                created_at TIMESTAMPTZ DEFAULT NOW(),
+                updated_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
+        uid = str(user.get("id") or user.get("user_id") or "")
+        email = str(user.get("email") or "").strip().lower()
+        full_name = str(user.get("full_name") or user.get("name") or "AgriLink User")
+        phone = str(user.get("phone") or "")
+        role = str(user.get("role") or user.get("user_role") or "CUSTOMER").upper()
+        customer_type = str(user.get("customer_type") or ("Farmer (Producer)" if role == "FARMER" else "Individual Customer"))
+        location = str(user.get("location") or user.get("region") or "Bengaluru / Mandya Corridor")
+        auth_provider = str(user.get("auth_provider") or "google")
+
+        cur.execute("""
+            INSERT INTO public.profiles (id, user_id, full_name, email, phone, user_role, customer_type, location, auth_provider, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            ON CONFLICT (id) DO UPDATE SET
+                full_name = EXCLUDED.full_name,
+                email = EXCLUDED.email,
+                phone = COALESCE(NULLIF(EXCLUDED.phone, ''), public.profiles.phone),
+                user_role = EXCLUDED.user_role,
+                customer_type = EXCLUDED.customer_type,
+                location = EXCLUDED.location,
+                auth_provider = EXCLUDED.auth_provider,
+                updated_at = NOW();
+        """, (uid, uid, full_name, email, phone, role, customer_type, location, auth_provider))
+        conn.commit()
+        cur.close()
+        conn.close()
+        print(f"[RDS] Successfully saved profile for {email} ({role}) to AWS RDS PostgreSQL")
+        return True
+    except Exception as e:
+        print(f"[RDS] Error upserting user profile: {e}")
+        try:
+            conn.rollback()
+            conn.close()
+        except Exception:
+            pass
+        return False
+
+def rds_get_user_profile(identifier: str) -> Optional[dict]:
+    """Retrieves user profile from AWS RDS PostgreSQL by email, user_id, or phone."""
+    conn = get_rds_connection()
+    if not conn:
+        return None
+    try:
+        clean_id = identifier.strip().lower()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, user_id, full_name, email, phone, user_role, customer_type, location, auth_provider, created_at
+            FROM public.profiles
+            WHERE LOWER(email) = %s OR id = %s OR user_id = %s OR phone = %s
+            LIMIT 1;
+        """, (clean_id, identifier, identifier, identifier))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        if row:
+            return {
+                "id": row[0],
+                "user_id": row[1],
+                "full_name": row[2],
+                "email": row[3],
+                "phone": row[4],
+                "role": (row[5] or "CUSTOMER").upper(),
+                "customer_type": row[6],
+                "region": row[7],
+                "location": row[7],
+                "auth_provider": row[8],
+                "created_at": str(row[9])
+            }
+        return None
+    except Exception as e:
+        print(f"[RDS] Error getting user profile: {e}")
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return None
+
+class ProfileSyncPayload(BaseModel):
+    id: str
+    email: str
+    full_name: str
+    role: str
+    phone: Optional[str] = ""
+    location: Optional[str] = "Bengaluru / Mandya Corridor"
+    customer_type: Optional[str] = None
+    auth_provider: Optional[str] = "google"
+
+@app.post("/api/v1/auth/sync-profile")
+@app.post("/api/v1/users/sync-profile")
+def sync_profile_to_rds(payload: ProfileSyncPayload):
+    user_dict = {
+        "id": payload.id,
+        "user_id": payload.id,
+        "email": payload.email.strip().lower(),
+        "full_name": payload.full_name,
+        "role": payload.role.upper(),
+        "phone": payload.phone or "",
+        "location": payload.location or "Bengaluru / Mandya Corridor",
+        "customer_type": payload.customer_type or ("Farmer (Producer)" if payload.role.upper() == "FARMER" else "Individual Customer"),
+        "auth_provider": payload.auth_provider or "google"
+    }
+    # Update in-memory registry
+    global REGISTERED_USERS
+    REGISTERED_USERS = [u for u in REGISTERED_USERS if u.get("email") != user_dict["email"] and u.get("id") != user_dict["id"]]
+    REGISTERED_USERS.insert(0, user_dict)
+
+    # Save to AWS RDS PostgreSQL
+    saved_to_rds = rds_upsert_user_profile(user_dict)
+
+    return {
+        "status": "success",
+        "message": "User profile synchronized with AWS RDS PostgreSQL",
+        "saved_to_rds": saved_to_rds,
+        "profile": user_dict
+    }
+
+@app.get("/api/v1/auth/profile/{identifier:path}")
+@app.get("/api/v1/users/profile/{identifier:path}")
+def get_user_profile_endpoint(identifier: str):
+    # Try AWS RDS first
+    profile = rds_get_user_profile(identifier)
+    if profile:
+        return {"status": "success", "source": "AWS_RDS_PostgreSQL", "profile": profile}
+    
+    # Fallback to in-memory registry
+    clean_id = identifier.strip().lower()
+    mem_user = next((u for u in REGISTERED_USERS if u.get("email", "").lower() == clean_id or u.get("id") == identifier), None)
+    if mem_user:
+        return {"status": "success", "source": "memory", "profile": mem_user}
+        
+    return {"status": "not_found", "profile": None}
+
+class UpdateRolePayload(BaseModel):
+    email: str
+    role: str
+    user_id: Optional[str] = None
+
+@app.post("/api/v1/auth/update-role")
+@app.put("/api/v1/auth/update-role")
+def update_user_role_endpoint(payload: UpdateRolePayload):
+    clean_email = payload.email.strip().lower()
+    new_role = payload.role.strip().upper()
+    
+    # Check if user exists in RDS
+    existing = rds_get_user_profile(clean_email)
+    uid = payload.user_id or (existing["id"] if existing else f"usr-{new_role.lower()}-{abs(hash(clean_email)) % 1000000}")
+    full_name = existing["full_name"] if existing else clean_email.split("@")[0].capitalize()
+    
+    user_dict = {
+        "id": uid,
+        "user_id": uid,
+        "email": clean_email,
+        "full_name": full_name,
+        "role": new_role,
+        "phone": existing.get("phone", "") if existing else "",
+        "location": existing.get("location", "Bengaluru / Mandya Corridor") if existing else "Bengaluru / Mandya Corridor",
+        "customer_type": "Farmer (Producer)" if new_role == "FARMER" else "Individual Customer",
+        "auth_provider": "google"
+    }
+    
+    saved = rds_upsert_user_profile(user_dict)
+    
+    global REGISTERED_USERS
+    REGISTERED_USERS = [u for u in REGISTERED_USERS if u.get("email") != clean_email]
+    REGISTERED_USERS.insert(0, user_dict)
+    
+    return {
+        "status": "success",
+        "message": f"Role updated to {new_role} in AWS RDS",
+        "saved_to_rds": saved,
+        "profile": user_dict
+    }
+
 @app.get("/api/v1/categories")
 @app.get("/api/v1/products/categories")
 def get_categories():
@@ -775,6 +982,9 @@ def register_user(payload: UserRegisterPayload):
     global REGISTERED_USERS
     REGISTERED_USERS = [u for u in REGISTERED_USERS if u.get("phone") != payload.phone and u.get("id") != user_id]
     REGISTERED_USERS.insert(0, user_data)
+
+    # Save directly to AWS RDS PostgreSQL
+    rds_upsert_user_profile(user_data)
 
     # Mirror registration in Supabase if reachable
     try:
