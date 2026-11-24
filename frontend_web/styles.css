@@ -489,3 +489,27 @@ footer {
     font-size: 0.85rem;
     margin-top: auto;
 }
+
+/* Crop Pills */
+.crop-pill {
+    background: var(--dark-bg);
+    color: var(--text-muted);
+    border: 1px solid var(--dark-border);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.crop-pill:hover {
+    border-color: var(--primary);
+    color: var(--text-main);
+}
+
+.crop-pill.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    font-weight: 700;
+}

@@ -2,6 +2,10 @@
 
 All schema migrations, seed data, and SQL scripts for the AgriLink Supabase project.
 
+> 📖 **Comprehensive Database Documentation**:  
+> For the complete table dictionary, 3NF normalization proofs, constraints, triggers, and visual ER diagrams, see:  
+> 👉 [DATABASE_STRUCTURE_MANUAL.md](../docs/DATABASE_STRUCTURE_MANUAL.md)
+
 ## How to Run (Supabase SQL Editor)
 
 1. Open: https://supabase.com/dashboard/project/nxwhnbejvwxiuekhtmpm/editor

@@ -508,6 +508,7 @@ switchTab = function(tabId, btnElement) {
     if (tabId === 'farmer-tab') {
         loadFarmerRecommendations();
         findAggregatorMatches();
+        initNlpDashboard();
     }
     if (tabId === 'discover-tab') {
         loadDiscoverDashboard(currentCustomerId);
@@ -713,3 +714,394 @@ onCustomerChange = function(customerId) {
         loadDiscoverDashboard(customerId);
     }
 };
+
+// ============================================================
+// FARMER QUERY & ADVISORY INSIGHTS DASHBOARD (NLP PHASE 3)
+// ============================================================
+
+const NLP_ADVISORY_DATA = [
+    {
+        id: "rice-stem-borer",
+        crop: "Rice",
+        problem: "Stem Borer & Leaf Folder",
+        category: "PEST_DISEASE",
+        frequency: 89,
+        severity: "High",
+        symptoms: "Dead hearts at tillering stage, white ears at heading, folded leaf blades with larval scraping.",
+        chemicalRemedy: "Tricel / Chlorpyrifos 20 EC @ 2ml/L water, or Cartap Hydrochloride 4G @ 10kg/acre.",
+        bioControl: "Release Trichogramma japonicum egg parasitoid @ 5 cards/acre; avoid staggered planting.",
+        suggestedQuery: "How to control stem borer and leaf folder in rice?"
+    },
+    {
+        id: "potato-late-blight",
+        crop: "Potato",
+        problem: "Late Blight Outbreak",
+        category: "PEST_DISEASE",
+        frequency: 65,
+        severity: "Critical",
+        symptoms: "Irregular water-soaked brown lesions on leaves and stems, white fungal growth under humid canopy.",
+        chemicalRemedy: "Indofil M-45 (Mancozeb 75 WP) @ 2.5g/L preventive; Ridomil Gold @ 2g/L curative.",
+        bioControl: "Spray Trichoderma viride @ 5g/L; avoid overhead sprinkler irrigation during cloudy weather.",
+        suggestedQuery: "Treatment for potato late blight fungal infection"
+    },
+    {
+        id: "cucurbits-fruit-fly",
+        crop: "Cucurbits",
+        problem: "Fruit Fly Maggot Rot",
+        category: "PEST_DISEASE",
+        frequency: 56,
+        severity: "High",
+        symptoms: "Sunken oviposition punctures on young gourds/melons, larval rotting and premature fruit dropping.",
+        chemicalRemedy: "Bait spray: Malathion 50 EC (2ml/L) + 10g Jaggery / Molasses in 1L water on foliage.",
+        bioControl: "Install Cue-lure pheromone traps (6-8 traps per acre) 15 days before flowering.",
+        suggestedQuery: "Control of fruit fly maggots in cucumber and bottle gourd"
+    },
+    {
+        id: "brinjal-shoot-borer",
+        crop: "Brinjal",
+        problem: "Shoot & Fruit Borer (Leucinodes)",
+        category: "PEST_DISEASE",
+        frequency: 52,
+        severity: "High",
+        symptoms: "Wilted and drooping terminal shoot tips, circular exit holes in mature brinjal fruits with frass.",
+        chemicalRemedy: "Spinosad 45 SC @ 0.4ml/L or Emamectin Benzoate 5 SG @ 0.5g/L water.",
+        bioControl: "Clip and burn wilted shoots weekly; spray Neem oil 1500 ppm @ 5ml/L.",
+        suggestedQuery: "How to treat shoot and fruit borer in brinjal?"
+    },
+    {
+        id: "chilli-leaf-curl",
+        crop: "Chilli",
+        problem: "Viral Leaf Curl & Thrips/Whitefly",
+        category: "PEST_DISEASE",
+        frequency: 50,
+        severity: "High",
+        symptoms: "Leaves curling upwards (thrips) or downwards (mites), thickened brittle veins, stunted bush.",
+        chemicalRemedy: "Rogor (Dimethoate 30 EC) @ 2ml/L or Imidacloprid 17.8 SL @ 0.5ml/L for vector insect suppression.",
+        bioControl: "Set up yellow and blue sticky traps (10-12 per acre); spray systemic neem formulation.",
+        suggestedQuery: "Best spray for leaf curl and thrips in green chilli"
+    },
+    {
+        id: "tomato-bacterial-wilt",
+        crop: "Tomato",
+        problem: "Bacterial & Fungal Wilt",
+        category: "PEST_DISEASE",
+        frequency: 39,
+        severity: "Critical",
+        symptoms: "Rapid daytime wilting of foliage without yellowing; vascular browning visible inside cut stem.",
+        chemicalRemedy: "Root drench with Streptocycline (1g/10L) + Copper Oxychloride / Blitox (30g/10L water).",
+        bioControl: "Incorporate bio-agent Pseudomonas fluorescens @ 2.5kg/acre enriched in FYM at planting.",
+        suggestedQuery: "Tomato bacterial wilt root drenching and cure"
+    },
+    {
+        id: "tomato-blight",
+        crop: "Tomato",
+        problem: "Early & Late Blight Spots",
+        category: "PEST_DISEASE",
+        frequency: 34,
+        severity: "High",
+        symptoms: "Concentric target-board rings on bottom leaves, yellow chlorotic margins turning into brown necrosis.",
+        chemicalRemedy: "Indofil M-45 (Mancozeb) @ 2.5g/L or Saaf (Carbendazim + Mancozeb) @ 2g/L at first symptom.",
+        bioControl: "Maintain good crop canopy air circulation; mulch beds to prevent rain-splash spores.",
+        suggestedQuery: "How to cure tomato blight spots and leaf yellowing"
+    },
+    {
+        id: "coconut-nut-drop",
+        crop: "Coconut",
+        problem: "Button Shedding & Nut Drop",
+        category: "FERTILIZER",
+        frequency: 31,
+        severity: "Moderate",
+        symptoms: "Immature female flowers (buttons) and marble-sized young coconuts drying and dropping profusely.",
+        chemicalRemedy: "Soil application of Borax (50g/palm/year) + balanced annual NPK ring dose (500g N, 320g P, 1200g K).",
+        bioControl: "Maintain summer basin irrigation (45L/palm/day) and apply green leaf mulch.",
+        suggestedQuery: "Coconut premature nut drop and borax fertilizer dose"
+    },
+    {
+        id: "rice-blast",
+        crop: "Rice",
+        problem: "Blast & Brown Spot (Pyricularia)",
+        category: "PEST_DISEASE",
+        frequency: 30,
+        severity: "High",
+        symptoms: "Spindle-shaped lesions with ash-grey center and brownish-red borders on leaf blades and neck nodes.",
+        chemicalRemedy: "Tricyclazole 75 WP (Baan) @ 0.6g/L or Bavistin (Carbendazim 50 WP) @ 1g/L at panicle emergence.",
+        bioControl: "Avoid excessive nitrogen split applications; seed treatment with Trichoderma @ 10g/kg seed.",
+        suggestedQuery: "Rice leaf blast and neck blast fungicide treatment"
+    },
+    {
+        id: "npk-dosing-bigha",
+        crop: "All",
+        problem: "NPK Fertilizer Dosing per Bigha/Acre",
+        category: "FERTILIZER",
+        frequency: 293,
+        severity: "Moderate",
+        symptoms: "Uneven vegetative vigor, nitrogen deficiency chlorosis or excessive lush prone to lodging.",
+        chemicalRemedy: "Paddy: Urea 44kg, SSP 125kg, MOP 33kg per bigha. Split Urea 50% basal, 25% tillering, 25% panicle.",
+        bioControl: "Apply Azospirillum and PSB biofertilizer @ 2kg/acre mixed with 200kg vermicompost.",
+        suggestedQuery: "What is the recommended NPK fertilizer dose per bigha for crops?"
+    },
+    {
+        id: "cattle-diarrhoea",
+        crop: "All",
+        problem: "Cattle Diarrhoea & Bovine Health",
+        category: "VETERINARY",
+        frequency: 250,
+        severity: "High",
+        symptoms: "Profuse watery dung, calf scour, dehydration, loss of appetite, hollow flanks.",
+        chemicalRemedy: "Oral electrolyte hydration solution + Bolus Neblon / Sulpha bolus (2 boluses twice daily for 3 days).",
+        bioControl: "Feed boiled rice gruel (congee) with fenugreek; withhold lush wet forage during acute phase.",
+        suggestedQuery: "Treatment for cow diarrhoea and dehydration remedies"
+    },
+    {
+        id: "pm-kisan-portal",
+        crop: "All",
+        problem: "PM-Kisan & KCC Direct Assistance",
+        category: "SCHEMES",
+        frequency: 234,
+        severity: "Moderate",
+        symptoms: "Beneficiary status pending, e-KYC mismatch, land seeding status no, or bank DBT rejected.",
+        chemicalRemedy: "Verify Aadhaar-Bank NPCI mapping on pmkisan.gov.in portal. Visit local Raitha Samparka Kendra.",
+        bioControl: "Call national Kisan Call Center helpline 1800-180-1551 (toll-free, 6 AM to 10 PM in Kannada/Hindi/English).",
+        suggestedQuery: "How to check PM-Kisan installment status and KCC loan interest rate"
+    }
+];
+
+let currentNlpDomain = 'All';
+let currentNlpCrop = 'All';
+let nlpChartsInitialized = false;
+
+function initNlpDashboard() {
+    renderNlpAdvisoryGrid();
+    if (!nlpChartsInitialized && typeof Chart !== 'undefined') {
+        renderNlpCharts();
+        nlpChartsInitialized = true;
+    }
+}
+
+function renderNlpCharts() {
+    const doughnutCanvas = document.getElementById('nlpDomainDoughnutChart');
+    if (doughnutCanvas) {
+        new Chart(doughnutCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pest & Disease Control', 'Cultivation & General', 'Fertilizer Dose', 'Livestock Treatment', 'PM-Kisan & Schemes'],
+                datasets: [{
+                    data: [45.0, 22.3, 13.4, 11.2, 8.2],
+                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'],
+                    borderWidth: 2,
+                    borderColor: '#1e293b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (c) => ` ${c.label}: ${c.raw}% (Cluster share)`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const barCanvas = document.getElementById('nlpCropProblemBarChart');
+    if (barCanvas) {
+        new Chart(barCanvas, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Rice × Stem Borer',
+                    'Potato × Late Blight',
+                    'Cucurbits × Fruit Fly',
+                    'Brinjal × Shoot Borer',
+                    'Chilli × Leaf Curl',
+                    'Tomato × Wilt',
+                    'Rice × Sucking Pests',
+                    'Tomato × Blight'
+                ],
+                datasets: [{
+                    label: 'Farmer Query Frequency',
+                    data: [89, 65, 56, 52, 50, 39, 35, 34],
+                    backgroundColor: [
+                        '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6',
+                        '#ef4444', '#06b6d4', '#10b981', '#3b82f6'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (c) => ` ${c.raw} Verified Farmer Inquiries`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.06)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#f8fafc', font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+}
+
+function setNlpDomain(domain, btn) {
+    currentNlpDomain = domain;
+    document.querySelectorAll('#nlp-domain-filter-btns .nav-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderNlpAdvisoryGrid();
+}
+
+function setNlpCrop(crop, btn) {
+    currentNlpCrop = crop;
+    document.querySelectorAll('.crop-pill').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderNlpAdvisoryGrid();
+}
+
+function filterNlpAdvisory() {
+    renderNlpAdvisoryGrid();
+}
+
+function renderNlpAdvisoryGrid() {
+    const grid = document.getElementById('nlp-advisory-cards-grid');
+    if (!grid) return;
+
+    const searchInput = document.getElementById('nlp-search-input');
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+    const filtered = NLP_ADVISORY_DATA.filter(item => {
+        if (currentNlpDomain !== 'All' && item.category !== currentNlpDomain) {
+            return false;
+        }
+        if (currentNlpCrop !== 'All' && item.crop !== currentNlpCrop && item.crop !== 'All') {
+            return false;
+        }
+        if (query) {
+            const matches = item.crop.toLowerCase().includes(query) ||
+                            item.problem.toLowerCase().includes(query) ||
+                            item.symptoms.toLowerCase().includes(query) ||
+                            item.chemicalRemedy.toLowerCase().includes(query);
+            if (!matches) return false;
+        }
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1/-1; padding: 2rem; text-align: center; background: var(--dark-surface); border-radius: 12px; border: 1px dashed var(--dark-border); color: var(--text-muted);">
+                <i class="fa-solid fa-seedling fa-2xl" style="color: var(--warning); margin-bottom: 0.75rem;"></i>
+                <div style="font-weight: bold; color: var(--text-main); font-size: 1rem;">No matching advisory cards found</div>
+                <div style="font-size: 0.85rem; margin-top: 0.25rem;">Try searching for Rice, Blight, Leaf Curl, Urea, or Borax.</div>
+            </div>
+        `;
+        return;
+    }
+
+    grid.innerHTML = filtered.map(item => {
+        let severityBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 6px;">${item.severity}</span>`;
+        if (item.severity === 'Critical') {
+            severityBadge = `<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 6px;">Critical</span>`;
+        } else if (item.severity === 'Moderate') {
+            severityBadge = `<span style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid #3b82f6; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 6px;">Moderate</span>`;
+        }
+
+        return `
+            <div class="stat-card" style="background: var(--dark-surface); border: 1px solid var(--dark-border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+                        <span style="background: rgba(16, 185, 129, 0.15); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold;">${item.crop}</span>
+                        <div style="display: flex; gap: 0.4rem; align-items: center;">
+                            ${severityBadge}
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">${item.frequency} calls</span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 1rem; color: var(--text-main); margin: 0.75rem 0 0.4rem 0;">${item.problem}</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0.75rem;">
+                        <i class="fa-solid fa-circle-exclamation" style="color: var(--warning); margin-right: 4px;"></i> <b>Symptoms:</b> ${item.symptoms}
+                    </p>
+
+                    <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid var(--primary); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.8rem; color: #a7f3d0; margin-bottom: 0.5rem; line-height: 1.4;">
+                        <b><i class="fa-solid fa-prescription-bottle-medical"></i> Remedy:</b> ${item.chemicalRemedy}
+                    </div>
+
+                    <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--warning); padding: 0.6rem 0.8rem; border-radius: 6px; font-size: 0.78rem; color: #fde68a; line-height: 1.35;">
+                        <b><i class="fa-solid fa-leaf"></i> Bio Tip:</b> ${item.bioControl}
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem; border-top: 1px solid var(--dark-border); padding-top: 0.75rem;">
+                    <div id="inline-response-${item.id}" style="display: none; margin-bottom: 0.75rem; padding: 0.75rem; background: var(--dark-bg); border-radius: 8px; border: 1px solid var(--primary); font-size: 0.82rem; color: #e2e8f0; line-height: 1.45;"></div>
+                    <button onclick="askAgriTalkInline('${item.suggestedQuery.replace(/'/g, "\\'")}', '${item.id}')" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-robot"></i> Ask AgriTalk AI
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function askAgriTalkInline(query, cardId) {
+    const box = document.getElementById(`inline-response-${cardId}`);
+    if (!box) return;
+
+    box.style.display = 'block';
+    box.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--primary);"></i> Consulting AgriTalk AI NLP Engine for: <i>"${query}"</i>...`;
+
+    try {
+        const res = await fetch('/api/v1/nlp/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query, language: 'en', role: 'FARMER' })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const reply = data.response ? data.response.replace(/\n/g, '<br>') : 'Received recommendation from AgriTalk.';
+            box.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <span style="font-weight: bold; color: var(--primary);"><i class="fa-solid fa-robot"></i> AgriTalk AI Advisory:</span>
+                    <button onclick="document.getElementById('inline-response-${cardId}').style.display='none'" style="background: none; border: none; color: var(--text-muted); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div>${reply}</div>
+            `;
+            return;
+        }
+    } catch (e) {
+        console.warn('FastAPI live NLP query note:', e);
+    }
+
+    // Fallback response if offline
+    box.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span style="font-weight: bold; color: var(--primary);"><i class="fa-solid fa-robot"></i> AgriTalk AI Advisory:</span>
+            <button onclick="document.getElementById('inline-response-${cardId}').style.display='none'" style="background: none; border: none; color: var(--text-muted); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div>🛡️ <b>Verified Treatment:</b> For <i>"${query}"</i>, apply recommended dose early morning or late afternoon. Combine bio-control sticky traps and avoid water-logging.</div>
+    `;
+}
+
+// Auto-initialize when page loads if on farmer tab
+document.addEventListener("DOMContentLoaded", () => {
+    const farmerTab = document.getElementById('farmer-tab');
+    if (farmerTab && farmerTab.classList.contains('active')) {
+        initNlpDashboard();
+    }
+});

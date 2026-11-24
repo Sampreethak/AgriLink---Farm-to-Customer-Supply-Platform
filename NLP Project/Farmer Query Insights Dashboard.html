@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farmer Query Insights Dashboard</title>
+<style>
+:root{--bg:#f6f7f2;--card:#fff;--ink:#1d2a1f;--mute:#5d6b5f;--line:#dfe4d8;--g:#2f7d4f;--a:#d98e04;--r:#c2410c;--b:#2b6cb0;--p:#7c4dab;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121712;--card:#1c241d;--ink:#e8efe6;--mute:#9fae9f;--line:#2e3a2f;--g:#5fbf84;--a:#f2b134;--r:#f08a5d;--b:#6ea8e6;--p:#b48be0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121712;--card:#1c241d;--ink:#e8efe6;--mute:#9fae9f;--line:#2e3a2f;--g:#5fbf84;--a:#f2b134;--r:#f08a5d;--b:#6ea8e6;--p:#b48be0;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:40px 20px 24px;max-width:1100px;margin:auto}
+h1{font-size:clamp(26px,4vw,38px);margin:0 0 8px;letter-spacing:-.5px}
+header p{color:var(--mute);max-width:70ch;margin:0}
+main{max-width:1100px;margin:auto;padding:0 20px 48px}
+h2{font-size:22px;margin:40px 0 4px}.sub{color:var(--mute);margin:0 0 16px;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.kpi,.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.kpi b{display:block;font-size:30px;color:var(--g)}.kpi span{color:var(--mute);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px}
+.card h3{margin:0 0 2px;font-size:16px}.card p{margin:0 0 10px;color:var(--mute);font-size:13px}
+.box{position:relative;height:320px}.box.tall{height:380px}
+.take{margin-top:10px;padding:10px 12px;border-left:3px solid var(--a);background:color-mix(in srgb,var(--a) 10%,transparent);font-size:14px;border-radius:0 8px 8px 0}
+.warn{border-left-color:var(--r);background:color-mix(in srgb,var(--r) 10%,transparent)}
+ul{margin:8px 0 0;padding-left:20px}li{margin:4px 0}
+footer{color:var(--mute);font-size:13px;text-align:center;padding:0 20px 40px}
+</style>
+</head>
+<body>
+<header>
+<h1>🌾 What farmers ask about</h1>
+<p>Insights from clustering 5,000 farmer queries (a 2.8% sample of 177,169): flat K‑Means with 5 clusters, plus a 16‑topic / 43‑sub‑cluster hierarchy. Problem and crop counts come from keyword matching on the query text.</p>
+</header>
+<main>
+<section class="kpis">
+<div class="kpi"><b>~45%</b><span>of queries are pest and disease control</span></div>
+<div class="kpi"><b>33%</b><span>name a specific disease or pest (1,641 of 5,000)</span></div>
+<div class="kpi"><b>816 vs 666</b><span>disease vs pest queries: almost even</span></div>
+<div class="kpi"><b>0.998</b><span>seed stability (ARI) of the 5‑way split</span></div>
+</section>
+
+<h2>1. The big picture</h2>
+<p class="sub">Five flat clusters from the final model (MiniLM, K‑Means, K=5).</p>
+<div class="grid">
+<div class="card"><h3>Share of queries by cluster</h3><p>Renamed from the auto labels where they were misleading.</p><div class="box"><canvas id="c1"></canvas></div>
+<div class="take">Almost half of all calls are plant protection. Together with fertilizer dosing, two thirds of demand is about what to spray or apply.</div></div>
+<div class="card"><h3>Hierarchy: top 10 specific use‑cases</h3><p>Largest of the 43 sub‑clusters (queries).</p><div class="box"><canvas id="c2"></canvas></div>
+<div class="take">The biggest single use‑case is NPK fertilizer dosing per bigha, followed by fungicide spraying (okra leaf rot) and bovine diarrhoea.</div></div>
+</div>
+
+<h2>2. Which diseases and pests?</h2>
+<p class="sub">A query can match more than one category.</p>
+<div class="grid">
+<div class="card"><h3>Problem categories</h3><p>Disease types in green, pests in orange, physiological in blue.</p><div class="box tall"><canvas id="c3"></canvas></div>
+<div class="take">Borers, wilt, rots, sucking pests and blights lead. A short list of problems covers most plant-health demand.</div></div>
+<div class="card"><h3>Strongest crop × problem pairs</h3><p>Number of queries mentioning both.</p><div class="box tall"><canvas id="c4"></canvas></div>
+<div class="take">Rice stem borer and potato late blight alone account for 154 queries. Solanaceous crops (brinjal, chilli, tomato) show up repeatedly with wilt, borers and leaf curl.</div></div>
+</div>
+
+<h2>3. Crops, livestock and remedies</h2>
+<div class="grid">
+<div class="card"><h3>Crops mentioned</h3><p>Mentions in the query text.</p><div class="box tall"><canvas id="c5"></canvas></div>
+<div class="take">Rice and cucurbits dominate; chilli is the top single vegetable.</div></div>
+<div class="card"><h3>Products recommended in answers</h3><p>Answers mentioning each product.</p><div class="box tall"><canvas id="c6"></canvas></div>
+<div class="take">Malathion, rogor and bavistin are the go‑to advice. Urea, SSP and MOP dominate nutrient answers. Standard replies could be templated.</div></div>
+<div class="card"><h3>Livestock and fisheries</h3><p>Query counts by topic.</p><div class="box"><canvas id="c7"></canvas></div>
+<div class="take">Cattle lead among animals, then fish ponds and poultry. Cough, fever and infection is the commonest livestock complaint.</div></div>
+<div class="card"><h3>Livestock problems</h3><p>Keyword-matched queries.</p><div class="box"><canvas id="c8"></canvas></div>
+<div class="take">Diarrhoea, mastitis and breeding queries are small but very repetitive.</div></div>
+</div>
+
+<h2>4. How trustworthy are the clusters?</h2>
+<div class="grid">
+<div class="card"><h3>Cluster quality</h3><p>Mean silhouette (higher is better) and share of ambiguous records.</p><div class="box"><canvas id="c9"></canvas></div>
+<div class="take warn">“Farmer Knowledge” (silhouette 0.03) and “Veterinary Treatment” (0.06) are blurry. Treat the first as a catch‑all for generic questions.</div></div>
+<div class="card"><h3>Which clusters overlap</h3><p>Records closer to the neighbouring cluster (%).</p><div class="box"><canvas id="c10"></canvas></div>
+<div class="take warn">Fertilizer vs Farmer Knowledge is the hardest pair (12.4%), driven by shared words like “recommended” and “suggested”.</div></div>
+</div>
+
+<h2>5. Recommended actions</h2>
+<div class="card"><ul>
+<li><b>Prioritise advisory content</b> for the top crop‑problem pairs: rice stem borer, potato late blight, cucurbit fruit fly, brinjal borer, chilli leaf curl, wilt in tomato and brinjal.</li>
+<li><b>Add a triage question</b> (crop, symptom, stage) for vague calls like “agriculture related problem”.</li>
+<li><b>Route PM‑Kisan and KCC</b> queries to a scheme FAQ: 8% of calls, highly repetitive.</li>
+<li><b>Re‑run on the full 177k rows</b>, using original record counts, before quoting any percentages.</li>
+</ul>
+<div class="take warn">Caveats: every sampled record_count is 1, and the raw data has ~90,821 duplicate query texts, so call-volume ranking is lost. Some hierarchy labels are mismatched (for example the parent “Fisheries” is mostly expert transfers). Human validation is still pending.</div></div>
+</main>
+<footer>Generated from agricultural_clustering_results_v15000 and the hierarchical results.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const css=getComputedStyle(document.documentElement),v=n=>css.getPropertyValue(n).trim();
+const G=v('--g'),A=v('--a'),R=v('--r'),B=v('--b'),P=v('--p'),ink=v('--ink'),mute=v('--mute'),line=v('--line');
+Chart.defaults.color=mute;Chart.defaults.font.family='system-ui,sans-serif';Chart.defaults.borderColor=line;
+function bar(id,labels,data,colors,opt={}){new Chart(document.getElementById(id),{type:'bar',
+data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:4}]},
+options:{indexAxis:opt.h===false?'x':'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:line}},y:{grid:{display:false}}}}})}
+new Chart(document.getElementById('c1'),{type:'doughnut',data:{labels:['Pest & disease control','Cultivation / general (catch‑all)','Fertilizer dose','Livestock treatment','PM‑Kisan & schemes'],datasets:[{data:[45,22.3,13.4,11.2,8.2],backgroundColor:[G,A,B,R,P],borderColor:v('--card')}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.label+': '+c.raw+'%'}}}}});
+bar('c2',['NPK dosing (urea/SSP/MOP per bigha)','Fungicide spray, okra leaf rot','Bovine diarrhoea treatment','PM‑Kisan portal & officer contact','Broad‑spectrum malathion control','Rice stem borer & leaf folder','Cucurbit fruit rot & damping‑off','Commercial rice cultivation','Chilli viral leaf curl','Vegetable pests (rogor/dimethoate)'],[293,262,250,234,230,225,224,209,207,192],[G,G,R,P,G,G,G,A,G,G]);
+bar('c3',['Stem/shoot/fruit borer','Wilt (bacterial/fungal)','Rots (fruit/leaf)','Sucking pests','Late/early blight','Caterpillar/beetle/weevil','Leaf spot/anthracnose/blast','Leaf curl/viral/mosaic','Root rot/damping‑off','Flower/fruit/nut drop','Fruit fly','Yellowing/deficiency','Termite/ant','Powdery/downy mildew','Weeds'],[256,202,183,165,162,125,117,103,100,93,93,52,43,33,31],[A,G,G,A,G,A,G,G,G,B,A,B,A,G,B]);
+bar('c4',['Rice × stem borer','Potato × late blight','Cucurbits × fruit fly','Brinjal × borer','Chilli × leaf curl','Tomato × wilt','Brinjal × wilt','Rice × sucking pests','Tomato × blight','Chilli × leaf spot','Coconut × nut drop','Rice × leaf spot/blast'],[89,65,56,52,50,39,37,35,34,32,31,30],[A,G,A,A,G,G,G,A,G,G,B,G]);
+bar('c5',['Rice/paddy','Cucurbits','Chilli','Potato','Coconut/arecanut','Brinjal','Tomato','Cabbage/cauliflower','Pulses','Mustard/oilseeds','Banana','Maize/wheat/jute/cane','Citrus'],[524,400,294,223,189,172,150,127,120,89,81,75,70],G);
+bar('c6',['Urea','MOP','SSP','Malathion','Rogor','Bavistin','Tracel','Borax','Saaf','Indofil','Tricel','Blitox','Streptomycin'],[522,408,407,355,200,173,148,148,115,99,94,73,62],[B,B,B,A,A,G,P,B,G,G,A,G,G]);
+bar('c7',['Fish / pond','Cow / cattle','Poultry / duck','Goat','Pig'],[224,168,105,74,62],R,{});
+bar('c8',['Fever/cough/infection','Feed/vitamin/mineral','Diarrhoea','Wounds/lameness','Breeding/pregnancy','Deworming/vaccination','Mastitis'],[87,60,43,34,29,29,18],R);
+const names=['Fruit/plant protection','PM‑Kisan','Fertilizer dose','Farmer Knowledge','Veterinary'];
+new Chart(document.getElementById('c9'),{type:'bar',data:{labels:names,datasets:[{label:'Mean silhouette',data:[.168,.212,.294,.030,.055],backgroundColor:G,borderRadius:4},{label:'Ambiguous share',data:[.193,.145,.195,.390,.342],backgroundColor:R,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:line}},x:{grid:{display:false}}},plugins:{legend:{position:'bottom'}}}});
+bar('c10',['Fertilizer ↔ Farmer Knowledge','PM‑Kisan ↔ Farmer Knowledge','Farmer Knowledge ↔ Veterinary','Plant protection ↔ Fertilizer','Plant protection ↔ Farmer Knowledge','Plant protection ↔ Veterinary'],[12.4,9.9,9.0,8.8,7.2,6.9],[R,A,A,A,A,A]);
+</script>
+</body>
+</html>

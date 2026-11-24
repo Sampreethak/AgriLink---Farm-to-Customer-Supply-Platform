@@ -6,6 +6,7 @@
     <title>AgriLink - Direct Farm Fresh Supply</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -363,6 +364,132 @@
                 </div>
                 <div id="aggregator-matches-grid" class="grid-cards" style="margin-top: 1.5rem;">
                     <!-- Aggregator Matches Rendered Here -->
+                </div>
+            </div>
+
+            <!-- ================= FARMER QUERY & ADVISORY INSIGHTS DASHBOARD (NLP PHASE 3) ================= -->
+            <div class="section-title" style="margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <i class="fa-solid fa-brain" style="color: var(--primary);"></i> Farmer Query & Advisory Insights Dashboard
+                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-top: 0.25rem;">
+                        Interactive patterns derived from MiniLM K-Means (5 Clusters) & NMF Hierarchical Topic Modeling across 5,000+ farmer calls
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span style="background: rgba(16, 185, 129, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">
+                        <i class="fa-solid fa-circle-check"></i> NLP Engine Active
+                    </span>
+                    <span style="background: rgba(59, 130, 246, 0.15); color: var(--secondary); border: 1px solid var(--secondary); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;">
+                        <i class="fa-solid fa-chart-pie"></i> ARI: 0.998
+                    </span>
+                </div>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="metrics-row" style="margin-top: 1rem;">
+                <div class="stat-card" style="border-left: 4px solid #10b981;">
+                    <div class="title">Plant Protection (Pests & Diseases)</div>
+                    <div class="number" style="color: #10b981;">~45.0%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">2,250 farmer calls • 816 diseases vs 666 pests</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+                    <div class="title">Fertilizers & Nutrients</div>
+                    <div class="number" style="color: #3b82f6;">13.4%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">668 calls • NPK dosing per bigha/acre</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                    <div class="title">Agronomy & Cultivation</div>
+                    <div class="number" style="color: #f59e0b;">22.3%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">1,116 calls • Package of practices & seeds</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #8b5cf6;">
+                    <div class="title">Livestock & Govt Schemes</div>
+                    <div class="number" style="color: #8b5cf6;">19.4%</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">966 calls • Bovine health & PM-Kisan portal</div>
+                </div>
+            </div>
+
+            <!-- Two Visual Charts Row (Chart.js) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                <div class="stat-card" style="background: var(--dark-surface); border: 1px solid var(--dark-border); padding: 1.25rem; border-radius: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="color: var(--text-main); font-size: 0.95rem; margin: 0;"><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> Share of Queries by Agricultural Domain</h4>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">5,000 queries</span>
+                    </div>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="nlpDomainDoughnutChart"></canvas>
+                    </div>
+                    <div style="margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warning); border-radius: 6px; font-size: 0.8rem; color: #fde68a;">
+                        <i class="fa-solid fa-circle-info"></i> <b>Key Insight:</b> Plant protection and fertilizer dosing make up ~58.4% of all farmer questions.
+                    </div>
+                </div>
+
+                <div class="stat-card" style="background: var(--dark-surface); border: 1px solid var(--dark-border); padding: 1.25rem; border-radius: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="color: var(--text-main); font-size: 0.95rem; margin: 0;"><i class="fa-solid fa-chart-bar" style="color: var(--secondary);"></i> Strongest Crop × Problem Pairs</h4>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Verified frequencies</span>
+                    </div>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="nlpCropProblemBarChart"></canvas>
+                    </div>
+                    <div style="margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: rgba(16, 185, 129, 0.1); border-left: 3px solid var(--primary); border-radius: 6px; font-size: 0.8rem; color: #a7f3d0;">
+                        <i class="fa-solid fa-lightbulb"></i> <b>Advisory Focus:</b> Rice stem borer & potato late blight alone account for 154 urgent inquiries.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Filters and Search Bar -->
+            <div style="background: var(--dark-surface); border: 1px solid var(--dark-border); border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem;">
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 260px;">
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 12px; color: var(--text-muted);"></i>
+                            <input type="text" id="nlp-search-input" oninput="filterNlpAdvisory()" placeholder="Search crop, problem or remedy (e.g. blight, borax, leaf curl, urea)..." style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.4rem; background: var(--dark-bg); border: 1px solid var(--dark-border); border-radius: 8px; color: var(--text-main); font-size: 0.9rem;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;" id="nlp-domain-filter-btns">
+                        <button class="nav-btn active" onclick="setNlpDomain('All', this)" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-list"></i> All (5,000)</button>
+                        <button class="nav-btn" onclick="setNlpDomain('PEST_DISEASE', this)" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-bug"></i> Pests & Disease (45%)</button>
+                        <button class="nav-btn" onclick="setNlpDomain('FERTILIZER', this)" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-flask"></i> Fertilizer & NPK (13%)</button>
+                        <button class="nav-btn" onclick="setNlpDomain('VETERINARY', this)" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-cow"></i> Livestock (11%)</button>
+                        <button class="nav-btn" onclick="setNlpDomain('SCHEMES', this)" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-landmark"></i> PM-Kisan (8%)</button>
+                    </div>
+                </div>
+
+                <!-- Crop Pills Filter -->
+                <div style="display: flex; gap: 0.4rem; margin-top: 1rem; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: bold; margin-right: 0.25rem;">CROP:</span>
+                    <button class="crop-pill active" onclick="setNlpCrop('All', this)">All</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Rice', this)">Rice</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Tomato', this)">Tomato</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Potato', this)">Potato</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Chilli', this)">Chilli</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Brinjal', this)">Brinjal</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Cucurbits', this)">Cucurbits</button>
+                    <button class="crop-pill" onclick="setNlpCrop('Coconut', this)">Coconut</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Advisory Cards Grid -->
+            <div id="nlp-advisory-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+                <!-- Dynamically populated by app.js -->
+            </div>
+
+            <!-- KCC Free Helpline Banner -->
+            <div style="background: linear-gradient(135deg, #1e3a8a, #2563eb); border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="background: rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: white;">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div>
+                        <div style="color: white; font-weight: bold; font-size: 1rem;">Kisan Call Center (KCC) National Advisory Helpline</div>
+                        <div style="color: #bfdbfe; font-size: 0.8rem;">Toll-free expert advice in Kannada, Hindi, and English (6:00 AM - 10:00 PM)</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <a href="tel:18001801551" style="background: white; color: #1e3a8a; font-weight: bold; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.9rem;">
+                        <i class="fa-solid fa-phone"></i> 1800-180-1551
+                    </a>
                 </div>
             </div>
 

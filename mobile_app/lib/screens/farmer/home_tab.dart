@@ -5,6 +5,7 @@ import '../customer/fair_pricing_screen.dart';
 import 'earnings_screen.dart';
 import 'products/add_product_screen.dart';
 import 'orders_tab.dart';
+import 'widgets/farmer_query_insights_section.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -395,6 +396,11 @@ class _HomeTabState extends State<HomeTab> {
                   },
                 ),
               ),
+
+              // ---------------------------------------------------------------
+              // 🌾 FARMER QUERY & ADVISORY INSIGHTS DASHBOARD (NLP Clustering Phase 3)
+              // ---------------------------------------------------------------
+              const FarmerQueryInsightsSection(),
             ],
           ),
         ),
