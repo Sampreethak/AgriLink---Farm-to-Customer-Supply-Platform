@@ -1677,6 +1677,23 @@ def get_commodity_fair_share(
 # ==============================================================================
 # NLP MULTILINGUAL CHATBOT & ADVISORY ENGINE (AgriTalk)
 # ==============================================================================
+class CropDoctorRequest(BaseModel):
+    query: str
+    crop: Optional[str] = None
+    language: Optional[str] = "en"
+
+@app.post("/api/v1/ai/crop-doctor")
+def ai_crop_doctor(req: CropDoctorRequest):
+    """AI Crop Doctor & Diagnostic Advisory Service powered by NLP Phase 3 KCC Clustering & Semantic RAG."""
+    if nlp_engine and hasattr(nlp_engine, "crop_doctor") and nlp_engine.crop_doctor:
+        return nlp_engine.crop_doctor.diagnose_and_prescribe(req.query, crop_hint=req.crop, language=req.language)
+    try:
+        from crop_doctor_service import AICropDoctorService
+        doc = AICropDoctorService()
+        return doc.diagnose_and_prescribe(req.query, crop_hint=req.crop, language=req.language)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Crop Doctor AI service error: {str(e)}")
+
 class NLPQueryRequest(BaseModel):
     query: str
     language: Optional[str] = "en"  # "en", "kn", "hi", "te", "ta"

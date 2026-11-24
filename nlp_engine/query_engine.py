@@ -19,8 +19,21 @@ class FarmerDatabaseNLPQueryEngine:
         self.tables = None
         self.classifier = IntentClassifier()
         self.pricing_predictor = None
+        self.crop_doctor = None
         self.load_database_tables()
         self._init_pricing_predictor()
+        self._init_crop_doctor()
+
+    def _init_crop_doctor(self):
+        try:
+            from .crop_doctor_service import AICropDoctorService
+            self.crop_doctor = AICropDoctorService()
+        except Exception as e:
+            try:
+                from crop_doctor_service import AICropDoctorService
+                self.crop_doctor = AICropDoctorService()
+            except Exception:
+                self.crop_doctor = None
 
     def load_database_tables(self):
         try:
@@ -272,6 +285,15 @@ class FarmerDatabaseNLPQueryEngine:
 
     def _handle_pest_disease_query(self, crop: Optional[str], query: str, lang: str) -> Dict[str, Any]:
         c = crop or "Tomato"
+        if self.crop_doctor:
+            doc_res = self.crop_doctor.diagnose_and_prescribe(query, crop_hint=c, language=lang)
+            return {
+                "intent": "PEST_DISEASE_ADVISORY",
+                "extracted_crop": c,
+                "response": doc_res["response"],
+                "data": doc_res
+            }
+
         reply = (
             f"🌿 **Agronomy Pest & Disease Advisory for {c}:**\n"
             f"• **Identified Issue:** Leaf curl / sucking pest infestation.\n"

@@ -1,0 +1,17 @@
+parent_topic_id,parent_topic_keywords,parent_topic_label,n_questions,pct_of_sample,sum_record_count,pct_calls_sample,eligible_child_clust
+0,"malathion, ec, fruit, ml, litre, water, fly, gourd, pest, problem",Crop Protection (Pests & Insects): Malathion / Ec / Fruit,258,5.16,258,5.16,Yes
+1,"kg, bigha, urea, dose, fertilizer, mop, ssp, apply, recommended, land",Nutrient Management & Fertilizers: Kg / Bigha / Urea,442,8.84,442,8.84,Yes
+2,"explained, details, cultural, practices, practice, package, asked, culture, pond, management",Crop Cultivation & Agronomy: Explained / Details / Cultural,250,5.0,250,5.0,Yes
+3,"days, interval, times, spray, recommended, water, sprays, time, saaf, evening",Crop Protection (Pests & Insects): Days / Interval / Times,330,6.6,330,6.6,Yes
+4,"query, regarding, advised, lit, application, advise, litr, apply, recommended, lt",Crop Cultivation & Agronomy: Query / Regarding / Application,384,7.68,384,7.68,Yes
+5,"wilt, bavistin, litre, fungal, advised, gram, water, bacterial, brinjal, apply",Crop Protection (Diseases & Pathology): Wilt / Bavistin / Litre,376,7.52,376,7.52,Yes
+6,"kisan, agriculture, office, pm, contact, district, visit, nidhi, samman, yojana",Agricultural Schemes & Finance: Kisan / Agriculture / Office,405,8.1,405,8.1,Yes
+7,"plant, gm, fertilizer, coconut, borax, apply, urea, ssp, mop, kilogram",Nutrient Management & Fertilizers: Plant / Gm / Fertilizer,319,6.38,319,6.38,Yes
+8,"daily, treatment, suggested, administer, twice, cow, powder, days, diarrhoea, goat",Animal Husbandry & Veterinary: Daily / Treatment / Administer,357,7.14,357,7.14,Yes
+9,"borer, stem, rice, ml, paddy, tricel, classic, litre, water, problem",Crop Protection (Pests & Insects): Borer / Stem / Rice,308,6.16,308,6.16,Yes
+10,"tracel, nutrient, spray, water, management, micronutrient, gm, micro, litre, advice",Nutrient Management & Fertilizers: Tracel / Nutrient / Management,266,5.32,266,5.32,Yes
+11,"control, measure, lit, spray, water, suggested, recommended, saaf, rot, spot",Crop Protection (Diseases & Pathology): Control / Measure / Recommended,342,6.84,342,6.84,Yes
+12,"rogor, leaf, chilli, ml, litre, curl, water, spray, disease, curling",Crop Protection (Diseases & Pathology): Rogor / Leaf / Chilli,258,5.16,258,5.16,Yes
+13,"blight, potato, indofil, late, litre, water, ridomil, gold, spray, gram",Crop Protection (Diseases & Pathology): Blight / Potato / Indofil,218,4.36,218,4.36,Yes
+14,"explain, details, practices, cultivation, cultural, given, fertilizer, kcc, mustard, briefly",Crop Cultivation & Agronomy: Explain / Details / Practices,295,5.9,295,5.9,Yes
+15,"expert, agriculture, problem, related, transfer, fishery, forwarded, transferred, agri, veterinary",Fisheries & Aquaculture: Expert / Agriculture / Problem,192,3.84,192,3.84,Yes
