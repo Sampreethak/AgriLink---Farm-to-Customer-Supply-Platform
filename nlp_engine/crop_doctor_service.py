@@ -154,31 +154,41 @@ class AICropDoctorService:
             f"- Chemical Remedy: {chemical}\n"
             f"- Organic/Bio Alternative: {bio}\n\n"
             f"Give a warm, practical 3-point prescription in {lang_name}. "
-            f"Include dosage from the grounded facts. Do NOT invent new chemicals or dosages."
+            f"Include dosage from the grounded facts and add helpful external agronomic best practices "
+            f"(e.g., field hygiene, irrigation, vector prevention). Do NOT invent new chemical dosages."
         )
 
-        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={self.gemini_api_key}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 300, "temperature": 0.3}
+            "generationConfig": {"maxOutputTokens": 350, "temperature": 0.3}
         }
 
-        try:
-            res = requests.post(api_url, json=payload, timeout=15)
-            if res.status_code == 200:
-                data = res.json()
-                candidates = data.get("candidates", [])
-                if candidates:
-                    text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
-                    if text:
-                        print(f"[OK] Gemini 2.0 Flash LLM enhanced the crop advisory response.")
-                        return text
-            else:
-                print(f"[Note] Gemini API returned status {res.status_code}: {res.text[:200]}")
-        except Exception as e:
-            print(f"[Note] Gemini API call error: {e}. Trying Hugging Face fallback.")
-            return self._call_huggingface_llm(query, crop, cluster, chemical, bio, language)
-        return None
+        gemini_models = [
+            os.getenv("GEMINI_AGRI_MODEL", "gemini-3.8-flash"),
+            "gemini-2.5-flash",
+        ]
+        # Preserve order while deduplicating
+        seen = set()
+        models_to_try = [m for m in gemini_models if m and not (m in seen or seen.add(m))]
+
+        for model_name in models_to_try:
+            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={self.gemini_api_key}"
+            try:
+                res = requests.post(api_url, json=payload, timeout=15)
+                if res.status_code == 200:
+                    data = res.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+                        if text:
+                            print(f"[OK] {model_name} enhanced the crop advisory response.")
+                            return text
+                else:
+                    print(f"[Note] Gemini API ({model_name}) returned status {res.status_code}: {res.text[:200]}")
+            except Exception as e:
+                print(f"[Note] Gemini API ({model_name}) call error: {e}.")
+
+        return self._call_huggingface_llm(query, crop, cluster, chemical, bio, language)
 
     def _call_huggingface_llm(self, query: str, crop: str, cluster: Optional[Dict[str, Any]], chemical: str, bio: str, language: str) -> Optional[str]:
         """Fallback: Calls Hugging Face Serverless Inference API for generative multilingual advice."""
@@ -387,7 +397,7 @@ class AICropDoctorService:
         llm_source = ""
         if llm_response:
             if self.gemini_api_key:
-                llm_source = "+ Gemini 2.0 Flash"
+                llm_source = "+ Google Gemini LLM"
             elif self.hf_api_key:
                 llm_source = f"+ Hugging Face {self.hf_model}"
 
