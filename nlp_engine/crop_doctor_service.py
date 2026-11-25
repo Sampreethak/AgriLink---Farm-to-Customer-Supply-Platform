@@ -61,7 +61,7 @@ class AICropDoctorService:
     1. KCC Agricultural Clustering (16 Parent Topics, 43 Sub-clusters from NLP Phase 3)
     2. Semantic RAG & Vector Retrieval over verified expert solutions
     3. Multilingual Vernacular Query Normalization (Kannada, Hindi, English)
-    4. Optional Hugging Face LLM Generative Synthesis (with high-precision offline fallback)
+    4. Google Gemini LLM Generative Synthesis (with high-precision offline fallback)
     """
 
     def __init__(self, knowledge_base_dir: Optional[str] = None):
@@ -70,6 +70,7 @@ class AICropDoctorService:
         self.vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words='english')
         self.tfidf_matrix = None
         self.thesaurus = {}
+        self.gemini_api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         self.hf_api_key = os.getenv("HUGGINGFACE_API_KEY") or os.getenv("HF_TOKEN")
         self.hf_model = os.getenv("HF_AGRI_MODEL", "Qwen/Qwen2.5-7B-Instruct")
         
@@ -134,8 +135,53 @@ class AICropDoctorService:
             except Exception as e:
                 print(f"[Warning] Error loading agri_thesaurus.json: {e}")
 
+    def _call_gemini_llm(self, query: str, crop: str, cluster: Optional[Dict[str, Any]], chemical: str, bio: str, language: str) -> Optional[str]:
+        """Calls Google Gemini API for generative multilingual agricultural advice grounded in cluster facts."""
+        if not self.gemini_api_key:
+            return self._call_huggingface_llm(query, crop, cluster, chemical, bio, language)
+
+        import requests
+        lang_name = "Kannada" if language == "kn" else ("Hindi" if language == "hi" else "English")
+        diagnosis = cluster['child_cluster_label'] if cluster else 'General Plant Protection'
+
+        prompt = (
+            f"You are AgriTalk AI, a certified agricultural scientist advising a smallholder farmer in India.\n"
+            f"Farmer Query: '{query}'\n"
+            f"Reply language: {lang_name}\n"
+            f"Grounded Facts (do NOT contradict these):\n"
+            f"- Crop: {crop}\n"
+            f"- Diagnosis: {diagnosis}\n"
+            f"- Chemical Remedy: {chemical}\n"
+            f"- Organic/Bio Alternative: {bio}\n\n"
+            f"Give a warm, practical 3-point prescription in {lang_name}. "
+            f"Include dosage from the grounded facts. Do NOT invent new chemicals or dosages."
+        )
+
+        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.gemini_api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 300, "temperature": 0.3}
+        }
+
+        try:
+            res = requests.post(api_url, json=payload, timeout=15)
+            if res.status_code == 200:
+                data = res.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+                    if text:
+                        print(f"[OK] Gemini 2.0 Flash LLM enhanced the crop advisory response.")
+                        return text
+            else:
+                print(f"[Note] Gemini API returned status {res.status_code}: {res.text[:200]}")
+        except Exception as e:
+            print(f"[Note] Gemini API call error: {e}. Trying Hugging Face fallback.")
+            return self._call_huggingface_llm(query, crop, cluster, chemical, bio, language)
+        return None
+
     def _call_huggingface_llm(self, query: str, crop: str, cluster: Optional[Dict[str, Any]], chemical: str, bio: str, language: str) -> Optional[str]:
-        """Calls Hugging Face Serverless Inference API for generative multilingual advice grounded in cluster facts."""
+        """Fallback: Calls Hugging Face Serverless Inference API for generative multilingual advice."""
         if not self.hf_api_key:
             return None
 
@@ -326,8 +372,8 @@ class AICropDoctorService:
                 f"• ⚠️ **Application Note:** {safety_tip}"
             )
 
-        # Check if Hugging Face LLM generation is available
-        llm_response = self._call_huggingface_llm(
+        # Gemini LLM enhancement (with HF as fallback)
+        llm_response = self._call_gemini_llm(
             query=query,
             crop=crop,
             cluster=cluster,
@@ -337,6 +383,13 @@ class AICropDoctorService:
         )
         if llm_response:
             advisory_text = llm_response
+
+        llm_source = ""
+        if llm_response:
+            if self.gemini_api_key:
+                llm_source = "+ Gemini 2.0 Flash"
+            elif self.hf_api_key:
+                llm_source = f"+ Hugging Face {self.hf_model}"
 
         return {
             "status": "success",
@@ -351,5 +404,5 @@ class AICropDoctorService:
             "safety_tip": safety_tip,
             "response": advisory_text,
             "llm_enhanced": bool(llm_response),
-            "source": f"KCC NLP Phase-3 Clustering Engine {'+ Hugging Face ' + self.hf_model if llm_response else ''}".strip()
+            "source": f"KCC NLP Phase-3 Clustering Engine {llm_source}".strip()
         }
