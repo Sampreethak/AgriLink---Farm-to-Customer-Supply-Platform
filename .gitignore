@@ -39,6 +39,7 @@ build/
 *.pptx
 *.pdf
 *.zip
+Agricultural_Dataset.csv
 AgriLink_*_Report.*
 AgriLink_Architecture_Diagram.html
 AgriLink_SIH*

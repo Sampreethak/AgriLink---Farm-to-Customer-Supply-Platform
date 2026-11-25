@@ -69,8 +69,9 @@ class AICropDoctorService:
         self.cluster_df = pd.DataFrame()
         self.vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words='english')
         self.tfidf_matrix = None
+        self.thesaurus = {}
         self.hf_api_key = os.getenv("HUGGINGFACE_API_KEY") or os.getenv("HF_TOKEN")
-        self.hf_model = os.getenv("HF_AGRI_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+        self.hf_model = os.getenv("HF_AGRI_MODEL", "Qwen/Qwen2.5-7B-Instruct")
         
         self._load_knowledge_base()
 
@@ -92,9 +93,9 @@ class AICropDoctorService:
         return current / "knowledge_base"
 
     def _load_knowledge_base(self):
+        # 1. Load 43 Hierarchical Clusters
         summary_path = self.kb_dir / "hc_cluster_summary.csv"
         if not summary_path.exists():
-            # Attempt to extract from zip if present in NLP Project
             zip_path = self.kb_dir.parent / "NLP Project" / "agricultural_hierarchical_clustering_results_v15000.zip"
             if zip_path.exists():
                 import zipfile
@@ -121,6 +122,54 @@ class AICropDoctorService:
                 print(f"[Warning] AI Crop Doctor knowledge base load error: {e}")
         else:
             print(f"[Warning] hc_cluster_summary.csv not found at {summary_path}")
+
+        # 2. Load Domain Thesaurus & Entity Categories (from 177k dataset)
+        thesaurus_path = self.kb_dir / "agri_thesaurus.json"
+        if thesaurus_path.exists():
+            try:
+                with open(thesaurus_path, "r", encoding="utf-8") as f:
+                    self.thesaurus = json.load(f)
+                cats = len(self.thesaurus.get("entity_categories", {}))
+                print(f"[OK] AI Crop Doctor loaded agricultural domain thesaurus ({cats} entity categories).")
+            except Exception as e:
+                print(f"[Warning] Error loading agri_thesaurus.json: {e}")
+
+    def _call_huggingface_llm(self, query: str, crop: str, cluster: Optional[Dict[str, Any]], chemical: str, bio: str, language: str) -> Optional[str]:
+        """Calls Hugging Face Serverless Inference API for generative multilingual advice grounded in cluster facts."""
+        if not self.hf_api_key:
+            return None
+
+        import requests
+        api_url = f"https://api-inference.huggingface.co/models/{self.hf_model}"
+        headers = {
+            "Authorization": f"Bearer {self.hf_api_key}",
+            "Content-Type": "application/json"
+        }
+
+        lang_name = "Kannada" if language == "kn" else ("Hindi" if language == "hi" else "English")
+        diagnosis = cluster['child_cluster_label'] if cluster else 'General Plant Protection'
+
+        system_instruction = (
+            f"You are AgriTalk AI, a certified agricultural scientist advising a smallholder farmer in India. "
+            f"Farmer Query: '{query}'\n"
+            f"Language to reply in: {lang_name}\n"
+            f"Strict Grounded Medical Facts:\n"
+            f"- Crop: {crop}\n"
+            f"- Diagnosis: {diagnosis}\n"
+            f"- Recommended Chemical Remedy: {chemical}\n"
+            f"- Organic / Biological Alternative: {bio}\n"
+            f"Give a friendly, concise, 3-point prescription in {lang_name}. Do NOT invent new chemical dosages."
+        )
+
+        try:
+            res = requests.post(api_url, headers=headers, json={"inputs": system_instruction, "parameters": {"max_new_tokens": 200, "temperature": 0.2}}, timeout=6)
+            if res.status_code == 200:
+                data = res.json()
+                if isinstance(data, list) and len(data) > 0 and "generated_text" in data[0]:
+                    return data[0]["generated_text"].replace(system_instruction, "").strip()
+        except Exception as e:
+            print(f"[Note] Hugging Face inference API call: {e}. Using deterministic clinical synthesizer.")
+        return None
 
     def normalize_vernacular_query(self, query: str) -> str:
         """Expands Kannada & Hindi dialectal terms into standard query terms."""
@@ -277,6 +326,18 @@ class AICropDoctorService:
                 f"• ⚠️ **Application Note:** {safety_tip}"
             )
 
+        # Check if Hugging Face LLM generation is available
+        llm_response = self._call_huggingface_llm(
+            query=query,
+            crop=crop,
+            cluster=cluster,
+            chemical=chemical_remedy,
+            bio=bio_remedy,
+            language=lang
+        )
+        if llm_response:
+            advisory_text = llm_response
+
         return {
             "status": "success",
             "crop": crop,
@@ -289,5 +350,6 @@ class AICropDoctorService:
             "bio_remedy": bio_remedy,
             "safety_tip": safety_tip,
             "response": advisory_text,
-            "source": "KCC NLP Phase-3 Clustering Engine"
+            "llm_enhanced": bool(llm_response),
+            "source": f"KCC NLP Phase-3 Clustering Engine {'+ Hugging Face ' + self.hf_model if llm_response else ''}".strip()
         }

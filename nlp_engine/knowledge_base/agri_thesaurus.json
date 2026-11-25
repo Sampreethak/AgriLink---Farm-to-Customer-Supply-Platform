@@ -1,0 +1,1285 @@
+{
+  "entity_categories": {
+    "PEST": {
+      "stem borer": 3874,
+      "fruit borer": 2309,
+      "fruit fly": 2177,
+      "aphid": 1527,
+      "aphids": 1237,
+      "termite": 613,
+      "thrips": 407,
+      "leaf miner": 324,
+      "mites": 223,
+      "fruit borers": 178,
+      "rice case worm": 150,
+      "cutworm": 110,
+      "case worm": 107,
+      "whitefly": 39,
+      "white flies": 21,
+      "mealybug": 10,
+      "bollworm": 2
+    },
+    "CROP": {
+      "rice": 10889,
+      "paddy": 8589,
+      "potato": 8545,
+      "chilli": 7766,
+      "brinjal": 7036,
+      "coconut": 6471,
+      "tomato": 5930,
+      "banana": 3599,
+      "mustard": 3595,
+      "ridge gourd": 3406,
+      "cabbage": 3210,
+      "tea": 2121,
+      "papaya": 1747,
+      "cauliflower": 1615,
+      "bitter gourd": 1330,
+      "mango": 997,
+      "maize": 953,
+      "okra": 925,
+      "sugarcane": 877,
+      "jute": 873,
+      "onion": 519,
+      "radish": 454,
+      "garlic": 431,
+      "wheat": 331,
+      "cotton": 198,
+      "groundnut": 106,
+      "soybean": 32
+    },
+    "PLANT_SYMPTOM": {
+      "fruit drop": 1463,
+      "wilting": 1118,
+      "leaf curling": 920,
+      "flower drop": 633,
+      "yellowing": 543,
+      "fruit dropping": 197,
+      "poor growth": 175,
+      "fruit cracking": 72,
+      "low production": 13,
+      "leaf drying": 2
+    },
+    "GOVERNMENT_SCHEME": {
+      "pm kisan": 3235,
+      "kcc": 2167,
+      "pm kisan samman nidhi": 1704,
+      "kisan credit card": 1547,
+      "pmfby": 166,
+      "pm fasal bima yojana": 144,
+      "pradhan mantri fasal bima yojana": 91,
+      "pm-kisan": 48
+    },
+    "CROP_VARIETY": {
+      "sali rice": 1085,
+      "ahu rice": 228,
+      "arka alok": 99,
+      "pusa rubi": 95,
+      "pusa himani": 78,
+      "punjab chhuhara": 72,
+      "arka ava": 56,
+      "pusa desi": 29,
+      "sioux": 28,
+      "early ahu": 23
+    },
+    "AGRI_PRACTICE": {
+      "cultivation": 8019,
+      "transplanting": 1396,
+      "seed treatment": 1362,
+      "land preparation": 578,
+      "harvesting": 218,
+      "weed control": 111,
+      "mulching": 88,
+      "pruning": 47,
+      "organic farming": 34,
+      "nursery preparation": 24,
+      "intercropping": 15,
+      "crop rotation": 5,
+      "induced breeding": 4
+    },
+    "FERTILIZER": {
+      "urea": 21997,
+      "mop": 15267,
+      "ssp": 14677,
+      "fym": 2074,
+      "compost": 1408,
+      "dap": 1007,
+      "npk": 973,
+      "vermicompost": 404,
+      "farmyard manure": 228,
+      "organic manure": 44,
+      "ammonium sulphate": 5,
+      "biomanure": 1
+    },
+    "ANIMAL_SYMPTOM": {
+      "low milk production": 160,
+      "low production of milk": 31,
+      "low egg production": 8,
+      "loss of appetite": 4,
+      "decreased milk production": 3,
+      "reduced milk production": 1
+    },
+    "LIVESTOCK": {
+      "cow": 5259,
+      "fish": 4341,
+      "goat": 3474,
+      "poultry": 1920,
+      "pig": 1736,
+      "duck": 977,
+      "calf": 953,
+      "chicken": 483,
+      "cattle": 404,
+      "buffalo": 135,
+      "hen": 36,
+      "sheep": 27
+    },
+    "FOOD_PRODUCT": {
+      "tomato sauce": 3,
+      "tomato squash": 1,
+      "fruit juice": 1
+    },
+    "PESTICIDE": {
+      "malathion": 12157,
+      "bavistin": 5758,
+      "mancozeb": 1109,
+      "furadon": 957,
+      "carbendazim": 799,
+      "chlorpyriphos": 736,
+      "fungicide": 561,
+      "insecticide": 256,
+      "herbicide": 251,
+      "weedicide": 225,
+      "imidacloprid": 157,
+      "chlorpyrifos": 16,
+      "machete": 2
+    },
+    "PLANT_DISEASE": {
+      "root rot": 1637,
+      "fruit rot": 1579,
+      "leaf spot": 1291,
+      "powdery mildew": 688,
+      "damping off": 602,
+      "downy mildew": 586,
+      "wilt disease": 430,
+      "blast disease": 217,
+      "bacterial blight": 162,
+      "rice blast": 79,
+      "rust disease": 3
+    },
+    "IRRIGATION": {
+      "irrigation": 562,
+      "excess water": 57,
+      "drip irrigation": 7,
+      "drain out excess water": 6,
+      "sprinkler irrigation": 6,
+      "waterlogging": 4,
+      "flood irrigation": 2
+    },
+    "ANIMAL_PRODUCT": {
+      "milk": 702,
+      "honey": 110,
+      "meat": 104,
+      "eggs": 72,
+      "egg production": 59,
+      "wool": 4
+    },
+    "PLANT_NUTRIENT": {
+      "zinc": 873,
+      "calcium": 459,
+      "boron": 430,
+      "potassium": 220,
+      "magnesium": 122,
+      "nitrogen": 114,
+      "iron": 112,
+      "sulphur": 93,
+      "phosphorus": 38,
+      "sulfur": 4
+    },
+    "AGRI_INSTITUTION": {
+      "district agriculture office": 2309,
+      "krishi vigyan kendra": 874,
+      "common service centre": 530,
+      "common service center": 500,
+      "agriculture officer": 368,
+      "agriculture department": 250,
+      "goat research station": 135,
+      "veterinary hospital": 55
+    },
+    "SOIL_TYPE": {
+      "sandy soil": 20,
+      "acidic soil": 8,
+      "loamy soil": 8,
+      "red soil": 2,
+      "alluvial soil": 2
+    },
+    "DOSE_QUANTITY": {
+      "ml per litre": 6980,
+      "kg/bigha": 3544,
+      "gram per litre": 2328,
+      "ml/litre": 1419,
+      "mg/litre": 27,
+      "gram per square meter": 12,
+      "kg per hectare": 8,
+      "per plant/year": 7
+    },
+    "TIME_DURATION": {
+      "at the time of land preparation": 396,
+      "5-7 days": 248,
+      "one week": 49,
+      "february to march": 17,
+      "march to april": 17,
+      "two weeks": 14,
+      "before uprooting the seedlings": 12,
+      "5 to 7 days": 11
+    },
+    "FINANCIAL_INSTITUTION": {
+      "state bank of india": 222,
+      "punjab national bank": 97,
+      "sbi": 84,
+      "bank of baroda": 1
+    }
+  },
+  "crop_problem_solutions": {
+    "Mustard": [
+      {
+        "problem": "Aphid",
+        "sample_question": "asking about the control measure for aphid infestation in mustard crops",
+        "verified_answer": "suggested him to spray rogor 2ml/lit.at evening time.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Powdery Mildew",
+        "sample_question": "asking about powdery mildew in mustard",
+        "verified_answer": "spray saaf (2gm/lit of water) 3 sprays at 5 days interval",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "asking for the control measure against aphids in mustard crop cultivation.",
+        "verified_answer": "suggested to spray rogor 40ec solution 75 milli litres in 60 litres of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about root rot of mustard",
+        "verified_answer": "advice to apply blitox 50 2 ml / litre",
+        "remedy_entities": []
+      }
+    ],
+    "Coconut": [
+      {
+        "problem": "Flower Drop",
+        "sample_question": "asking about the control measure of flower drop problem in his coconut plant",
+        "verified_answer": "suggested him to apply fertilizer in recommended dose like urea-600gm,ssp-1kg,mop-700gm,borax-25gm twice in a year(march/april and september/october)followed by trench method and also suggested him to spray planofix 1teaspoonful per20-25 litre of water.",
+        "remedy_entities": [
+          "urea",
+          "ssp",
+          "mop"
+        ]
+      },
+      {
+        "problem": "Fruit Dropping",
+        "sample_question": "asking about the premature fruit dropping of coconut.",
+        "verified_answer": "suggested to apply bordeaux mixture. apply borax 50 gm/plant per year along with urea & ssp.",
+        "remedy_entities": [
+          "urea",
+          "ssp"
+        ]
+      },
+      {
+        "problem": "Fruit Rot",
+        "sample_question": "asking for the control measure of fruit rot in coconut.",
+        "verified_answer": "suggested mr.majumder to apply bordeaux mixture 1% i.e 10ltrs. in trench system around the plant to get rid off this disease.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "asking about the control measure to control fruit drop problem in coconut.",
+        "verified_answer": "suggested to apply recommended fertilizer dose like-urea 1,5 kilogram/plant,ssp 2.5 kilogram/plant,mop 1.75 kilogram/plant,borax 25 gram/plant.fertilizer should be applied in two equal split doses twice in a year in trench method.",
+        "remedy_entities": [
+          "urea",
+          "ssp",
+          "mop"
+        ]
+      },
+      {
+        "problem": "Termite",
+        "sample_question": "asking about the control of termite in the pith made for coconut plantation",
+        "verified_answer": "advised to apply malathion 5% dust 100 gram per square metre to control termite",
+        "remedy_entities": [
+          "malathion"
+        ]
+      }
+    ],
+    "Potato": [
+      {
+        "problem": "Aphids",
+        "sample_question": "asking the control measure against aphids and epilachna beetle which are destroying his potato cultivation.",
+        "verified_answer": "suggested to apply malathion 50 ec 1.5 litre in 500-600 litres of water to get control on these types of pests.",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Yellowing",
+        "sample_question": "control of yellowing of leaves in potato",
+        "verified_answer": "spray bavistin 2 gm per litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Leaf Curling",
+        "sample_question": "control measure of leaf curling of potato",
+        "verified_answer": "spray 'malathion 50 ec' 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Termite",
+        "sample_question": "problem of termite in potato.",
+        "verified_answer": "advised him to apply tricel-20 2 ml / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "asking for control measures for leaf spot disease in potato.",
+        "verified_answer": "have told him to spray dithane m-45 2gm/lit. of water and the second spray should be followed after 10 days of first spray.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilting",
+        "sample_question": "asking about fungal wilting in potato",
+        "verified_answer": "advice him to spray bavistin 2ml/1litrs of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "asking about aphid in potato",
+        "verified_answer": "advice him to spray rogor 35 ec 2ml/1litres of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking for the control of root rot in potato",
+        "verified_answer": "suggested to spray blitox 50 2 gm per litre of water",
+        "remedy_entities": []
+      }
+    ],
+    "Chilli": [
+      {
+        "problem": "Fruit Rot",
+        "sample_question": "asking about the control measure to control fruit rot disease of chilli",
+        "verified_answer": "suggested to apply bavistin 2gram/litre of water at 7-10 days interval.",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Leaf Curling",
+        "sample_question": "asking about the control measure to control leaf curling problem in chilli.",
+        "verified_answer": "suggested to spray rogor 40ec 2.5ml/litre of water at 15 days interval.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Downy Mildew",
+        "sample_question": "asking about the control measure of downy mildew of chilli.",
+        "verified_answer": "suggested mr nath to apply dithane m-45 2gm/litre of water for controlling downy mildew of chilli.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control measure to control root rot disease in chilli.",
+        "verified_answer": "suggested to apply captaf 2gram / litre of water near the root zone.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "asking about the control of leaf spot in chilli",
+        "verified_answer": "advised to apply carzim 50 2 gram / litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilt Disease",
+        "sample_question": "asked about measure control of fungal wilt disease in chilli.",
+        "verified_answer": "advised him to apply bavistin or captan 1gm per 5 lit of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "problem of aphids in chilli.",
+        "verified_answer": "advised him to apply rogor 35 ec 2 ml / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Damping Off",
+        "sample_question": "damping off in chilli",
+        "verified_answer": "recommended to spray saaf 2 gram per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "control measure of fruit borer in chilli",
+        "verified_answer": "spray 'karate' 2 ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Flower Drop",
+        "sample_question": "asking for the control of flower drop in chilli",
+        "verified_answer": "recommended to spray planofix 1 gram per 5 litre of water at an interval of 10 days",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Thrips",
+        "sample_question": "asking about control of thrips in chilli",
+        "verified_answer": "suggested spraying of tricel 20 ec 2ml/l or rogor 2ml/l for three times at an interval of 5 days",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilting",
+        "sample_question": "farmer asked a query regarding control of wilting in chilli.",
+        "verified_answer": "first you have to do the ooze test - dip the affected part in a glass of water and keep it for 30 minutes. if ooze comes out and the water become yellowish white, then spray also apply tetracycline/ streptocyclin (1gram/5 lit of water), near the root zone 3 times at 5 days interval and if ooze don't show in the water, and the water remains clean then spray and also apply saaf (2 gram/lit of water) near the root zone 3 times at 5 days interval.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Miner",
+        "sample_question": "asking about the control measure of leaf miner pest attack in chilli.",
+        "verified_answer": "suggested to spray rogor 35 ec 2 mililitre / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "control of immature fruit drop in chilli",
+        "verified_answer": "advised to spray dk-4(pgr) 5 ml / 25 litres of water at 20-25 days interval for two times",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Mites",
+        "sample_question": "asking about control measure of flower dropping and mites in chilli",
+        "verified_answer": "spray planofix 1 g in 5 lit of water, 2 spray at 15 days interval spray malathion 50 ec 2 ml per lit of water, 3 sprays at 4 days interval",
+        "remedy_entities": [
+          "malathion"
+        ]
+      }
+    ],
+    "Mango": [
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "asking about the control measure to control fruit borer infestation in mango fruit.",
+        "verified_answer": "suggested to spray dimecron 100 ec 2ml/litre of water followed by waiting period of 10-12 days.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Termite",
+        "sample_question": "asking to control termite in mango",
+        "verified_answer": "advised to spray meterhizium 3gm per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Flower Drop",
+        "sample_question": "problem of flower drop in mango",
+        "verified_answer": "advised to apply aminos 2 ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Stem Borer",
+        "sample_question": "stem borer of mango",
+        "verified_answer": "advised to apply dimecron or nubhacron as directed",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "asking control of immature fruit drop in mango",
+        "verified_answer": "apply tracel 2 gram per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Dropping",
+        "sample_question": "asking about flower and fruit dropping for mango.",
+        "verified_answer": "suggested to spray multiplex borax 2.5gm/lt of water at the time of flowering and 20 days after first spray or multiplex nagamurtha 2.5 gm/lt of water at flowering abd 2nd pea size stage.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Cracking",
+        "sample_question": "fruit cracking in mango",
+        "verified_answer": "advcied to harvest the mango when it is mature not to wait till ripening in the tree",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Fly",
+        "sample_question": "control measure of fruit fly of mango",
+        "verified_answer": "spray 'malathion 50 ec' 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      }
+    ],
+    "Tomato": [
+      {
+        "problem": "Wilting",
+        "sample_question": "asking about the control measure to control wilting problem of tomato.",
+        "verified_answer": "suggested to applly agromycin 200 milligram/litre of water or spray solution of 1gram asafoetida + 5 gram turmeric mixture/10 liters of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilt Disease",
+        "sample_question": "asking about the control measure to control bacterial wilt disease of tomato.",
+        "verified_answer": "suggested to apply streptomycin sulphate 200mg/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "asking about the control measure to control fruit borer pest infestation in tomato.",
+        "verified_answer": "suggested to spray neem based pesticide like-neem gold,achok 1.5 ml/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Flower Drop",
+        "sample_question": "asking about the control of flower drop in tomato.",
+        "verified_answer": "advised to apply green harvest crop booster 1.25 gram / litre of water,tracel 1 2.5 gram/litre of water or dk-4 4 ml / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "problem of aphids in tomato.",
+        "verified_answer": "advised him to apply rogor 35 ec 2 ml / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Damping Off",
+        "sample_question": "management of damping off diseases in tomato nursery.",
+        "verified_answer": "i suggest him to spray either bavistin 2 gram per litre of water or blitox 50 2.5 gram per litre of water.",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "asking about control of leaf spot in tomato",
+        "verified_answer": "advice to apply amister 2ml/l of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Curling",
+        "sample_question": "query regarding leaf curling in tomato",
+        "verified_answer": "advicce him to spray rogor 35 ec 2ml/litres of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Cutworm",
+        "sample_question": "asking about the control of cutworm infestation in tomato",
+        "verified_answer": "suggested him to spray ustad 2ml/litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Bacterial Blight",
+        "sample_question": "query regarding bacterial blight in tomato",
+        "verified_answer": "recommended to spray streptomycin 2gm/l water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "control of root rot in tomato",
+        "verified_answer": "spray ridomil mz 72 2 gm per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Yellowing",
+        "sample_question": "asking about yellowing in tomato",
+        "verified_answer": "advice him to spray ridomil gold 2gm per litres of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Whitefly",
+        "sample_question": "asking about control measure of whitefly on tomato",
+        "verified_answer": "suggested him to spray malathion 1.5ml/lit of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Fruit Rot",
+        "sample_question": "asking about the control of fruit rot in tomato",
+        "verified_answer": "told him to spray bavistin 2gm / l of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Powdery Mildew",
+        "sample_question": "query regarding powdery mildew in tomato",
+        "verified_answer": "spray indofil m-45 2 grams mixed with 1 litre of water for three times at an interval of 5 days",
+        "remedy_entities": []
+      }
+    ],
+    "Ridge Gourd": [
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "asking about the control measure to control fruit borer pest in ridge gourd.",
+        "verified_answer": "suggested to spray neem based pesticide like-achook/neem gold 5ml/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Rot",
+        "sample_question": "asking about the control measure fruit rot in ridge gourd.",
+        "verified_answer": "suggested to spray carbendazim 2gm/lt of water.",
+        "remedy_entities": [
+          "carbendazim"
+        ]
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "asking about the control of fruit drop in ridge gourd",
+        "verified_answer": "advised to apply multiplex all crops 2 gram / litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Fly",
+        "sample_question": "asking about fruit fly in ridge gourd",
+        "verified_answer": "suggested to spray malathion 50ec 2ml + 1gm of molases/litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "asking about aphid problem in ridge gourd",
+        "verified_answer": "suggested to spray profex super 2ml/litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "asking to control aphids on ridge gourd",
+        "verified_answer": "advised to spray malathion 50 ec 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Downy Mildew",
+        "sample_question": "asking about control of downy mildew in ridge gourd",
+        "verified_answer": "advised to apply bavistin 2 gm per litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Leaf Miner",
+        "sample_question": "asking about control measure of leaf miner in ridge gourd .",
+        "verified_answer": "suggested to spray malathion 50 ec 2 ml/litre of water to control leaf miner in ridge gourd.",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control of root rot in ridge gourd.",
+        "verified_answer": "told him to apply ridomil 1 g per litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "asking about the control of leaf spot disease in ridge gourd apply saaf 2gm/litre of water",
+        "verified_answer": "apply saaf 2gm/litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Curling",
+        "sample_question": "query regarding control measures of leaf curling in ridge gourd",
+        "verified_answer": "recommended to spray amister 1 ml per litr of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Powdery Mildew",
+        "sample_question": "asking about powdery mildew in ridge gourd",
+        "verified_answer": "spray saaf (2gm/lit of water) 3 sprays at 5 days interval",
+        "remedy_entities": []
+      }
+    ],
+    "Okra": [
+      {
+        "problem": "Powdery Mildew",
+        "sample_question": "asking about the control measure to control powdery mildew disease in okra.",
+        "verified_answer": "suggested to apply sulfex 1 teaspoonful/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Stem Borer",
+        "sample_question": "asked about the control measure of fruit and stem borer of okra.",
+        "verified_answer": "suggested to spray the crop with malathion 50 ec 2 ml per lit of water.",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Fruit Rot",
+        "sample_question": "asking for the control measure against fruit rot in okra crop cultivation.",
+        "verified_answer": "dithane-z-78 solution 2 milli litres per litre of water has been suggested to spray.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "fruit drop in okra",
+        "verified_answer": "captaf 2ml/lit followed by tracel2 2ml/lit",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "asking about the control measure to control fruit borer pest attack in okra.",
+        "verified_answer": "suggested to spray malathion 50 ec 2 mililitre / litre of water.",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "asking about use of malathion 50 ec to control aphids on okra",
+        "verified_answer": "advised to him spray 2ml per litre of water in 7 days interval.",
+        "remedy_entities": []
+      }
+    ],
+    "Brinjal": [
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "asking about the control measure to control brinjal fruit borer pest in brinjal cultivation.",
+        "verified_answer": "suggested to spray azadirachtin product like-neem gold/neemax-m 2ml/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Borers",
+        "sample_question": "asking for the control measure against fruit borers in brinjal.",
+        "verified_answer": "suggested to spray decis 2.4ec 1 milli litre per litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Termite",
+        "sample_question": "asking about the control measure to control termite infestation in root portion of brinjal.",
+        "verified_answer": "suggested to apply furadon 3g 10gram/plant near the base around the root.",
+        "remedy_entities": [
+          "furadon"
+        ]
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "asking about the control measure to control aphid infestation in brinjal.",
+        "verified_answer": "suggested to apply furadon 10gram/plant in ring method near the root portion.",
+        "remedy_entities": [
+          "furadon"
+        ]
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asked about the control measure of root rot of brinjal.",
+        "verified_answer": "suggested to drench the soil with captaf 2gm per litre of water and to go for seed treatment before sowing.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Powdery Mildew",
+        "sample_question": "powdery mildew in brinjal",
+        "verified_answer": "advised to apply bavistin 1 gm per litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Wilting",
+        "sample_question": "asking about wilting problem in brinjal",
+        "verified_answer": "suggested to soil drenching with bavistin 1gm/litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Leaf Curling",
+        "sample_question": "asking about the brinjal leaf curling disease",
+        "verified_answer": "application of plantomycin 2 2 ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Fly",
+        "sample_question": "asking about fruit fly in brinjal",
+        "verified_answer": "advice him to spray decis 1.5ml/litres of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "problem of aphids in brinjal.",
+        "verified_answer": "advised him to apply rogor 35 ec 2 ml / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilt Disease",
+        "sample_question": "asking about the control measure to control bacterial wilt disease in brinjal.",
+        "verified_answer": "suggested to spray streptocyclin(streptomycin sulphate) 200 miligram/litre of water at 15 days interval.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "control of leaf spot in brinjal",
+        "verified_answer": "advised to apply mancozeb 2 gram / litre of water",
+        "remedy_entities": [
+          "mancozeb"
+        ]
+      },
+      {
+        "problem": "Flower Drop",
+        "sample_question": "problem of flower drop in brinjal.",
+        "verified_answer": "advised him to apply planofix 2 ml/ litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "control of fruit drop brinjal",
+        "verified_answer": "spray flanofix 1 ml per six litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Bacterial Blight",
+        "sample_question": "asking about control measure of bacterial blight in brinjal",
+        "verified_answer": "told him to apply streptomycin / cristocyclin 1 gram in 5 litres of water for chiili- foliar spray of 19 all / npk 6 gram per litre of water",
+        "remedy_entities": [
+          "npk"
+        ]
+      }
+    ],
+    "Paddy": [
+      {
+        "problem": "Rice Case Worm",
+        "sample_question": "asking for the control measure to control rice case worm which is affecting his paddy cultivation very badly.",
+        "verified_answer": "suggested to spray chlorpyriphos 20 ec 2 milli litre per litre of water.",
+        "remedy_entities": [
+          "chlorpyriphos"
+        ]
+      },
+      {
+        "problem": "Stem Borer",
+        "sample_question": "asking about the control measure to control yellow stem borer pest attack in paddy field.",
+        "verified_answer": "suggested to spray tricel 20 ec 2 mililitre / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Case Worm",
+        "sample_question": "control measure of case worm pest attack in paddy field.",
+        "verified_answer": "suggested to spray quinalphos 25 ec 2ml/ litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Blast Disease",
+        "sample_question": "want to know control measure of blast disease in paddy",
+        "verified_answer": "advised to apply bavistin 2 gm per litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Yellowing",
+        "sample_question": "query regarding control measures of yellowing of leaf in paddy",
+        "verified_answer": "recommended to spray bevistin 2gm per litr of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "control of aphids in paddy",
+        "verified_answer": "spray tricel 20 3 ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "wanted to know about control of aphid n paddy.",
+        "verified_answer": "advice to spray malathion 50ec 2ml/lit of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Leaf Miner",
+        "sample_question": "asking control of leaf miner attack in seedling bed nursery of paddy",
+        "verified_answer": "spray tricel 20 ec 1 ml per litre of water to control leaf miner in seedling bed nursery of paddy",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Thrips",
+        "sample_question": "asking about the thrips infestation in paddy fields",
+        "verified_answer": "told him to apply tricel 20 ec 2ml / l of water, 3 spray at 5 days interval told him to go for ooze test for further confirmation of infection. apply 5 kg urea / bigha as top dressing",
+        "remedy_entities": [
+          "urea"
+        ]
+      },
+      {
+        "problem": "Bacterial Blight",
+        "sample_question": "asking remedy for bacterial blight in paddy",
+        "verified_answer": "suggested to spray streptomycin 2ml/litre water,2 sprays at an interval of 5 days",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Rice Blast",
+        "sample_question": "asking for the control measure against rice blast in paddy field.",
+        "verified_answer": "suggested to apply bavistin 2 gram per litre of water and also advised not to top dress urea at this stage.",
+        "remedy_entities": [
+          "bavistin",
+          "urea"
+        ]
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "asking about the control measure of leaf spot in nursery seedlings of paddy",
+        "verified_answer": "advised to apply baviostin 1 gram / litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Cutworm",
+        "sample_question": "asking about the control measure of cutworm on paddy",
+        "verified_answer": "suggested him to spray decis 1ml/lit of water",
+        "remedy_entities": []
+      }
+    ],
+    "Maize": [
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control measure of root rot in bhindi and duration of maize.",
+        "verified_answer": "suggested spray captan 2gm/lt of water or to drench the soil around the root portion. duration of maize for hybrid var.are ganga 101=145-150 days,ganga 5=150-155 days,deccan hybrid=160-165 days.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "asking about the control of aphid in maize",
+        "verified_answer": "suggested him to spray malathion 50 ec 2ml/litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      }
+    ],
+    "Cabbage": [
+      {
+        "problem": "Damping Off",
+        "sample_question": "asking about the control measure to control damping off disease in cabbage seedlings.",
+        "verified_answer": "suggested to spray captan 2gram/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilting",
+        "sample_question": "asking about the cabbage fungal wilting",
+        "verified_answer": "application ridomil mz 72 2 ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "aphid infestation cabbage",
+        "verified_answer": "malathion 50 ec 2ml/l of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control measure to control root rot disease in cabbage.",
+        "verified_answer": "suggested to spray captan 2 gram/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "aphids in cabbage",
+        "verified_answer": "advised to spray rogor 35 ec 2 ml / litre water",
+        "remedy_entities": []
+      }
+    ],
+    "Rice": [
+      {
+        "problem": "Blast Disease",
+        "sample_question": "asking about the control measure to control leaf blast disease in boro rice.",
+        "verified_answer": "suggested to apply bavistin 2gram/litre of water.",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Stem Borer",
+        "sample_question": "asking for the control measure against rice stem borer in paddy.",
+        "verified_answer": "'ekalux 25 ec' solution 3 miili litres per litre of water has been suggested to spray.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "asking about to controll of aphids in rice.",
+        "verified_answer": "suggested him to spray durseban 2ml/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Termite",
+        "sample_question": "problem of termite in rice.",
+        "verified_answer": "advised him to apply metarhyzium 2 ml / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Yellowing",
+        "sample_question": "asking for the control of yellowing of leaves in rice",
+        "verified_answer": "recommended to apply urea 4.5 kg per bigha",
+        "remedy_entities": [
+          "urea"
+        ]
+      },
+      {
+        "problem": "Rice Blast",
+        "sample_question": "asking about rice blast problem in rice seedling",
+        "verified_answer": "suggested to spray contaf 2ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Case Worm",
+        "sample_question": "asking about case worm problem in rice cultivation.",
+        "verified_answer": "suggested to spray dursban/rocket 2.5ml/litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Bacterial Blight",
+        "sample_question": "asking about the control measure for bacterial blight in rice",
+        "verified_answer": "recommended to spray cristocycline or streptocycline 1 gram/5 lit water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control of root rot in rice",
+        "verified_answer": "told him to spray bavistin 2gm / l of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Thrips",
+        "sample_question": "asking for the control of thrips in nursery rice",
+        "verified_answer": "recommeded to spray malathion 25 ec 1 ml per litre of water 3 times at an interval of 5 days",
+        "remedy_entities": [
+          "malathion"
+        ]
+      }
+    ],
+    "Jute": [
+      {
+        "problem": "Mites",
+        "sample_question": "asking for the control measure against yellow mites in jute crop cultivation field.",
+        "verified_answer": "'endosulfan 35 ec' solution 2 milli litres per litre of water has been suggested to spray preferably in the upper portion of tyhe plant as the control measure against yellow mites in jute crop cultivation field.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control measure to control root rot disease in jute cultivation.",
+        "verified_answer": "suggested to apply captaf 2 gram / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Damping Off",
+        "sample_question": "asking about damping off problem in jute",
+        "verified_answer": "suggested to spray bavistin 2gm/litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      }
+    ],
+    "Bitter Gourd": [
+      {
+        "problem": "Fruit Borer",
+        "sample_question": "control of fruit borer in bitter gourd fruit",
+        "verified_answer": "advised to spray malathion 50 ec 2 ml / litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Leaf Curling",
+        "sample_question": "query regarding control measures of leaf curling in bitter gourd",
+        "verified_answer": "suggested rogor 2ml per litr of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Leaf Miner",
+        "sample_question": "asking about the control measure of leaf miner pest attack in bitter gourd",
+        "verified_answer": "advised to spray malathion 50 ec 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Downy Mildew",
+        "sample_question": "want to know about control measure of downy mildew in bitter gourd",
+        "verified_answer": "advised to apply bavistin 2 gm per litre of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Aphid",
+        "sample_question": "asking about the control of aphid attack in bitter gourd",
+        "verified_answer": "advised to spray malathion 50 ec 1 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Fruit Fly",
+        "sample_question": "want to know control measure of fruit fly in bitter gourd",
+        "verified_answer": "advised to spray malathion 50 ec 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "root rot of bitter gourd",
+        "verified_answer": "advised to spray bavistin or captaf 2 gram / litre water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Powdery Mildew",
+        "sample_question": "asking about the control measure for powdery mildew in bitter gourd.",
+        "verified_answer": "advised to spray sulphur fungicide 2.5 gram/lit water(500 gram/200 lit water for 1 acre) or blitox 50 2 gram/lit water(400 gram/200 lit water for 1 acre). also, spray npk 10 gram/lit water(2 kg/200 lit water for 1 acre).",
+        "remedy_entities": [
+          "fungicide",
+          "npk"
+        ]
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "asking about control measure of aphids in bitter gourd",
+        "verified_answer": "told him to apply rogor 2 ml per litre of water, thrice at 4 days interval",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilting",
+        "sample_question": "asking about wilting in bitter gourd",
+        "verified_answer": "suggested him to do the ooze test to confirm it to be fungal or bacterial",
+        "remedy_entities": []
+      }
+    ],
+    "Banana": [
+      {
+        "problem": "Wilting",
+        "sample_question": "asking about wilting in banana...",
+        "verified_answer": "advising him to apply cabofuran at the time of planting..mancozeb 1% at the later stage..",
+        "remedy_entities": [
+          "mancozeb"
+        ]
+      },
+      {
+        "problem": "Aphids",
+        "sample_question": "asking about control of aphids and flower drop in banana",
+        "verified_answer": "recommended to apply malathion 50 ec 2ml/lit of water spray three time at 5 days interval and apply planofix 1g/5 lit of water spray twice at 15 days interval",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "White Flies",
+        "sample_question": "regarding control of white flies in banana leaves",
+        "verified_answer": "spray malathion 50 ec 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      },
+      {
+        "problem": "Leaf Spot",
+        "sample_question": "asking about the leaf spot dissease in banana",
+        "verified_answer": "suggest him to apply bavistin 2gm/lt of water",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Wilt Disease",
+        "sample_question": "asking about the panama wilt disease of banana",
+        "verified_answer": "suggested him to apply bavistin fungicide 2gm/lit of water 3 spray in 5 days interval and suggested him to cut, burn and bury in isolated area.",
+        "remedy_entities": [
+          "bavistin",
+          "fungicide"
+        ]
+      }
+    ],
+    "Papaya": [
+      {
+        "problem": "Aphid",
+        "sample_question": "control of aphid attack in papaya",
+        "verified_answer": "advised to apply rogor 40 ec 2 ml per litre of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Flower Drop",
+        "sample_question": "asking about control of blight in papaya and flower drop",
+        "verified_answer": "recommended him to apply saaf 2ml/lit of water spray 3 time at 3days interval and apply planofix 1g/5 lit of water and spray twice at 15 days interval",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Drop",
+        "sample_question": "control of fruit drop in papaya",
+        "verified_answer": "spray dk-4 4 ml / 15 litres of water",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Fruit Fly",
+        "sample_question": "control measure of fruit fly of papaya",
+        "verified_answer": "spray 'malathion 50 ec' 2 ml per litre of water",
+        "remedy_entities": [
+          "malathion"
+        ]
+      }
+    ],
+    "Cauliflower": [
+      {
+        "problem": "Damping Off",
+        "sample_question": "problem of damping off in cauliflower seedling.",
+        "verified_answer": "advised him to apply bavistin 1 gm / litre of water.",
+        "remedy_entities": [
+          "bavistin"
+        ]
+      },
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control measure of root rot disease in cauliflower.",
+        "verified_answer": "suggested to apply captaf 2 gram / litre of water.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Flower Drop",
+        "sample_question": "asking about the flower drop in cauliflower",
+        "verified_answer": "explain in details",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Wilting",
+        "sample_question": "wilting in cauliflower",
+        "verified_answer": "spray captaf 2ml/lit of water",
+        "remedy_entities": []
+      }
+    ],
+    "Radish": [
+      {
+        "problem": "Root Rot",
+        "sample_question": "asking about the control of root rot in radish",
+        "verified_answer": "told him to spray roshan plus 2ml / l of water",
+        "remedy_entities": []
+      }
+    ],
+    "Sugarcane": [
+      {
+        "problem": "Thrips",
+        "sample_question": "asking for the control measure against mealy bugs and thrips in sugarcane crop cultivation field.",
+        "verified_answer": "'phosphamidon' solution 60-70 milli litres per 120 litres of water for hand sprayer or 60-70 milli litres per 30 litres of water for power sprayer has been suggested to spray on the crop as the control measure against mealy bugs and thrips in sugarcane crop cultivation field.",
+        "remedy_entities": []
+      },
+      {
+        "problem": "Termite",
+        "sample_question": "control measure of termite in sugarcane cultivation.",
+        "verified_answer": "advised to apply c.t.-50 2ml / litre of water.",
+        "remedy_entities": []
+      }
+    ]
+  },
+  "metadata": {
+    "total_records_processed": 177169
+  }
+}

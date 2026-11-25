@@ -1607,6 +1607,10 @@ def login_user(payload: UserLoginPayload):
     }
 
 
+class TokenIntrospectPayload(BaseModel):
+    token: str
+
+
 @app.post("/api/v1/auth/citizen-token-login")
 def citizen_token_login(payload: TokenIntrospectPayload):
     """Exchange a Citizen (M2) JWT for an AgriLink session + fetched Citizen profile."""
@@ -1940,10 +1944,6 @@ def _get_isc():
     except ImportError:
         import inter_service_client as isc
     return isc
-
-
-class TokenIntrospectPayload(BaseModel):
-    token: str
 
 
 class VehicleDispatchPayload(BaseModel):
