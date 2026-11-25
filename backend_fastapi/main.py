@@ -95,6 +95,10 @@ class OrderCreate(BaseModel):
     quantity: float
     delivery_address: str
     payment_method: str = "RAZORPAY"
+    citizen_id: Optional[str] = None
+    use_citizen_wallet: bool = False
+    assign_rto_vehicle: bool = False
+    vehicle_class: str = "LIGHT_COMMERCIAL"
 
 # Active Crop Listings
 MOCK_LISTINGS = [
@@ -1141,6 +1145,41 @@ def create_order(order: OrderCreate):
     }
     
     ACTIVE_ORDERS.insert(0, order_record)
+
+    # Optional Tri-Service Integration (Citizen Wallet M2 + RTO Vehicle M3)
+    try:
+        try:
+            from backend_fastapi import inter_service_client as isc
+        except ImportError:
+            import inter_service_client as isc
+
+        if order.use_citizen_wallet or (order.payment_method.upper() == "WALLET" and order.citizen_id):
+            c_id = order.citizen_id or order.buyer_id
+            c_status = isc.get_citizen_status(c_id)
+            wallet_id = c_status.get("wallet_id")
+            if wallet_id:
+                hold_res = isc.place_wallet_hold(
+                    wallet_id=wallet_id,
+                    amount=total,
+                    reason_code="AGRILINK_ORDER_ESCROW",
+                    idempotency_key=f"escrow-{order_id}",
+                )
+                order_record["citizen_wallet_id"] = wallet_id
+                order_record["wallet_hold"] = hold_res
+            else:
+                order_record["wallet_hold"] = {"skipped": True, "reason": c_status.get("error", "No wallet_id")}
+
+        if order.assign_rto_vehicle:
+            rto_res = isc.request_rto_vehicle(
+                agrilink_job_ref=order_id,
+                vehicle_class=order.vehicle_class,
+                min_capacity_kg=max(float(order.quantity), 100.0),
+                destination=order.delivery_address,
+                idempotency_key=f"rto-{order_id}",
+            )
+            order_record["rto_dispatch"] = rto_res
+    except Exception as e:
+        order_record["inter_service_note"] = f"Fallback standalone mode: {e}"
     
     # Persist to AWS RDS PostgreSQL
     rds_saved = rds_save_order(order_record)
@@ -1512,11 +1551,43 @@ def verify_otp_endpoint(payload: VerifyOtpPayload):
 
 @app.post("/api/v1/auth/login")
 def login_user(payload: UserLoginPayload):
-    ident = payload.identifier.strip().lower()
-    user = next((u for u in REGISTERED_USERS if u.get("email", "").lower() == ident or u.get("phone", "").replace(" ", "") == ident.replace(" ", "")), None)
+    ident = payload.identifier.strip()
+    ident_lower = ident.lower()
+
+    # 1. Try Citizen Identity Service (M2) first when password is provided
+    if payload.password:
+        try:
+            cis_res = _get_isc().login_via_citizen(ident, payload.password)
+            if cis_res.get("authenticated"):
+                c_status = cis_res.get("citizen_status") or {}
+                c_id = cis_res.get("citizen_id")
+                user_profile = {
+                    "id": c_id,
+                    "citizen_id": c_id,
+                    "full_name": c_status.get("full_name") or ident.split("@")[0].capitalize(),
+                    "email": ident if "@" in ident else None,
+                    "phone": ident if "@" not in ident else None,
+                    "role": c_status.get("active_persona") or "CUSTOMER",
+                    "kyc_tier": c_status.get("kyc_tier", "T0"),
+                    "kyc_status": c_status.get("kyc_status", "PENDING"),
+                    "wallet_id": c_status.get("wallet_id"),
+                    "auth_source": "CITIZEN_M2",
+                }
+                return {
+                    "status": "success",
+                    "auth_source": "CITIZEN_M2",
+                    "user": user_profile,
+                    "token": cis_res.get("access_token"),
+                    "refresh_token": cis_res.get("refresh_token"),
+                }
+        except Exception:
+            pass
+
+    # 2. Standalone AgriLink fallback (unchanged local behavior)
+    user = next((u for u in REGISTERED_USERS if u.get("email", "").lower() == ident_lower or u.get("phone", "").replace(" ", "") == ident_lower.replace(" ", "")), None)
     if not user:
         # Check by name prefix
-        user = next((u for u in REGISTERED_USERS if ident in u.get("full_name", "").lower()), None)
+        user = next((u for u in REGISTERED_USERS if ident_lower in u.get("full_name", "").lower()), None)
     
     if user:
         return {"status": "success", "user": user, "token": f"jwt-agrilink-auth-{user['id']}"}
@@ -1524,15 +1595,40 @@ def login_user(payload: UserLoginPayload):
     return {
         "status": "success",
         "user": {
-            "id": f"usr-auto-{abs(hash(ident)) % 1000000}",
-            "full_name": ident.split('@')[0].capitalize(),
-            "email": ident if "@" in ident else f"{ident}@agrilink.com",
-            "phone": ident if "@" not in ident else "+91 98000 00000",
+            "id": f"usr-auto-{abs(hash(ident_lower)) % 1000000}",
+            "full_name": ident_lower.split('@')[0].capitalize(),
+            "email": ident_lower if "@" in ident_lower else f"{ident_lower}@agrilink.com",
+            "phone": ident_lower if "@" not in ident_lower else "+91 98000 00000",
             "role": "CUSTOMER",
             "customer_type": "Individual Customer",
             "region": "Bengaluru / Mandya Corridor"
         },
         "token": f"jwt-agrilink-auth-auto"
+    }
+
+
+@app.post("/api/v1/auth/citizen-token-login")
+def citizen_token_login(payload: TokenIntrospectPayload):
+    """Exchange a Citizen (M2) JWT for an AgriLink session + fetched Citizen profile."""
+    isc = _get_isc()
+    intro = isc.introspect_token(payload.token)
+    if not intro.get("active"):
+        raise HTTPException(status_code=401, detail="Invalid or expired Citizen token")
+    c_id = intro.get("citizen_id")
+    c_status = isc.get_citizen_status(str(c_id)) if c_id else {}
+    return {
+        "status": "success",
+        "auth_source": "CITIZEN_M2",
+        "user": {
+            "id": c_id,
+            "citizen_id": c_id,
+            "full_name": c_status.get("full_name") or intro.get("full_name"),
+            "role": intro.get("persona") or "CUSTOMER",
+            "kyc_tier": c_status.get("kyc_tier", "T0"),
+            "kyc_status": c_status.get("kyc_status", "PENDING"),
+            "wallet_id": c_status.get("wallet_id"),
+        },
+        "token": payload.token,
     }
 
 @app.get("/api/v1/users/profile")
@@ -1834,6 +1930,120 @@ async def upload_file(file: UploadFile = File(...), folder: Optional[str] = "cro
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)}")
+
+# ==============================================================================
+# TRI-SERVICE ECOSYSTEM INTEGRATION (M1 AgriLink <-> M2 Citizen <-> M3 RTO)
+# ==============================================================================
+def _get_isc():
+    try:
+        from backend_fastapi import inter_service_client as isc
+    except ImportError:
+        import inter_service_client as isc
+    return isc
+
+
+class TokenIntrospectPayload(BaseModel):
+    token: str
+
+
+class VehicleDispatchPayload(BaseModel):
+    delivery_person_citizen_id: str = "CIT-DELIVERY-003"
+    delivery_person_name: str = "Suresh Gowda"
+    delivery_person_kyc_tier: str = "T3"
+    delivery_person_licence_classes: str = "LMV,HMV"
+    vehicle_class: str = "LIGHT_COMMERCIAL"
+    min_capacity_kg: float = 500.0
+    destination: str = "Bengaluru Hub"
+    duration_hours: int = 8
+
+
+class OrderSettlementPayload(BaseModel):
+    total_amount: Optional[float] = None
+    farmer_wallet_id: Optional[str] = None
+    aggregator_wallet_id: Optional[str] = None
+    logistics_wallet_id: Optional[str] = None
+    platform_wallet_id: Optional[str] = None
+
+
+class EscrowCancelPayload(BaseModel):
+    wallet_id: str
+    hold_id: str
+
+
+@app.get("/api/v1/ecosystem/status")
+def ecosystem_status():
+    """Health check across Microservice 1 (AgriLink), M2 (Citizen), and M3 (RTO)."""
+    isc = _get_isc()
+    return {
+        "ecosystem": "AgriLink Tri-Service Architecture",
+        "services": isc.check_ecosystem_health(),
+    }
+
+
+@app.post("/api/v1/ecosystem/auth/introspect")
+def ecosystem_introspect_token(payload: TokenIntrospectPayload):
+    """Validate a Citizen JWT against Microservice 2 (CIS)."""
+    return _get_isc().introspect_token(payload.token)
+
+
+@app.post("/api/v1/ecosystem/orders/{order_id}/dispatch-vehicle")
+def ecosystem_dispatch_vehicle(order_id: str, payload: VehicleDispatchPayload):
+    """Assign a verified commercial vehicle from Microservice 3 (RTO) to an AgriLink order."""
+    res = _get_isc().request_rto_vehicle(
+        agrilink_job_ref=order_id,
+        delivery_person_citizen_id=payload.delivery_person_citizen_id,
+        delivery_person_name=payload.delivery_person_name,
+        delivery_person_kyc_tier=payload.delivery_person_kyc_tier,
+        delivery_person_licence_classes=payload.delivery_person_licence_classes,
+        vehicle_class=payload.vehicle_class,
+        min_capacity_kg=payload.min_capacity_kg,
+        destination=payload.destination,
+        duration_hours=payload.duration_hours,
+        idempotency_key=f"rto-{order_id}",
+    )
+    order = next((o for o in ACTIVE_ORDERS if o["order_id"] == order_id), None)
+    if order:
+        order["rto_dispatch"] = res
+    return {"order_id": order_id, "rto_dispatch": res}
+
+
+@app.post("/api/v1/ecosystem/orders/{order_id}/settle")
+def ecosystem_settle_order(order_id: str, payload: OrderSettlementPayload):
+    """Execute 68-10-14-8 fair-share settlement via Microservice 2 (Citizen Wallet)."""
+    order = next((o for o in ACTIVE_ORDERS if o["order_id"] == order_id), None)
+    amount = payload.total_amount if payload.total_amount is not None else (order["total_amount"] if order else 0.0)
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="total_amount must be positive (or order_id must exist)")
+    settlement = _get_isc().settle_order_fair_share(
+        order_id=order_id,
+        total_amount=amount,
+        farmer_wallet_id=payload.farmer_wallet_id,
+        aggregator_wallet_id=payload.aggregator_wallet_id,
+        logistics_wallet_id=payload.logistics_wallet_id,
+        platform_wallet_id=payload.platform_wallet_id,
+    )
+    if order:
+        order["status"] = "DELIVERED"
+        order["settlement"] = settlement
+    return {"order_id": order_id, "total_amount": amount, "fair_share_settlement": settlement}
+
+
+@app.post("/api/v1/ecosystem/orders/{order_id}/cancel-escrow")
+def ecosystem_cancel_escrow(order_id: str, payload: EscrowCancelPayload):
+    """Release an active Citizen Wallet escrow hold when an order is cancelled."""
+    res = _get_isc().release_wallet_hold(payload.wallet_id, payload.hold_id)
+    order = next((o for o in ACTIVE_ORDERS if o["order_id"] == order_id), None)
+    if order:
+        order["status"] = "CANCELLED"
+        order["wallet_release"] = res
+    return {"order_id": order_id, "wallet_release": res}
+
+
+@app.get("/api/v1/ecosystem/rto/outbox")
+def ecosystem_rto_outbox(published_filter: Optional[bool] = False):
+    """Poll transactional outbox domain events from Microservice 3 (RTO)."""
+    return _get_isc().get_rto_outbox_events(published_filter=published_filter)
+
 
 if __name__ == "__main__":
     import uvicorn
