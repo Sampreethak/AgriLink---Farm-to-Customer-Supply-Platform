@@ -160,15 +160,14 @@ class AICropDoctorService:
 
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 350, "temperature": 0.3}
+            "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.3}
         }
 
         gemini_models = [
             os.getenv("GEMINI_AGRI_MODEL", "gemini-3.8-flash"),
+            "gemma-4-26b-a4b-it",
+            "gemma-4-31b-it",
             "gemini-flash-latest",
-            "gemini-3.7-flash",
-            "gemini-3.6-flash",
-            "gemini-flash-lite-latest",
         ]
         # Preserve order while deduplicating
         seen = set()
@@ -177,12 +176,18 @@ class AICropDoctorService:
         for model_name in models_to_try:
             api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={self.gemini_api_key}"
             try:
-                res = requests.post(api_url, json=payload, timeout=15)
+                res = requests.post(api_url, json=payload, timeout=10)
                 if res.status_code == 200:
                     data = res.json()
                     candidates = data.get("candidates", [])
                     if candidates:
-                        text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        answer_parts = [
+                            p.get("text", "").strip()
+                            for p in parts
+                            if not p.get("thought", False) and p.get("text", "").strip()
+                        ]
+                        text = "\n".join(answer_parts).strip()
                         if text:
                             print(f"[OK] {model_name} enhanced the crop advisory response.")
                             return text
