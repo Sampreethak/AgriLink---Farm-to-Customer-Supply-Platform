@@ -72,7 +72,8 @@ class AICropDoctorService:
         self.thesaurus = {}
         self.gemini_api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         self.hf_api_key = os.getenv("HUGGINGFACE_API_KEY") or os.getenv("HF_TOKEN")
-        self.hf_model = os.getenv("HF_AGRI_MODEL", "Qwen/Qwen2.5-7B-Instruct")
+        self.hf_model = os.getenv("HF_AGRI_MODEL", "Qwen/Qwen3.8-Flash-Next")
+        self._last_llm_source = ""
         
         self._load_knowledge_base()
 
@@ -190,6 +191,7 @@ class AICropDoctorService:
                         text = "\n".join(answer_parts).strip()
                         if text:
                             print(f"[OK] {model_name} enhanced the crop advisory response.")
+                            self._last_llm_source = f"+ Google Gemini ({model_name})"
                             return text
                 else:
                     print(f"[Note] Gemini API ({model_name}) returned status {res.status_code}: {res.text[:200]}")
@@ -199,12 +201,12 @@ class AICropDoctorService:
         return self._call_huggingface_llm(query, crop, cluster, chemical, bio, language)
 
     def _call_huggingface_llm(self, query: str, crop: str, cluster: Optional[Dict[str, Any]], chemical: str, bio: str, language: str) -> Optional[str]:
-        """Fallback: Calls Hugging Face Serverless Inference API for generative multilingual advice."""
+        """Fallback: Calls Hugging Face Router Chat Completions API for generative multilingual advice."""
         if not self.hf_api_key:
             return None
 
         import requests
-        api_url = f"https://api-inference.huggingface.co/models/{self.hf_model}"
+        api_url = "https://router.huggingface.co/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {self.hf_api_key}",
             "Content-Type": "application/json"
@@ -214,25 +216,52 @@ class AICropDoctorService:
         diagnosis = cluster['child_cluster_label'] if cluster else 'General Plant Protection'
 
         system_instruction = (
-            f"You are AgriTalk AI, a certified agricultural scientist advising a smallholder farmer in India. "
+            f"You are AgriTalk AI, a certified agricultural scientist advising a smallholder farmer in India.\n"
             f"Farmer Query: '{query}'\n"
-            f"Language to reply in: {lang_name}\n"
-            f"Strict Grounded Medical Facts:\n"
+            f"Reply language: {lang_name}\n"
+            f"Grounded Facts (do NOT contradict these):\n"
             f"- Crop: {crop}\n"
             f"- Diagnosis: {diagnosis}\n"
-            f"- Recommended Chemical Remedy: {chemical}\n"
-            f"- Organic / Biological Alternative: {bio}\n"
-            f"Give a friendly, concise, 3-point prescription in {lang_name}. Do NOT invent new chemical dosages."
+            f"- Chemical Remedy: {chemical}\n"
+            f"- Organic/Bio Alternative: {bio}\n\n"
+            f"Give a warm, practical 3-point prescription in {lang_name}. "
+            f"Include dosage from the grounded facts and add helpful external agronomic best practices "
+            f"(e.g., field hygiene, irrigation, vector prevention). Do NOT invent new chemical dosages."
         )
 
-        try:
-            res = requests.post(api_url, headers=headers, json={"inputs": system_instruction, "parameters": {"max_new_tokens": 200, "temperature": 0.2}}, timeout=6)
-            if res.status_code == 200:
-                data = res.json()
-                if isinstance(data, list) and len(data) > 0 and "generated_text" in data[0]:
-                    return data[0]["generated_text"].replace(system_instruction, "").strip()
-        except Exception as e:
-            print(f"[Note] Hugging Face inference API call: {e}. Using deterministic clinical synthesizer.")
+        hf_models = [
+            self.hf_model,
+            "Qwen/Qwen3.5-9B",
+            "meta-llama/Llama-3.1-8B-Instruct",
+            "google/gemma-3-4b-it",
+        ]
+        seen = set()
+        models_to_try = [m for m in hf_models if m and not (m in seen or seen.add(m))]
+
+        for model_name in models_to_try:
+            payload = {
+                "model": model_name,
+                "messages": [{"role": "user", "content": system_instruction}],
+                "max_tokens": 450,
+                "temperature": 0.3,
+            }
+            try:
+                res = requests.post(api_url, headers=headers, json=payload, timeout=15)
+                if res.status_code == 200:
+                    data = res.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        text = choices[0].get("message", {}).get("content", "").strip()
+                        # Strip <think>...</think> reasoning block if emitted by reasoning models
+                        text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+                        if text:
+                            print(f"[OK] Hugging Face ({model_name}) enhanced the crop advisory response.")
+                            self._last_llm_source = f"+ Hugging Face ({model_name})"
+                            return text
+                else:
+                    print(f"[Note] Hugging Face Router ({model_name}) returned status {res.status_code}: {res.text[:200]}")
+            except Exception as e:
+                print(f"[Note] Hugging Face Router ({model_name}) call error: {e}.")
         return None
 
     def normalize_vernacular_query(self, query: str) -> str:
@@ -390,7 +419,8 @@ class AICropDoctorService:
                 f"• ⚠️ **Application Note:** {safety_tip}"
             )
 
-        # Gemini LLM enhancement (with HF as fallback)
+        # Gemini LLM enhancement (with HF Router as fallback)
+        self._last_llm_source = ""
         llm_response = self._call_gemini_llm(
             query=query,
             crop=crop,
@@ -402,12 +432,7 @@ class AICropDoctorService:
         if llm_response:
             advisory_text = llm_response
 
-        llm_source = ""
-        if llm_response:
-            if self.gemini_api_key:
-                llm_source = "+ Google Gemini LLM"
-            elif self.hf_api_key:
-                llm_source = f"+ Hugging Face {self.hf_model}"
+        llm_source = self._last_llm_source if llm_response else ""
 
         return {
             "status": "success",
