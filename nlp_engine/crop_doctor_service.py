@@ -165,7 +165,10 @@ class AICropDoctorService:
 
         gemini_models = [
             os.getenv("GEMINI_AGRI_MODEL", "gemini-3.8-flash"),
-            "gemini-2.5-flash",
+            "gemini-flash-latest",
+            "gemini-3.7-flash",
+            "gemini-3.6-flash",
+            "gemini-flash-lite-latest",
         ]
         # Preserve order while deduplicating
         seen = set()
