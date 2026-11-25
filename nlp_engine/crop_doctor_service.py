@@ -157,7 +157,7 @@ class AICropDoctorService:
             f"Include dosage from the grounded facts. Do NOT invent new chemicals or dosages."
         )
 
-        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.gemini_api_key}"
+        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={self.gemini_api_key}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"maxOutputTokens": 300, "temperature": 0.3}
