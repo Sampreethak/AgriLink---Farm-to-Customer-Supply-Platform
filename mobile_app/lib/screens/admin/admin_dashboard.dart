@@ -1,5 +1,6 @@
 import '../auth/login_screen.dart';
 import '../../services/auth_service.dart';
+import '../../services/report_download_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../auth/role_selection_screen.dart';
@@ -30,6 +31,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text("Admin Central Control"),
         backgroundColor: AppColors.primaryGreen,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: "Download Tri-Service Report",
+            onPressed: () => ReportDownloadService.downloadTriServiceReport(context),
+          ),
           IconButton(
             icon: const Icon(Icons.storage),
             tooltip: "Database Console",
@@ -93,6 +99,21 @@ class AdminAnalyticsTab extends StatelessWidget {
           const Text("Platform Analytics & Reports", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           const Text("Live operations overview across all ecosystem modules.", style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.download),
+              label: const Text("Download Live Tri-Service Ecosystem Report"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () => ReportDownloadService.downloadTriServiceReport(context),
+            ),
+          ),
           const SizedBox(height: 20),
           Row(
             children: const [

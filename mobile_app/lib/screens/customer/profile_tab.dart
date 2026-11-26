@@ -1,4 +1,5 @@
 import '../../services/auth_service.dart';
+import '../../services/report_download_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../../services/customer_state.dart';
@@ -167,6 +168,21 @@ class _ProfileTabState extends State<ProfileTab> {
                   context,
                   MaterialPageRoute(builder: (_) => const CustomerSettingsScreen()),
                 );
+              },
+            ),
+
+            _menuTile(
+              context,
+              "Download Tri-Service Report",
+              Icons.download_for_offline_outlined,
+              () async {
+                final user = await AuthService().restoreSession();
+                if (context.mounted) {
+                  await ReportDownloadService.downloadTriServiceReport(
+                    context,
+                    citizenId: user?.id,
+                  );
+                }
               },
             ),
 

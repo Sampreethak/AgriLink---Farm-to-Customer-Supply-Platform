@@ -2112,6 +2112,115 @@ def ecosystem_live_report(citizen_id: Optional[str] = None):
     }
 
 
+@app.get("/api/v1/ecosystem/report/download")
+def ecosystem_live_report_download(
+    citizen_id: Optional[str] = None,
+    format: str = Query("html", pattern="^(html|md|json)$"),
+):
+    """Downloadable live Tri-Service Integration Report (HTML, Markdown, or JSON)."""
+    import json as _json
+    from fastapi.responses import Response
+
+    report = ecosystem_live_report(citizen_id=citizen_id)
+    health = report["services_health"]
+    live = report["live_data"]
+    m1 = live["m1_agrilink"]
+    m2 = live["m2_citizen"]
+    m3 = live["m3_rto_vehicle"]
+
+    if format == "json":
+        return Response(
+            content=_json.dumps(report, indent=2, default=str),
+            media_type="application/json",
+            headers={"Content-Disposition": 'attachment; filename="AgriLink_TriService_Report.json"'},
+        )
+
+    if format == "md":
+        lines = [
+            f"# {report['report_title']}",
+            f"**Generated:** `{report['generated_at']}`",
+            "",
+            "## 1. Microservice Health",
+            f"- **M1 (AgriLink):** {health['agrilink_m1']['status']}",
+            f"- **M2 (Citizen):** {health['citizen_m2']['status']} ({health['citizen_m2']['url']})",
+            f"- **M3 (RTO Vehicle):** {health['rto_vehicle_m3']['status']} ({health['rto_vehicle_m3']['url']})",
+            "",
+            "## 2. Live Ecosystem Data",
+            f"- **AgriLink Listings / Orders / Users:** {m1['active_listings_count']} / {m1['active_orders_count']} / {m1['registered_users_count']}",
+            f"- **RTO Available Listings:** {m3['available_listings_count']}",
+            f"- **RTO Outbox Events:** {m3['outbox_events_count']}",
+        ]
+        if m2.get("sample_citizen_profile"):
+            cp = m2["sample_citizen_profile"]
+            lines += [
+                "",
+                "## 3. Citizen Profile (Fetched from M2)",
+                f"- **Name:** {cp.get('full_name')} (`{cp.get('citizen_id')}`)",
+                f"- **KYC:** {cp.get('kyc_tier')} ({cp.get('kyc_status')})",
+                f"- **Wallet:** `{cp.get('wallet_id')}` ({cp.get('wallet_status')})",
+            ]
+        return Response(
+            content="\n".join(lines),
+            media_type="text/markdown",
+            headers={"Content-Disposition": 'attachment; filename="AgriLink_TriService_Report.md"'},
+        )
+
+    # Default: clean styled HTML report (opens/prints cleanly as PDF too)
+    listings_rows = "".join(
+        f"<tr><td>{l.get('vehicle', {}).get('registration_number', '-')}</td>"
+        f"<td>{l.get('vehicle', {}).get('make_model', '-')}</td>"
+        f"<td>{l.get('vehicle', {}).get('vehicle_class', '-')}</td>"
+        f"<td>{l.get('vehicle', {}).get('capacity_kg', '-')} kg</td>"
+        f"<td>{l.get('vehicle', {}).get('status', '-')}</td>"
+        f"<td>₹{l.get('rate_per_day', '-')}</td>"
+        f"<td>{l.get('pickup_location', '-')}</td></tr>"
+        for l in m3.get("available_listings_sample", [])
+    )
+    outbox_rows = "".join(
+        f"<tr><td>{e.get('event_type', '-')}</td>"
+        f"<td>{e.get('aggregate_type', '-')}</td>"
+        f"<td><code>{e.get('aggregate_id', '-')}</code></td>"
+        f"<td>{e.get('created_at', '-')}</td></tr>"
+        for e in m3.get("outbox_events", [])
+    )
+    cp = m2.get("sample_citizen_profile") or {}
+    citizen_block = (
+        f"<p><strong>Citizen:</strong> {cp.get('full_name', 'N/A')} (<code>{cp.get('citizen_id', 'N/A')}</code>) | "
+        f"<strong>KYC:</strong> {cp.get('kyc_tier', '-')} ({cp.get('kyc_status', '-')}) | "
+        f"<strong>Wallet:</strong> <code>{cp.get('wallet_id', '-')}</code> ({cp.get('wallet_status', '-')})</p>"
+        if cp else "<p><em>No citizen_id filter supplied (append ?citizen_id=&lt;uuid&gt; to include a citizen profile).</em></p>"
+    )
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>{report['report_title']}</title>
+<style>
+body{{font-family:Segoe UI,Arial,sans-serif;max-width:960px;margin:32px auto;padding:0 16px;color:#1f2937}}
+h1,h2{{color:#1b5e20}} table{{width:100%;border-collapse:collapse;margin:12px 0 24px}}
+th,td{{border:1px solid #d1d5db;padding:8px 10px;text-align:left;font-size:13px}}
+th{{background:#e8f5e9}} .badge{{display:inline-block;padding:2px 8px;border-radius:12px;font-weight:600;background:#dcfce7;color:#166534}}
+</style></head><body>
+<h1>{report['report_title']}</h1>
+<p><strong>Generated:</strong> {report['generated_at']}</p>
+<h2>1. Live Microservice Health</h2>
+<table><tr><th>Microservice</th><th>Endpoint</th><th>Status</th></tr>
+<tr><td>M1 — AgriLink Core</td><td>self</td><td><span class="badge">{health['agrilink_m1']['status']}</span></td></tr>
+<tr><td>M2 — Citizen Identity &amp; Wallet</td><td>{health['citizen_m2']['url']}</td><td><span class="badge">{health['citizen_m2']['status']}</span></td></tr>
+<tr><td>M3 — RTO Vehicle Registry &amp; Fleet</td><td>{health['rto_vehicle_m3']['url']}</td><td><span class="badge">{health['rto_vehicle_m3']['status']}</span></td></tr>
+</table>
+<h2>2. M1 AgriLink &amp; M2 Citizen Summary</h2>
+<p><strong>AgriLink:</strong> {m1['active_listings_count']} listings | {m1['active_orders_count']} orders | {m1['registered_users_count']} users</p>
+{citizen_block}
+<h2>3. M3 RTO Vehicle Listings ({m3.get('available_listings_count', 0)})</h2>
+<table><tr><th>Reg No.</th><th>Model</th><th>Class</th><th>Capacity</th><th>Status</th><th>Rate/Day</th><th>Location</th></tr>{listings_rows}</table>
+<h2>4. M3 RTO Transactional Outbox Events ({m3.get('outbox_events_count', 0)})</h2>
+<table><tr><th>Event Type</th><th>Aggregate</th><th>Aggregate ID</th><th>Created At</th></tr>{outbox_rows}</table>
+</body></html>"""
+    return Response(
+        content=html,
+        media_type="text/html",
+        headers={"Content-Disposition": 'attachment; filename="AgriLink_TriService_Report.html"'},
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
