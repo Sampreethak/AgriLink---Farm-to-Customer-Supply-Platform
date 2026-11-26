@@ -1336,8 +1336,12 @@ class UserRegisterPayload(BaseModel):
     password: Optional[str] = "Secret@123"
 
 class UserLoginPayload(BaseModel):
-    identifier: str
+    identifier: Optional[str] = None
+    email: Optional[str] = None      # alias — Flutter/frontend sends "email"
     password: Optional[str] = None
+
+    def get_identifier(self) -> str:
+        return (self.identifier or self.email or "").strip()
 
 class SendOtpPayload(BaseModel):
     phone: str
@@ -1551,7 +1555,9 @@ def verify_otp_endpoint(payload: VerifyOtpPayload):
 
 @app.post("/api/v1/auth/login")
 def login_user(payload: UserLoginPayload):
-    ident = payload.identifier.strip()
+    ident = payload.get_identifier()
+    if not ident:
+        raise HTTPException(status_code=422, detail="'identifier' or 'email' field is required")
     ident_lower = ident.lower()
 
     # 1. Try Citizen Identity Service (M2) first when password is provided
