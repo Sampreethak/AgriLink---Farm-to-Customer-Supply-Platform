@@ -397,6 +397,66 @@ def rds_get_user_profile(identifier: str) -> Optional[dict]:
             pass
         return None
 
+
+def rds_save_citizen_token(citizen_id: str, access_token: Optional[str]) -> None:
+    """Persist the latest Citizen M2 JWT for cross-worker bank/wallet lookups."""
+    if not citizen_id or not access_token:
+        return
+    conn = get_rds_connection()
+    if not conn:
+        return
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.citizen_session_tokens (
+                citizen_id VARCHAR(120) PRIMARY KEY,
+                access_token TEXT NOT NULL,
+                updated_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
+        cur.execute("""
+            INSERT INTO public.citizen_session_tokens (citizen_id, access_token, updated_at)
+            VALUES (%s, %s, NOW())
+            ON CONFLICT (citizen_id) DO UPDATE SET
+                access_token = EXCLUDED.access_token,
+                updated_at = NOW();
+        """, (str(citizen_id), access_token))
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"[RDS] Error saving citizen token: {e}")
+        try:
+            conn.rollback()
+            conn.close()
+        except Exception:
+            pass
+
+
+def rds_get_citizen_token(citizen_id: Optional[str]) -> Optional[str]:
+    """Retrieve stored Citizen M2 JWT for a citizen_id."""
+    if not citizen_id:
+        return None
+    conn = get_rds_connection()
+    if not conn:
+        return None
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT access_token FROM public.citizen_session_tokens
+            WHERE citizen_id = %s LIMIT 1;
+        """, (str(citizen_id),))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        return row[0] if row else None
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return None
+
 def rds_get_all_users() -> List[dict]:
     """Retrieves all user profiles from AWS RDS PostgreSQL public.profiles."""
     conn = get_rds_connection()
@@ -1579,6 +1639,9 @@ def login_user(payload: UserLoginPayload):
                     "wallet_id": c_status.get("wallet_id"),
                     "auth_source": "CITIZEN_M2",
                 }
+                if c_id:
+                    rds_save_citizen_token(str(c_id), cis_res.get("access_token"))
+                    rds_upsert_user_profile(user_profile)
                 return {
                     "status": "success",
                     "auth_source": "CITIZEN_M2",
@@ -1626,6 +1689,8 @@ def citizen_token_login(payload: TokenIntrospectPayload):
         raise HTTPException(status_code=401, detail="Invalid or expired Citizen token")
     c_id = intro.get("citizen_id")
     c_status = isc.get_citizen_status(str(c_id)) if c_id else {}
+    if c_id:
+        rds_save_citizen_token(str(c_id), payload.token)
     return {
         "status": "success",
         "auth_source": "CITIZEN_M2",
@@ -2277,8 +2342,8 @@ th{{background:#e8f5e9}} .badge{{display:inline-block;padding:2px 8px;border-rad
 @app.get("/api/v1/ecosystem/users/{user_identifier}/wallet")
 def ecosystem_user_wallet_lookup(user_identifier: str):
     """
-    Fetch a user's Citizen Wallet ID, status, and KYC tier using X-Service-Key
-    without requiring their Citizen password.
+    Fetch a user's Citizen Wallet ID, balance, bank accounts, and KYC tier using X-Service-Key
+    (and stored Citizen JWT if available) without requiring their Citizen password.
     """
     isc = _get_isc()
     ident = user_identifier.strip()
@@ -2286,14 +2351,20 @@ def ecosystem_user_wallet_lookup(user_identifier: str):
     resolved = isc.lookup_citizen_by_identifier(ident)
     if not resolved.get("citizen_id") and m1_profile and m1_profile.get("id"):
         resolved = isc.lookup_citizen_by_identifier(str(m1_profile["id"]))
+    cid = resolved.get("citizen_id")
+    access_token = rds_get_citizen_token(cid) if cid else None
+    wallet_details = isc.get_citizen_wallet_details(str(cid), wallet_id=resolved.get("wallet_id"), access_token=access_token) if cid else {}
+    bank_res = isc.get_citizen_bank_accounts(str(cid), access_token=access_token) if cid else {"bank_accounts": []}
     return {
         "user_identifier": ident,
-        "citizen_id": resolved.get("citizen_id"),
+        "citizen_id": cid,
         "full_name": resolved.get("full_name") or (m1_profile or {}).get("full_name"),
         "wallet_id": resolved.get("wallet_id"),
         "wallet_status": resolved.get("wallet_status"),
+        "wallet_balance": wallet_details.get("balance") or wallet_details.get("available_balance"),
         "kyc_tier": resolved.get("kyc_tier"),
         "kyc_status": resolved.get("kyc_status"),
+        "bank_accounts": bank_res.get("bank_accounts", []),
         "payment_ready": bool(resolved.get("wallet_id") and resolved.get("wallet_status") == "ACTIVE"),
         "note": resolved.get("note"),
     }
@@ -2327,8 +2398,10 @@ def ecosystem_user_delivery_profile(user_identifier: str):
         "kyc_status": citizen_info.get("kyc_status"),
         "wallet_id": citizen_info.get("wallet_id"),
         "delivery_partner_eligible": elig.get("eligible", False),
-        "owned_rto_vehicles_count": rto_data.get("owned_listings_count", 0),
-        "owned_rto_vehicles": rto_data.get("owned_listings", []),
+        "owned_rto_vehicles_count": rto_data.get("owned_vehicles_count", 0),
+        "owned_rto_vehicles": rto_data.get("owned_vehicles", []),
+        "owned_rto_listings_count": rto_data.get("owned_listings_count", 0),
+        "owned_rto_listings": rto_data.get("owned_listings", []),
         "available_rto_fleet_count": rto_data.get("all_available_fleet_count", 0),
         "available_rto_fleet": rto_data.get("all_available_fleet", []),
     }
@@ -2338,8 +2411,8 @@ def ecosystem_user_delivery_profile(user_identifier: str):
 def ecosystem_user_report(user_identifier: str):
     """
     Generate a live Tri-Service Report for a PARTICULAR user (by citizen_id UUID, email, or phone),
-    aggregating their data from AgriLink (M1), Citizen Identity & Wallet (M2), and RTO Fleet (M3)
-    via key APIs without requiring Citizen/RTO passwords.
+    aggregating their data from AgriLink (M1), Citizen Identity, Wallet & Bank Accounts (M2),
+    and RTO Vehicles & Fleet (M3) without requiring Citizen/RTO passwords.
     """
     import datetime as dt
 
@@ -2360,7 +2433,7 @@ def ecosystem_user_report(user_identifier: str):
     user_name = (m1_profile or {}).get("full_name")
     user_email = (m1_profile or {}).get("email") or (ident if "@" in ident else None)
 
-    # 2. M2 Citizen Identity & Wallet data via X-Service-Key (no password needed)
+    # 2. M2 Citizen Identity, Wallet & Bank Accounts
     m2_status = isc.lookup_citizen_by_identifier(ident)
     if not m2_status.get("citizen_id") and m1_profile and m1_profile.get("id"):
         m2_status = isc.lookup_citizen_by_identifier(str(m1_profile["id"]))
@@ -2369,6 +2442,10 @@ def ecosystem_user_report(user_identifier: str):
     m2_personas = isc.get_citizen_personas(str(resolved_cid)) if (resolved_cid and len(str(resolved_cid)) == 36) else {"active_personas": []}
     if m2_status.get("full_name"):
         user_name = m2_status.get("full_name")
+
+    access_token = rds_get_citizen_token(str(resolved_cid)) if resolved_cid else None
+    m2_bank = isc.get_citizen_bank_accounts(str(resolved_cid), access_token=access_token) if resolved_cid else {"bank_accounts": []}
+    m2_wallet = isc.get_citizen_wallet_details(str(resolved_cid), wallet_id=m2_status.get("wallet_id"), access_token=access_token) if resolved_cid else {}
 
     user_orders = [
         o for o in ACTIVE_ORDERS
@@ -2397,6 +2474,10 @@ def ecosystem_user_report(user_identifier: str):
         "m2_citizen": {
             "status": m2_status,
             "personas": m2_personas.get("active_personas", []),
+            "wallet_details": m2_wallet,
+            "bank_accounts": m2_bank.get("bank_accounts", []),
+            "bank_accounts_source": m2_bank.get("source"),
+            "bank_accounts_note": m2_bank.get("note"),
         },
         "m3_rto_vehicle": m3_data,
     }
@@ -2415,8 +2496,12 @@ def ecosystem_user_report_download(
     m1 = report["m1_agrilink"]
     m2_st = report["m2_citizen"]["status"]
     m2_per = report["m2_citizen"]["personas"]
+    m2_banks = report["m2_citizen"].get("bank_accounts", [])
+    m2_wal = report["m2_citizen"].get("wallet_details", {})
     m3 = report["m3_rto_vehicle"]
     personas_str = ", ".join(p.get("persona_type", "") for p in m2_per) or m2_st.get("active_persona", "-")
+    wal_bal = m2_wal.get("balance") if m2_wal.get("balance") is not None else m2_wal.get("available_balance")
+    wal_bal_str = f" | Balance: INR {wal_bal}" if wal_bal is not None else ""
 
     if format == "pdf":
         try:
@@ -2425,6 +2510,24 @@ def ecosystem_user_report_download(
             from pdf_generator import build_pdf_bytes
 
         display_name = m2_st.get("full_name") or (m1.get("profile") or {}).get("full_name") or user_identifier
+        bank_lines = [
+            f"- {b.get('bank_name') or b.get('bank') or 'Bank'} | A/C: {b.get('account_number_masked') or b.get('masked_account_number') or b.get('account_number') or '-'} | IFSC: {b.get('ifsc_code') or b.get('ifsc') or '-'} | Holder: {b.get('account_holder_name') or display_name} | Primary: {b.get('is_primary', '-')}"
+            for b in m2_banks
+        ] or [
+            report["m2_citizen"].get("bank_accounts_note")
+            or "No linked bank accounts returned by Citizen M2 (ensure M2 exposes /internal/citizens/{id}/bank-accounts or login via Citizen SSO)."
+        ]
+
+        vehicle_lines = [
+            f"- {v.get('registration_number', '-')} | {v.get('make_model', '-')} ({v.get('vehicle_class', '-')}) | {v.get('capacity_kg', '-')} kg | {v.get('fuel_type', '-')} | Status: {v.get('verification_status', v.get('status', '-'))} | Owner: {v.get('owner_name', '-')}"
+            for v in m3.get("owned_vehicles", [])
+        ] or ["No registered RTO vehicles matched this user."]
+
+        listing_lines = [
+            f"- {l.get('vehicle', {}).get('registration_number', '-')} | {l.get('vehicle', {}).get('make_model', '-')} | Status: {l.get('vehicle', {}).get('status', '-')} | INR {l.get('rate_per_day', '-')}/day"
+            for l in m3.get("owned_listings", [])
+        ] or ["No published rental listings matched this user."]
+
         sections = [
             (
                 "User & Citizen Identity (M2 - via X-Service-Key)",
@@ -2433,9 +2536,13 @@ def ecosystem_user_report_download(
                     f"Identifier: {report['user_identifier']} | Resolved Citizen ID: {report['resolved_citizen_id'] or 'N/A'}",
                     f"Full Name: {display_name} | Account Status: {m2_st.get('status', 'N/A')}",
                     f"KYC Tier: {m2_st.get('kyc_tier', '-')} | KYC Status: {m2_st.get('kyc_status', '-')}",
-                    f"Wallet ID: {m2_st.get('wallet_id', 'N/A')} | Wallet Status: {m2_st.get('wallet_status', '-')}",
+                    f"Wallet ID: {m2_st.get('wallet_id', 'N/A')} | Wallet Status: {m2_st.get('wallet_status', '-')}{wal_bal_str}",
                     f"Active Personas: {personas_str}",
                 ],
+            ),
+            (
+                f"Citizen Linked Bank Accounts (M2) - Count: {len(m2_banks)}",
+                bank_lines,
             ),
             (
                 f"AgriLink Marketplace Activity (M1) - Orders: {m1.get('orders_count', 0)}, Listings: {m1.get('crop_listings_count', 0)}",
@@ -2445,11 +2552,12 @@ def ecosystem_user_report_download(
                 ] or ["No AgriLink orders recorded for this user in current session."],
             ),
             (
-                f"RTO Vehicles & Rental Listings Owned (M3) - Count: {m3.get('owned_listings_count', 0)}",
-                [
-                    f"- {l.get('vehicle', {}).get('registration_number', '-')} | {l.get('vehicle', {}).get('make_model', '-')} | Status: {l.get('vehicle', {}).get('status', '-')} | INR {l.get('rate_per_day', '-')}/day"
-                    for l in m3.get("owned_listings", [])
-                ] or ["No RTO vehicles or rental listings matched this user."],
+                f"RTO Registered Vehicles Owned (M3) - Count: {m3.get('owned_vehicles_count', 0)}",
+                vehicle_lines,
+            ),
+            (
+                f"RTO Published Fleet Rental Listings (M3) - Count: {m3.get('owned_listings_count', 0)}",
+                listing_lines,
             ),
             (
                 f"RTO Activity & Transactional Outbox Events (M3) - Count: {m3.get('related_events_count', 0)}",

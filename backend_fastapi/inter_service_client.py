@@ -184,12 +184,118 @@ def get_citizen_personas(citizen_id: str) -> Dict[str, Any]:
         return {"connected": False, "fallback": True, "active_personas": [], "error": str(exc)}
 
 
+def get_citizen_bank_accounts(
+    citizen_id: str,
+    access_token: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Fetch linked bank accounts for a citizen from M2.
+    Tries X-Service-Key internal endpoints first, then Bearer JWT endpoints
+    if a Citizen access_token is available from AgriLink login.
+    """
+    headers_key = _citizen_headers()
+    endpoints_key = [
+        f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/bank-accounts",
+        f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/bank_accounts",
+    ]
+    with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+        for url in endpoints_key:
+            try:
+                res = client.get(url, headers=headers_key)
+                if res.status_code == 200:
+                    data = res.json()
+                    items = data if isinstance(data, list) else data.get("bank_accounts", data.get("items", data.get("accounts", [])))
+                    return {"connected": True, "source": "internal_key", "bank_accounts": items}
+            except Exception as exc:
+                logger.debug(f"CIS internal bank-accounts failed ({url}): {exc}")
+
+        if access_token:
+            bearer_headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+            }
+            for url in [
+                f"{CITIZEN_SERVICE_URL}/bank-accounts",
+                f"{CITIZEN_SERVICE_URL}/bank-accounts/me",
+                f"{CITIZEN_SERVICE_URL}/citizens/me/bank-accounts",
+                f"{CITIZEN_SERVICE_URL}/wallet/bank-accounts",
+            ]:
+                try:
+                    res = client.get(url, headers=bearer_headers)
+                    if res.status_code == 200:
+                        data = res.json()
+                        items = data if isinstance(data, list) else data.get("bank_accounts", data.get("items", data.get("accounts", [])))
+                        return {"connected": True, "source": "citizen_jwt", "bank_accounts": items}
+                except Exception as exc:
+                    logger.debug(f"CIS JWT bank-accounts failed ({url}): {exc}")
+
+    return {"connected": True, "bank_accounts": [], "note": "No bank-accounts endpoint matched or no linked bank accounts returned."}
+
+
+def get_citizen_wallet_details(
+    citizen_id: str,
+    wallet_id: Optional[str] = None,
+    access_token: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Fetch wallet balance & currency from M2 via X-Service-Key or Citizen JWT."""
+    headers_key = _citizen_headers()
+    with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+        for url in [
+            f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/wallet",
+            f"{CITIZEN_SERVICE_URL}/internal/wallets/{wallet_id}" if wallet_id else None,
+        ]:
+            if not url:
+                continue
+            try:
+                res = client.get(url, headers=headers_key)
+                if res.status_code == 200:
+                    return {"connected": True, "source": "internal_key", **res.json()}
+            except Exception as exc:
+                logger.debug(f"CIS internal wallet details failed ({url}): {exc}")
+
+        if access_token:
+            bearer_headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+            }
+            for url in [
+                f"{CITIZEN_SERVICE_URL}/wallets/me",
+                f"{CITIZEN_SERVICE_URL}/wallet/me",
+                f"{CITIZEN_SERVICE_URL}/wallet",
+            ]:
+                try:
+                    res = client.get(url, headers=bearer_headers)
+                    if res.status_code == 200:
+                        return {"connected": True, "source": "citizen_jwt", **res.json()}
+                except Exception as exc:
+                    logger.debug(f"CIS JWT wallet details failed ({url}): {exc}")
+
+    return {"connected": True}
+
+
+def get_rto_vehicles() -> Dict[str, Any]:
+    """Fetch all registered vehicles from Microservice 3 (RTO /v1/vehicles)."""
+    url = f"{RTO_SERVICE_URL}/vehicles"
+    try:
+        with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+            res = client.get(url)
+            if res.status_code == 200:
+                data = res.json()
+                items = data if isinstance(data, list) else data.get("items", data.get("vehicles", []))
+                return {"connected": True, "count": len(items), "vehicles": items}
+            return {"connected": True, "count": 0, "vehicles": [], "status_code": res.status_code}
+    except Exception as exc:
+        logger.debug(f"RTO vehicles fallback (offline): {exc}")
+        return {"connected": False, "fallback": True, "count": 0, "vehicles": [], "error": str(exc)}
+
+
 def get_user_rto_data(
     citizen_id: str,
     full_name: Optional[str] = None,
     email: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Fetch vehicles, listings, and outbox events belonging to a specific user from RTO (M3)."""
+    """Fetch registered vehicles, rental listings, and outbox events belonging to a specific user from RTO (M3)."""
+    vehicles_res = get_rto_vehicles()
     listings_res = get_rto_listings()
     outbox_res = get_rto_outbox_events(published_filter=None)
 
@@ -199,21 +305,28 @@ def get_user_rto_data(
     email_prefix = email_lower.split("@")[0] if "@" in email_lower else ""
 
     def _matches(text: str) -> bool:
-        t = text.lower()
+        t = (text or "").lower()
         if cid_lower and cid_lower in t:
             return True
-        if name_lower and len(name_lower) >= 3 and name_lower in t:
+        if name_lower and len(name_lower) >= 3 and (name_lower in t or t in name_lower):
             return True
         if email_prefix and len(email_prefix) >= 3 and email_prefix in t:
             return True
         return False
+
+    matched_vehicles = []
+    for v in vehicles_res.get("vehicles", []):
+        owner_id = str(v.get("owner_citizen_id") or "").lower()
+        owner_name = str(v.get("owner_name") or "").lower()
+        if (cid_lower and owner_id == cid_lower) or (owner_name and _matches(owner_name)):
+            matched_vehicles.append(v)
 
     matched_listings = []
     for item in listings_res.get("listings", []):
         owner_id = str(item.get("owner_citizen_id") or "").lower()
         veh = item.get("vehicle") or {}
         owner_name = str(veh.get("owner_name") or "").lower()
-        if (cid_lower and owner_id == cid_lower) or _matches(owner_name):
+        if (cid_lower and owner_id == cid_lower) or (owner_name and _matches(owner_name)):
             matched_listings.append(item)
 
     matched_events = []
@@ -223,7 +336,9 @@ def get_user_rto_data(
             matched_events.append(ev)
 
     return {
-        "connected": listings_res.get("connected", False) or outbox_res.get("connected", False),
+        "connected": vehicles_res.get("connected", False) or listings_res.get("connected", False) or outbox_res.get("connected", False),
+        "owned_vehicles_count": len(matched_vehicles),
+        "owned_vehicles": matched_vehicles,
         "owned_listings_count": len(matched_listings),
         "owned_listings": matched_listings,
         "related_events_count": len(matched_events),
