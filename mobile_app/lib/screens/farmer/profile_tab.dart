@@ -1,4 +1,5 @@
 import '../../services/auth_service.dart';
+import '../../services/report_download_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/platform_state.dart';
@@ -153,6 +154,25 @@ class ProfileTab extends StatelessWidget {
                     MaterialPageRoute(builder: (_) => const CustomerDashboard()),
                   );
                 },
+              ),
+            ),
+
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFF1B5E20),
+                  child: Icon(Icons.download, color: Colors.white),
+                ),
+                title: const Text("Download My Tri-Service Report"),
+                subtitle: const Text("Summary across AgriLink, Citizen & RTO"),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () => ReportDownloadService.downloadUserReport(
+                  context,
+                  userIdentifier: user.id,
+                ),
               ),
             ),
 

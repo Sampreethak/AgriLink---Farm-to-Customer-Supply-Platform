@@ -1,5 +1,6 @@
 import '../auth/login_screen.dart';
 import '../../services/auth_service.dart';
+import '../../services/report_download_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../../services/platform_state.dart';
@@ -43,6 +44,14 @@ class _AggregatorDashboardState extends State<AggregatorDashboard> {
         backgroundColor: AppColors.primaryGreen,
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Download My Tri-Service Report',
+            onPressed: () => ReportDownloadService.downloadUserReport(
+              context,
+              userIdentifier: user.id,
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.analytics_outlined),
             tooltip: 'Dynamic Pricing Oracle',
