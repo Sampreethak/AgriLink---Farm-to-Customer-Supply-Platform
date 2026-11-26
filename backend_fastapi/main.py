@@ -2221,6 +2221,141 @@ th{{background:#e8f5e9}} .badge{{display:inline-block;padding:2px 8px;border-rad
     )
 
 
+@app.get("/api/v1/ecosystem/users/{user_identifier}/report")
+def ecosystem_user_report(user_identifier: str):
+    """
+    Generate a live Tri-Service Report for a PARTICULAR user (by citizen_id UUID, email, or phone),
+    aggregating their data from AgriLink (M1), Citizen Identity & Wallet (M2), and RTO Fleet (M3).
+    """
+    import datetime as dt
+
+    isc = _get_isc()
+    ident = user_identifier.strip()
+    ident_lower = ident.lower()
+
+    # 1. M1 AgriLink data
+    m1_profile = rds_get_user_profile(ident) or next(
+        (
+            u for u in REGISTERED_USERS
+            if str(u.get("id", "")).lower() == ident_lower
+            or str(u.get("email", "")).lower() == ident_lower
+            or str(u.get("phone", "")).replace(" ", "") == ident_lower.replace(" ", "")
+        ),
+        None,
+    )
+    resolved_cid = (
+        ident if (len(ident) == 36 and "-" in ident)
+        else (m1_profile.get("id") if m1_profile else None)
+    )
+    user_orders = [
+        o for o in ACTIVE_ORDERS
+        if str(o.get("buyer_id", "")).lower() in {ident_lower, str(resolved_cid or "").lower()}
+    ]
+    user_name = (m1_profile or {}).get("full_name")
+    user_listings = [
+        l for l in MOCK_LISTINGS
+        if user_name and str(l.get("farmer_name", "")).lower() == user_name.lower()
+    ]
+
+    # 2. M2 Citizen Identity & Wallet data
+    m2_status = isc.get_citizen_status(str(resolved_cid)) if resolved_cid else {"connected": False, "note": "No citizen_id UUID resolved"}
+    m2_personas = isc.get_citizen_personas(str(resolved_cid)) if resolved_cid else {"active_personas": []}
+    if m2_status.get("full_name"):
+        user_name = m2_status.get("full_name")
+
+    # 3. M3 RTO Vehicle & Fleet data
+    m3_data = isc.get_user_rto_data(str(resolved_cid or ident), full_name=user_name)
+
+    return {
+        "report_title": f"AgriLink Tri-Service User Report — {user_name or ident}",
+        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "user_identifier": ident,
+        "resolved_citizen_id": resolved_cid,
+        "m1_agrilink": {
+            "profile": m1_profile,
+            "orders_count": len(user_orders),
+            "orders": user_orders,
+            "crop_listings_count": len(user_listings),
+            "crop_listings": user_listings,
+        },
+        "m2_citizen": {
+            "status": m2_status,
+            "personas": m2_personas.get("active_personas", []),
+        },
+        "m3_rto_vehicle": m3_data,
+    }
+
+
+@app.get("/api/v1/ecosystem/users/{user_identifier}/report/download")
+def ecosystem_user_report_download(
+    user_identifier: str,
+    format: str = Query("html", pattern="^(html|json)$"),
+):
+    """Downloadable Tri-Service Report for a particular user (HTML or JSON)."""
+    import json as _json
+    from fastapi.responses import Response
+
+    report = ecosystem_user_report(user_identifier)
+    if format == "json":
+        return Response(
+            content=_json.dumps(report, indent=2, default=str),
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="User_TriService_Report_{user_identifier}.json"'},
+        )
+
+    m1 = report["m1_agrilink"]
+    m2_st = report["m2_citizen"]["status"]
+    m2_per = report["m2_citizen"]["personas"]
+    m3 = report["m3_rto_vehicle"]
+
+    personas_str = ", ".join(p.get("persona_type", "") for p in m2_per) or m2_st.get("active_persona", "-")
+    orders_rows = "".join(
+        f"<tr><td>{o.get('order_id')}</td><td>{o.get('crop_name')}</td><td>{o.get('quantity')}</td><td>₹{o.get('total_amount')}</td><td>{o.get('status')}</td></tr>"
+        for o in m1.get("orders", [])
+    ) or "<tr><td colspan='5'><em>No AgriLink orders found in current session.</em></td></tr>"
+
+    rto_rows = "".join(
+        f"<tr><td>{l.get('vehicle', {}).get('registration_number', '-')}</td><td>{l.get('vehicle', {}).get('make_model', '-')}</td><td>{l.get('vehicle', {}).get('status', '-')}</td><td>₹{l.get('rate_per_day', '-')}</td></tr>"
+        for l in m3.get("owned_listings", [])
+    ) or "<tr><td colspan='4'><em>No RTO vehicles/listings owned by this citizen.</em></td></tr>"
+
+    ev_rows = "".join(
+        f"<tr><td>{e.get('event_type')}</td><td><code>{e.get('aggregate_id')}</code></td><td>{e.get('created_at')}</td></tr>"
+        for e in m3.get("related_events", [])
+    ) or "<tr><td colspan='3'><em>No RTO outbox events found for this citizen.</em></td></tr>"
+
+    html = f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>{report['report_title']}</title>
+<style>
+body{{font-family:Segoe UI,Arial,sans-serif;max-width:920px;margin:32px auto;padding:0 16px;color:#1f2937}}
+h1,h2{{color:#1b5e20}} table{{width:100%;border-collapse:collapse;margin:10px 0 22px}}
+th,td{{border:1px solid #d1d5db;padding:8px 10px;text-align:left;font-size:13px}}
+th{{background:#e8f5e9}} .card{{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px}}
+</style></head><body>
+<h1>{report['report_title']}</h1>
+<p><strong>Generated:</strong> {report['generated_at']} | <strong>Identifier:</strong> <code>{report['user_identifier']}</code></p>
+<div class="card">
+<h2>M2 — Citizen Identity &amp; Wallet</h2>
+<p><strong>Full Name:</strong> {m2_st.get('full_name', (m1.get('profile') or {}).get('full_name', 'N/A'))} |
+<strong>Status:</strong> {m2_st.get('status', 'N/A')} |
+<strong>KYC:</strong> {m2_st.get('kyc_tier', '-')} ({m2_st.get('kyc_status', '-')})</p>
+<p><strong>Wallet ID:</strong> <code>{m2_st.get('wallet_id', 'N/A')}</code> ({m2_st.get('wallet_status', '-')}) |
+<strong>Personas:</strong> {personas_str}</p>
+</div>
+<h2>M1 — AgriLink Orders ({m1.get('orders_count', 0)}) &amp; Crop Listings ({m1.get('crop_listings_count', 0)})</h2>
+<table><tr><th>Order ID</th><th>Crop</th><th>Qty</th><th>Total</th><th>Status</th></tr>{orders_rows}</table>
+<h2>M3 — RTO Vehicles &amp; Rental Listings ({m3.get('owned_listings_count', 0)})</h2>
+<table><tr><th>Reg No.</th><th>Model</th><th>Status</th><th>Rate/Day</th></tr>{rto_rows}</table>
+<h2>M3 — RTO Activity &amp; Outbox Events ({m3.get('related_events_count', 0)})</h2>
+<table><tr><th>Event Type</th><th>Aggregate ID</th><th>Timestamp</th></tr>{ev_rows}</table>
+</body></html>"""
+    return Response(
+        content=html,
+        media_type="text/html",
+        headers={"Content-Disposition": f'attachment; filename="User_TriService_Report_{user_identifier}.html"'},
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

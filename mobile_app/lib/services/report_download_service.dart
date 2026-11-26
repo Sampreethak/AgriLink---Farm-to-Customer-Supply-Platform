@@ -13,13 +13,30 @@ class ReportDownloadService {
         ? '?citizen_id=${Uri.encodeComponent(citizenId)}'
         : '';
     final downloadUrl = '${AppConfig.baseUrl}/ecosystem/report/download$query';
+    await _triggerDownload(context, downloadUrl, '${AppConfig.baseUrl}/ecosystem/report$query');
+  }
 
+  static Future<void> downloadUserReport(
+    BuildContext context, {
+    required String userIdentifier,
+  }) async {
+    final encoded = Uri.encodeComponent(userIdentifier.trim());
+    final downloadUrl = '${AppConfig.baseUrl}/ecosystem/users/$encoded/report/download';
+    final jsonUrl = '${AppConfig.baseUrl}/ecosystem/users/$encoded/report';
+    await _triggerDownload(context, downloadUrl, jsonUrl);
+  }
+
+  static Future<void> _triggerDownload(
+    BuildContext context,
+    String downloadUrl,
+    String jsonUrl,
+  ) async {
     if (kIsWeb) {
       openUrlOnWeb(downloadUrl);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Downloading AgriLink Tri-Service Ecosystem Report...'),
+            content: Text('Downloading Tri-Service Report...'),
             backgroundColor: Color(0xFF2E7D32),
           ),
         );
@@ -30,21 +47,15 @@ class ReportDownloadService {
     // Mobile fallback: fetch live JSON summary and display it
     try {
       final res = await Dio(BaseOptions(connectTimeout: const Duration(seconds: 6)))
-          .get('${AppConfig.baseUrl}/ecosystem/report$query');
+          .get(jsonUrl);
       if (!context.mounted) return;
       final data = res.data is Map ? res.data as Map : {};
-      final health = (data['services_health'] as Map?) ?? {};
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Tri-Service Live Report'),
+          title: Text(data['report_title']?.toString() ?? 'Tri-Service Live Report'),
           content: SingleChildScrollView(
-            child: Text(
-              'M1 AgriLink: ${health['agrilink_m1']?['status'] ?? 'UNKNOWN'}\n'
-              'M2 Citizen: ${health['citizen_m2']?['status'] ?? 'UNKNOWN'}\n'
-              'M3 RTO Vehicle: ${health['rto_vehicle_m3']?['status'] ?? 'UNKNOWN'}\n\n'
-              'Download URL:\n$downloadUrl',
-            ),
+            child: Text('Report ready.\n\nDownload URL:\n$downloadUrl'),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),

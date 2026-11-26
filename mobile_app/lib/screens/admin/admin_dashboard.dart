@@ -114,6 +114,46 @@ class AdminAnalyticsTab extends StatelessWidget {
               onPressed: () => ReportDownloadService.downloadTriServiceReport(context),
             ),
           ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.person_search),
+              label: const Text("Download Report for Specific User (M1 + M2 + M3)"),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryGreen,
+                side: const BorderSide(color: AppColors.primaryGreen),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () async {
+                final controller = TextEditingController();
+                final ident = await showDialog<String>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text("User Tri-Service Report"),
+                    content: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        labelText: "Citizen UUID, Email, or Phone",
+                        hintText: "e.g. f72d2b33-18ff-... or user@email.com",
+                      ),
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+                        child: const Text("Download"),
+                      ),
+                    ],
+                  ),
+                );
+                if (ident != null && ident.isNotEmpty && context.mounted) {
+                  await ReportDownloadService.downloadUserReport(context, userIdentifier: ident);
+                }
+              },
+            ),
+          ),
           const SizedBox(height: 20),
           Row(
             children: const [

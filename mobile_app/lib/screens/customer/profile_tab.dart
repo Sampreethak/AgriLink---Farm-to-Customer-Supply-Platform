@@ -173,14 +173,15 @@ class _ProfileTabState extends State<ProfileTab> {
 
             _menuTile(
               context,
-              "Download Tri-Service Report",
+              "Download My Tri-Service Report",
               Icons.download_for_offline_outlined,
               () async {
                 final user = await AuthService().restoreSession();
                 if (context.mounted) {
-                  await ReportDownloadService.downloadTriServiceReport(
+                  final ident = user?.id ?? email;
+                  await ReportDownloadService.downloadUserReport(
                     context,
-                    citizenId: user?.id,
+                    userIdentifier: ident,
                   );
                 }
               },

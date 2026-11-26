@@ -138,6 +138,51 @@ def get_citizen_status(citizen_id: str) -> Dict[str, Any]:
         return {"connected": False, "fallback": True, "error": str(exc)}
 
 
+def get_citizen_personas(citizen_id: str) -> Dict[str, Any]:
+    """Fetch citizen active personas from CIS."""
+    url = f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/personas"
+    try:
+        with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+            res = client.get(url, headers=_citizen_headers())
+            if res.status_code == 200:
+                return {"connected": True, **res.json()}
+            return {"connected": True, "active_personas": [], "status_code": res.status_code}
+    except Exception as exc:
+        logger.debug(f"CIS personas fallback (offline): {exc}")
+        return {"connected": False, "fallback": True, "active_personas": [], "error": str(exc)}
+
+
+def get_user_rto_data(citizen_id: str, full_name: Optional[str] = None) -> Dict[str, Any]:
+    """Fetch vehicles, listings, and outbox events belonging to a specific user from RTO (M3)."""
+    listings_res = get_rto_listings()
+    outbox_res = get_rto_outbox_events(published_filter=None)
+
+    cid_lower = (citizen_id or "").strip().lower()
+    name_lower = (full_name or "").strip().lower()
+
+    matched_listings = []
+    for item in listings_res.get("listings", []):
+        owner_id = str(item.get("owner_citizen_id") or "").lower()
+        veh = item.get("vehicle") or {}
+        owner_name = str(veh.get("owner_name") or "").lower()
+        if (cid_lower and owner_id == cid_lower) or (name_lower and len(name_lower) >= 3 and name_lower in owner_name):
+            matched_listings.append(item)
+
+    matched_events = []
+    for ev in outbox_res.get("events", []):
+        payload_str = str(ev.get("payload") or "").lower()
+        if (cid_lower and cid_lower in payload_str) or (name_lower and len(name_lower) >= 3 and name_lower in payload_str):
+            matched_events.append(ev)
+
+    return {
+        "connected": listings_res.get("connected", False) or outbox_res.get("connected", False),
+        "owned_listings_count": len(matched_listings),
+        "owned_listings": matched_listings,
+        "related_events_count": len(matched_events),
+        "related_events": matched_events,
+    }
+
+
 def check_persona_eligibility(citizen_id: str, persona: str) -> Dict[str, Any]:
     """Verify whether a citizen holds an active persona (e.g. FARMER, CUSTOMER)."""
     url = f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/eligibility"
