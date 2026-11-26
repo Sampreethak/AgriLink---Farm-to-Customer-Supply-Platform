@@ -138,6 +138,38 @@ def get_citizen_status(citizen_id: str) -> Dict[str, Any]:
         return {"connected": False, "fallback": True, "error": str(exc)}
 
 
+def lookup_citizen_by_identifier(identifier: str) -> Dict[str, Any]:
+    """
+    Resolve a Citizen profile (citizen_id, wallet_id, kyc_tier) using ONLY
+    X-Service-Key (no Citizen password required).
+    Supports UUID directly via /internal/citizens/{id}/status, or email/phone
+    via /internal/citizens/lookup?identifier=... if enabled on M2.
+    """
+    ident = (identifier or "").strip()
+    if not ident:
+        return {"connected": False, "found": False, "error": "Empty identifier"}
+
+    if len(ident) == 36 and ident.count("-") == 4:
+        st = get_citizen_status(ident)
+        return {"found": bool(st.get("citizen_id")), **st}
+
+    url = f"{CITIZEN_SERVICE_URL}/internal/citizens/lookup"
+    try:
+        with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+            res = client.get(url, params={"identifier": ident}, headers=_citizen_headers())
+            if res.status_code == 200:
+                data = res.json()
+                return {"connected": True, "found": True, **data}
+            return {
+                "connected": True,
+                "found": False,
+                "status_code": res.status_code,
+                "note": "Citizen lookup by email/phone not available on M2 or user not found; pass citizen_id UUID or login once with Citizen credentials.",
+            }
+    except Exception as exc:
+        return {"connected": False, "fallback": True, "found": False, "error": str(exc)}
+
+
 def get_citizen_personas(citizen_id: str) -> Dict[str, Any]:
     """Fetch citizen active personas from CIS."""
     url = f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/personas"
@@ -152,26 +184,42 @@ def get_citizen_personas(citizen_id: str) -> Dict[str, Any]:
         return {"connected": False, "fallback": True, "active_personas": [], "error": str(exc)}
 
 
-def get_user_rto_data(citizen_id: str, full_name: Optional[str] = None) -> Dict[str, Any]:
+def get_user_rto_data(
+    citizen_id: str,
+    full_name: Optional[str] = None,
+    email: Optional[str] = None,
+) -> Dict[str, Any]:
     """Fetch vehicles, listings, and outbox events belonging to a specific user from RTO (M3)."""
     listings_res = get_rto_listings()
     outbox_res = get_rto_outbox_events(published_filter=None)
 
     cid_lower = (citizen_id or "").strip().lower()
     name_lower = (full_name or "").strip().lower()
+    email_lower = (email or "").strip().lower()
+    email_prefix = email_lower.split("@")[0] if "@" in email_lower else ""
+
+    def _matches(text: str) -> bool:
+        t = text.lower()
+        if cid_lower and cid_lower in t:
+            return True
+        if name_lower and len(name_lower) >= 3 and name_lower in t:
+            return True
+        if email_prefix and len(email_prefix) >= 3 and email_prefix in t:
+            return True
+        return False
 
     matched_listings = []
     for item in listings_res.get("listings", []):
         owner_id = str(item.get("owner_citizen_id") or "").lower()
         veh = item.get("vehicle") or {}
         owner_name = str(veh.get("owner_name") or "").lower()
-        if (cid_lower and owner_id == cid_lower) or (name_lower and len(name_lower) >= 3 and name_lower in owner_name):
+        if (cid_lower and owner_id == cid_lower) or _matches(owner_name):
             matched_listings.append(item)
 
     matched_events = []
     for ev in outbox_res.get("events", []):
-        payload_str = str(ev.get("payload") or "").lower()
-        if (cid_lower and cid_lower in payload_str) or (name_lower and len(name_lower) >= 3 and name_lower in payload_str):
+        payload_str = str(ev.get("payload") or "")
+        if _matches(payload_str):
             matched_events.append(ev)
 
     return {
@@ -180,6 +228,8 @@ def get_user_rto_data(citizen_id: str, full_name: Optional[str] = None) -> Dict[
         "owned_listings": matched_listings,
         "related_events_count": len(matched_events),
         "related_events": matched_events,
+        "all_available_fleet_count": listings_res.get("count", 0),
+        "all_available_fleet": listings_res.get("listings", []),
     }
 
 

@@ -2115,9 +2115,9 @@ def ecosystem_live_report(citizen_id: Optional[str] = None):
 @app.get("/api/v1/ecosystem/report/download")
 def ecosystem_live_report_download(
     citizen_id: Optional[str] = None,
-    format: str = Query("html", pattern="^(html|md|json)$"),
+    format: str = Query("pdf", pattern="^(pdf|html|md|json)$"),
 ):
-    """Downloadable live Tri-Service Integration Report (HTML, Markdown, or JSON)."""
+    """Downloadable live Tri-Service Integration Report (defaults to PDF)."""
     import json as _json
     from fastapi.responses import Response
 
@@ -2127,6 +2127,53 @@ def ecosystem_live_report_download(
     m1 = live["m1_agrilink"]
     m2 = live["m2_citizen"]
     m3 = live["m3_rto_vehicle"]
+
+    if format == "pdf":
+        try:
+            from backend_fastapi.pdf_generator import build_pdf_bytes
+        except ImportError:
+            from pdf_generator import build_pdf_bytes
+
+        cp = m2.get("sample_citizen_profile") or {}
+        sections = [
+            (
+                "1. Live Microservice Health",
+                [
+                    f"Generated At: {report['generated_at']}",
+                    f"M1 (AgriLink Core): {health['agrilink_m1']['status']}",
+                    f"M2 (Citizen Identity & Wallet): {health['citizen_m2']['status']} ({health['citizen_m2']['url']})",
+                    f"M3 (RTO Vehicle Registry & Fleet): {health['rto_vehicle_m3']['status']} ({health['rto_vehicle_m3']['url']})",
+                ],
+            ),
+            (
+                "2. M1 AgriLink & M2 Citizen Summary",
+                [
+                    f"AgriLink Active Listings: {m1['active_listings_count']} | Orders: {m1['active_orders_count']} | Users: {m1['registered_users_count']}",
+                    f"Citizen Profile: {cp.get('full_name', 'N/A')} ({cp.get('citizen_id', 'N/A')})" if cp else "Citizen Filter: None supplied",
+                    f"KYC Tier: {cp.get('kyc_tier', '-')} ({cp.get('kyc_status', '-')}) | Wallet ID: {cp.get('wallet_id', 'N/A')} ({cp.get('wallet_status', '-')})" if cp else "",
+                ],
+            ),
+            (
+                f"3. M3 RTO Vehicle Listings ({m3.get('available_listings_count', 0)})",
+                [
+                    f"- {l.get('vehicle', {}).get('registration_number', '-')} | {l.get('vehicle', {}).get('make_model', '-')} | {l.get('vehicle', {}).get('status', '-')} | INR {l.get('rate_per_day', '-')}/day | {l.get('pickup_location', '-')}"
+                    for l in m3.get("available_listings_sample", [])
+                ] or ["No vehicle listings returned."],
+            ),
+            (
+                f"4. M3 RTO Outbox Events ({m3.get('outbox_events_count', 0)})",
+                [
+                    f"- {e.get('event_type', '-')} | {e.get('aggregate_type', '-')} | {e.get('aggregate_id', '-')} | {e.get('created_at', '-')}"
+                    for e in m3.get("outbox_events", [])
+                ] or ["No outbox events returned."],
+            ),
+        ]
+        pdf_bytes = build_pdf_bytes(report["report_title"], sections)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": 'attachment; filename="AgriLink_TriService_Report.pdf"'},
+        )
 
     if format == "json":
         return Response(
@@ -2221,11 +2268,72 @@ th{{background:#e8f5e9}} .badge{{display:inline-block;padding:2px 8px;border-rad
     )
 
 
+@app.get("/api/v1/ecosystem/users/{user_identifier}/wallet")
+def ecosystem_user_wallet_lookup(user_identifier: str):
+    """
+    Fetch a user's Citizen Wallet ID, status, and KYC tier using X-Service-Key
+    without requiring their Citizen password.
+    """
+    isc = _get_isc()
+    ident = user_identifier.strip()
+    m1_profile = rds_get_user_profile(ident)
+    resolved = isc.lookup_citizen_by_identifier(ident)
+    if not resolved.get("citizen_id") and m1_profile and m1_profile.get("id"):
+        resolved = isc.lookup_citizen_by_identifier(str(m1_profile["id"]))
+    return {
+        "user_identifier": ident,
+        "citizen_id": resolved.get("citizen_id"),
+        "full_name": resolved.get("full_name") or (m1_profile or {}).get("full_name"),
+        "wallet_id": resolved.get("wallet_id"),
+        "wallet_status": resolved.get("wallet_status"),
+        "kyc_tier": resolved.get("kyc_tier"),
+        "kyc_status": resolved.get("kyc_status"),
+        "payment_ready": bool(resolved.get("wallet_id") and resolved.get("wallet_status") == "ACTIVE"),
+        "note": resolved.get("note"),
+    }
+
+
+@app.get("/api/v1/ecosystem/users/{user_identifier}/delivery-profile")
+def ecosystem_user_delivery_profile(user_identifier: str):
+    """
+    Auto-fetch a user's Citizen KYC/delivery eligibility (M2) and RTO vehicles/fleet (M3)
+    without requiring Citizen/RTO credentials, so they can act as a Delivery Partner.
+    """
+    isc = _get_isc()
+    ident = user_identifier.strip()
+    m1_profile = rds_get_user_profile(ident)
+    citizen_info = isc.lookup_citizen_by_identifier(ident)
+    if not citizen_info.get("citizen_id") and m1_profile and m1_profile.get("id"):
+        citizen_info = isc.lookup_citizen_by_identifier(str(m1_profile["id"]))
+
+    cid = citizen_info.get("citizen_id")
+    full_name = citizen_info.get("full_name") or (m1_profile or {}).get("full_name")
+    email = (m1_profile or {}).get("email") or (ident if "@" in ident else None)
+
+    elig = isc.check_persona_eligibility(str(cid), "DELIVERY_PARTNER") if cid else {"eligible": False}
+    rto_data = isc.get_user_rto_data(str(cid or ident), full_name=full_name, email=email)
+
+    return {
+        "user_identifier": ident,
+        "citizen_id": cid,
+        "full_name": full_name,
+        "kyc_tier": citizen_info.get("kyc_tier"),
+        "kyc_status": citizen_info.get("kyc_status"),
+        "wallet_id": citizen_info.get("wallet_id"),
+        "delivery_partner_eligible": elig.get("eligible", False),
+        "owned_rto_vehicles_count": rto_data.get("owned_listings_count", 0),
+        "owned_rto_vehicles": rto_data.get("owned_listings", []),
+        "available_rto_fleet_count": rto_data.get("all_available_fleet_count", 0),
+        "available_rto_fleet": rto_data.get("all_available_fleet", []),
+    }
+
+
 @app.get("/api/v1/ecosystem/users/{user_identifier}/report")
 def ecosystem_user_report(user_identifier: str):
     """
     Generate a live Tri-Service Report for a PARTICULAR user (by citizen_id UUID, email, or phone),
-    aggregating their data from AgriLink (M1), Citizen Identity & Wallet (M2), and RTO Fleet (M3).
+    aggregating their data from AgriLink (M1), Citizen Identity & Wallet (M2), and RTO Fleet (M3)
+    via key APIs without requiring Citizen/RTO passwords.
     """
     import datetime as dt
 
@@ -2243,31 +2351,33 @@ def ecosystem_user_report(user_identifier: str):
         ),
         None,
     )
-    resolved_cid = (
-        ident if (len(ident) == 36 and "-" in ident)
-        else (m1_profile.get("id") if m1_profile else None)
-    )
+    user_name = (m1_profile or {}).get("full_name")
+    user_email = (m1_profile or {}).get("email") or (ident if "@" in ident else None)
+
+    # 2. M2 Citizen Identity & Wallet data via X-Service-Key (no password needed)
+    m2_status = isc.lookup_citizen_by_identifier(ident)
+    if not m2_status.get("citizen_id") and m1_profile and m1_profile.get("id"):
+        m2_status = isc.lookup_citizen_by_identifier(str(m1_profile["id"]))
+    resolved_cid = m2_status.get("citizen_id") or (m1_profile.get("id") if m1_profile else None)
+
+    m2_personas = isc.get_citizen_personas(str(resolved_cid)) if (resolved_cid and len(str(resolved_cid)) == 36) else {"active_personas": []}
+    if m2_status.get("full_name"):
+        user_name = m2_status.get("full_name")
+
     user_orders = [
         o for o in ACTIVE_ORDERS
         if str(o.get("buyer_id", "")).lower() in {ident_lower, str(resolved_cid or "").lower()}
     ]
-    user_name = (m1_profile or {}).get("full_name")
     user_listings = [
         l for l in MOCK_LISTINGS
         if user_name and str(l.get("farmer_name", "")).lower() == user_name.lower()
     ]
 
-    # 2. M2 Citizen Identity & Wallet data
-    m2_status = isc.get_citizen_status(str(resolved_cid)) if resolved_cid else {"connected": False, "note": "No citizen_id UUID resolved"}
-    m2_personas = isc.get_citizen_personas(str(resolved_cid)) if resolved_cid else {"active_personas": []}
-    if m2_status.get("full_name"):
-        user_name = m2_status.get("full_name")
-
     # 3. M3 RTO Vehicle & Fleet data
-    m3_data = isc.get_user_rto_data(str(resolved_cid or ident), full_name=user_name)
+    m3_data = isc.get_user_rto_data(str(resolved_cid or ident), full_name=user_name, email=user_email)
 
     return {
-        "report_title": f"AgriLink Tri-Service User Report — {user_name or ident}",
+        "report_title": f"AgriLink Tri-Service User Report - {user_name or ident}",
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "user_identifier": ident,
         "resolved_citizen_id": resolved_cid,
@@ -2289,26 +2399,74 @@ def ecosystem_user_report(user_identifier: str):
 @app.get("/api/v1/ecosystem/users/{user_identifier}/report/download")
 def ecosystem_user_report_download(
     user_identifier: str,
-    format: str = Query("html", pattern="^(html|json)$"),
+    format: str = Query("pdf", pattern="^(pdf|html|json)$"),
 ):
-    """Downloadable Tri-Service Report for a particular user (HTML or JSON)."""
+    """Downloadable Tri-Service Report for a particular user (PDF by default)."""
     import json as _json
     from fastapi.responses import Response
 
     report = ecosystem_user_report(user_identifier)
+    m1 = report["m1_agrilink"]
+    m2_st = report["m2_citizen"]["status"]
+    m2_per = report["m2_citizen"]["personas"]
+    m3 = report["m3_rto_vehicle"]
+    personas_str = ", ".join(p.get("persona_type", "") for p in m2_per) or m2_st.get("active_persona", "-")
+
+    if format == "pdf":
+        try:
+            from backend_fastapi.pdf_generator import build_pdf_bytes
+        except ImportError:
+            from pdf_generator import build_pdf_bytes
+
+        display_name = m2_st.get("full_name") or (m1.get("profile") or {}).get("full_name") or user_identifier
+        sections = [
+            (
+                "User & Citizen Identity (M2 - via X-Service-Key)",
+                [
+                    f"Generated At: {report['generated_at']}",
+                    f"Identifier: {report['user_identifier']} | Resolved Citizen ID: {report['resolved_citizen_id'] or 'N/A'}",
+                    f"Full Name: {display_name} | Account Status: {m2_st.get('status', 'N/A')}",
+                    f"KYC Tier: {m2_st.get('kyc_tier', '-')} | KYC Status: {m2_st.get('kyc_status', '-')}",
+                    f"Wallet ID: {m2_st.get('wallet_id', 'N/A')} | Wallet Status: {m2_st.get('wallet_status', '-')}",
+                    f"Active Personas: {personas_str}",
+                ],
+            ),
+            (
+                f"AgriLink Marketplace Activity (M1) - Orders: {m1.get('orders_count', 0)}, Listings: {m1.get('crop_listings_count', 0)}",
+                [
+                    f"- Order {o.get('order_id')} | {o.get('crop_name')} | Qty {o.get('quantity')} | INR {o.get('total_amount')} | {o.get('status')}"
+                    for o in m1.get("orders", [])
+                ] or ["No AgriLink orders recorded for this user in current session."],
+            ),
+            (
+                f"RTO Vehicles & Rental Listings Owned (M3) - Count: {m3.get('owned_listings_count', 0)}",
+                [
+                    f"- {l.get('vehicle', {}).get('registration_number', '-')} | {l.get('vehicle', {}).get('make_model', '-')} | Status: {l.get('vehicle', {}).get('status', '-')} | INR {l.get('rate_per_day', '-')}/day"
+                    for l in m3.get("owned_listings", [])
+                ] or ["No RTO vehicles or rental listings matched this user."],
+            ),
+            (
+                f"RTO Activity & Transactional Outbox Events (M3) - Count: {m3.get('related_events_count', 0)}",
+                [
+                    f"- {e.get('event_type')} | Aggregate: {e.get('aggregate_id')} | {e.get('created_at')}"
+                    for e in m3.get("related_events", [])
+                ] or ["No RTO outbox events matched this user."],
+            ),
+        ]
+        pdf_bytes = build_pdf_bytes(report["report_title"], sections)
+        safe_id = "".join(c if c.isalnum() or c in "-_." else "_" for c in user_identifier)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="User_TriService_Report_{safe_id}.pdf"'},
+        )
+
     if format == "json":
         return Response(
             content=_json.dumps(report, indent=2, default=str),
             media_type="application/json",
             headers={"Content-Disposition": f'attachment; filename="User_TriService_Report_{user_identifier}.json"'},
         )
-
-    m1 = report["m1_agrilink"]
-    m2_st = report["m2_citizen"]["status"]
-    m2_per = report["m2_citizen"]["personas"]
-    m3 = report["m3_rto_vehicle"]
-
-    personas_str = ", ".join(p.get("persona_type", "") for p in m2_per) or m2_st.get("active_persona", "-")
     orders_rows = "".join(
         f"<tr><td>{o.get('order_id')}</td><td>{o.get('crop_name')}</td><td>{o.get('quantity')}</td><td>₹{o.get('total_amount')}</td><td>{o.get('status')}</td></tr>"
         for o in m1.get("orders", [])
