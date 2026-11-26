@@ -2474,6 +2474,7 @@ def ecosystem_user_report(user_identifier: str):
         "m2_citizen": {
             "status": m2_status,
             "personas": m2_personas.get("active_personas", []),
+            "profile_extra": m2_bank.get("profile_extra", {}),
             "wallet_details": m2_wallet,
             "bank_accounts": m2_bank.get("bank_accounts", []),
             "bank_accounts_source": m2_bank.get("source"),
@@ -2498,10 +2499,12 @@ def ecosystem_user_report_download(
     m2_per = report["m2_citizen"]["personas"]
     m2_banks = report["m2_citizen"].get("bank_accounts", [])
     m2_wal = report["m2_citizen"].get("wallet_details", {})
+    m2_extra = report["m2_citizen"].get("profile_extra", {})
     m3 = report["m3_rto_vehicle"]
     personas_str = ", ".join(p.get("persona_type", "") for p in m2_per) or m2_st.get("active_persona", "-")
     wal_bal = m2_wal.get("balance") if m2_wal.get("balance") is not None else m2_wal.get("available_balance")
     wal_bal_str = f" | Balance: INR {wal_bal}" if wal_bal is not None else ""
+    recent_txs = m2_wal.get("recent_transactions", [])
 
     if format == "pdf":
         try:
@@ -2528,13 +2531,22 @@ def ecosystem_user_report_download(
             for l in m3.get("owned_listings", [])
         ] or ["No published rental listings matched this user."]
 
+        email_str = m2_extra.get("email") or (m1.get("profile") or {}).get("email") or "-"
+        phone_str = m2_extra.get("phone") or m2_extra.get("mobile") or (m1.get("profile") or {}).get("phone") or "-"
+        cit_code = m2_extra.get("citizen_code") or m2_extra.get("agrilink_citizen_id") or "-"
+        tx_lines = [
+            f"- {tx.get('transaction_type', tx.get('type', '-'))} | INR {tx.get('amount', '-')} | {tx.get('status', '-')} | {tx.get('description', tx.get('created_at', ''))}"
+            for tx in recent_txs
+        ] or ["No wallet transactions fetched (user must log in once via Citizen SSO for JWT wallet history)."]
+
         sections = [
             (
                 "User & Citizen Identity (M2 - via X-Service-Key)",
                 [
                     f"Generated At: {report['generated_at']}",
                     f"Identifier: {report['user_identifier']} | Resolved Citizen ID: {report['resolved_citizen_id'] or 'N/A'}",
-                    f"Full Name: {display_name} | Account Status: {m2_st.get('status', 'N/A')}",
+                    f"Full Name: {display_name} | Citizen Code: {cit_code} | Account Status: {m2_st.get('status', 'N/A')}",
+                    f"Email: {email_str} | Phone: {phone_str}",
                     f"KYC Tier: {m2_st.get('kyc_tier', '-')} | KYC Status: {m2_st.get('kyc_status', '-')}",
                     f"Wallet ID: {m2_st.get('wallet_id', 'N/A')} | Wallet Status: {m2_st.get('wallet_status', '-')}{wal_bal_str}",
                     f"Active Personas: {personas_str}",
@@ -2543,6 +2555,10 @@ def ecosystem_user_report_download(
             (
                 f"Citizen Linked Bank Accounts (M2) - Count: {len(m2_banks)}",
                 bank_lines,
+            ),
+            (
+                f"Citizen Wallet Recent Transactions (M2) - Count: {len(recent_txs)}",
+                tx_lines,
             ),
             (
                 f"AgriLink Marketplace Activity (M1) - Orders: {m1.get('orders_count', 0)}, Listings: {m1.get('crop_listings_count', 0)}",

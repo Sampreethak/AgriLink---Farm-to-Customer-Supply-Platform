@@ -189,47 +189,58 @@ def get_citizen_bank_accounts(
     access_token: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Fetch linked bank accounts for a citizen from M2.
-    Tries X-Service-Key internal endpoints first, then Bearer JWT endpoints
-    if a Citizen access_token is available from AgriLink login.
+    Fetch linked bank / payout / KYC details for a citizen from M2.
+    M2 Citizen exposes /api/v1/citizens/me, /api/v1/kyc/me, and /api/v1/wallets/me
+    (with Bearer JWT), plus /internal/citizens/{id}/status (with X-Service-Key).
     """
-    headers_key = _citizen_headers()
-    endpoints_key = [
-        f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/bank-accounts",
-        f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/bank_accounts",
-    ]
+    if not access_token:
+        return {
+            "connected": True,
+            "bank_accounts": [],
+            "note": "Citizen JWT not cached yet (user must log into AgriLink once with Citizen credentials, or M2 must expose /internal/citizens/{id}/bank-accounts).",
+        }
+
+    bearer_headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    bank_accounts = []
+    profile_extra: Dict[str, Any] = {}
     with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
-        for url in endpoints_key:
+        for url in [
+            f"{CITIZEN_SERVICE_URL}/citizens/me",
+            f"{CITIZEN_SERVICE_URL}/kyc/me",
+            f"{CITIZEN_SERVICE_URL}/wallets/me",
+        ]:
             try:
-                res = client.get(url, headers=headers_key)
+                res = client.get(url, headers=bearer_headers)
                 if res.status_code == 200:
                     data = res.json()
-                    items = data if isinstance(data, list) else data.get("bank_accounts", data.get("items", data.get("accounts", [])))
-                    return {"connected": True, "source": "internal_key", "bank_accounts": items}
+                    if isinstance(data, dict):
+                        profile_extra.update(data)
+                        for key in ("bank_accounts", "banks", "payout_accounts", "accounts"):
+                            val = data.get(key)
+                            if isinstance(val, list) and val:
+                                bank_accounts.extend(val)
+                        # Also check single-bank flat fields
+                        if data.get("bank_account_number") or data.get("account_number") or data.get("ifsc_code"):
+                            bank_accounts.append({
+                                "bank_name": data.get("bank_name") or "Linked Bank",
+                                "account_number_masked": data.get("bank_account_number") or data.get("account_number"),
+                                "ifsc_code": data.get("ifsc_code") or data.get("ifsc"),
+                                "account_holder_name": data.get("full_name") or data.get("account_holder_name"),
+                                "is_primary": True,
+                            })
             except Exception as exc:
-                logger.debug(f"CIS internal bank-accounts failed ({url}): {exc}")
+                logger.debug(f"CIS JWT profile/bank fetch failed ({url}): {exc}")
 
-        if access_token:
-            bearer_headers = {
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json",
-            }
-            for url in [
-                f"{CITIZEN_SERVICE_URL}/bank-accounts",
-                f"{CITIZEN_SERVICE_URL}/bank-accounts/me",
-                f"{CITIZEN_SERVICE_URL}/citizens/me/bank-accounts",
-                f"{CITIZEN_SERVICE_URL}/wallet/bank-accounts",
-            ]:
-                try:
-                    res = client.get(url, headers=bearer_headers)
-                    if res.status_code == 200:
-                        data = res.json()
-                        items = data if isinstance(data, list) else data.get("bank_accounts", data.get("items", data.get("accounts", [])))
-                        return {"connected": True, "source": "citizen_jwt", "bank_accounts": items}
-                except Exception as exc:
-                    logger.debug(f"CIS JWT bank-accounts failed ({url}): {exc}")
-
-    return {"connected": True, "bank_accounts": [], "note": "No bank-accounts endpoint matched or no linked bank accounts returned."}
+    return {
+        "connected": True,
+        "source": "citizen_jwt",
+        "bank_accounts": bank_accounts,
+        "profile_extra": profile_extra,
+        "note": None if bank_accounts else "No bank account fields stored in Citizen M2 API (/citizens/me, /kyc/me, /wallets/me) for this user.",
+    }
 
 
 def get_citizen_wallet_details(
@@ -237,40 +248,37 @@ def get_citizen_wallet_details(
     wallet_id: Optional[str] = None,
     access_token: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Fetch wallet balance & currency from M2 via X-Service-Key or Citizen JWT."""
-    headers_key = _citizen_headers()
+    """Fetch wallet balance, limit & recent transactions from M2 via Citizen JWT."""
+    if not access_token:
+        return {"connected": True}
+
+    bearer_headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    details: Dict[str, Any] = {"connected": True, "source": "citizen_jwt"}
     with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
         for url in [
-            f"{CITIZEN_SERVICE_URL}/internal/citizens/{citizen_id}/wallet",
-            f"{CITIZEN_SERVICE_URL}/internal/wallets/{wallet_id}" if wallet_id else None,
+            f"{CITIZEN_SERVICE_URL}/wallets/me",
+            f"{CITIZEN_SERVICE_URL}/wallets/me/limit",
         ]:
-            if not url:
-                continue
             try:
-                res = client.get(url, headers=headers_key)
-                if res.status_code == 200:
-                    return {"connected": True, "source": "internal_key", **res.json()}
+                res = client.get(url, headers=bearer_headers)
+                if res.status_code == 200 and isinstance(res.json(), dict):
+                    details.update(res.json())
             except Exception as exc:
-                logger.debug(f"CIS internal wallet details failed ({url}): {exc}")
+                logger.debug(f"CIS JWT wallet fetch failed ({url}): {exc}")
 
-        if access_token:
-            bearer_headers = {
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json",
-            }
-            for url in [
-                f"{CITIZEN_SERVICE_URL}/wallets/me",
-                f"{CITIZEN_SERVICE_URL}/wallet/me",
-                f"{CITIZEN_SERVICE_URL}/wallet",
-            ]:
-                try:
-                    res = client.get(url, headers=bearer_headers)
-                    if res.status_code == 200:
-                        return {"connected": True, "source": "citizen_jwt", **res.json()}
-                except Exception as exc:
-                    logger.debug(f"CIS JWT wallet details failed ({url}): {exc}")
+        try:
+            tx_res = client.get(f"{CITIZEN_SERVICE_URL}/wallets/me/transactions", headers=bearer_headers)
+            if tx_res.status_code == 200:
+                tx_data = tx_res.json()
+                tx_items = tx_data if isinstance(tx_data, list) else tx_data.get("transactions", tx_data.get("items", []))
+                details["recent_transactions"] = tx_items[:5]
+        except Exception as exc:
+            logger.debug(f"CIS JWT wallet transactions failed: {exc}")
 
-    return {"connected": True}
+    return details
 
 
 def get_rto_vehicles() -> Dict[str, Any]:
