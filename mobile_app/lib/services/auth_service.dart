@@ -383,44 +383,70 @@ class AuthService {
       phone = metadata['phone']?.toString() ?? '';
       rawRole = normalizeRole(metadata['role']?.toString() ?? 'customer');
     } else {
-      // 2. Query AWS RDS PostgreSQL directly for existing profile
-      Map<String, dynamic>? rdsProfile = await fetchProfileFromAwsRds(cleanIdentifier);
-      if (rdsProfile != null) {
-        userId = rdsProfile['id']?.toString() ?? rdsProfile['user_id']?.toString() ?? 'usr-${cleanIdentifier.hashCode.abs()}';
-        fullName = rdsProfile['full_name']?.toString() ?? fullName;
-        phone = rdsProfile['phone']?.toString() ?? '';
-        rawRole = normalizeRole(rdsProfile['role']?.toString() ?? 'customer');
-        region = rdsProfile['location']?.toString() ?? region;
-        customerType = rdsProfile['customer_type']?.toString() ?? _defaultCustomerType(rawRole);
-      } else {
-        // 3. Fallback to seed accounts in UserRegistry
-        final seed = UserRegistry.findByEmail(cleanIdentifier);
-        if (seed != null) {
-          userId = seed.id;
-          fullName = seed.fullName;
-          phone = seed.phone;
-          rawRole = normalizeRole(seed.role);
-          region = seed.region;
-          customerType = seed.customerType;
-        } else {
-          // Infer role from email pattern or default
-          if (cleanIdentifier.contains('farmer')) {
-            rawRole = 'farmer';
-            fullName = 'Farmer Member';
-          } else if (cleanIdentifier.contains('aggregator')) {
-            rawRole = 'aggregator';
-            fullName = 'Aggregator Hub';
-          } else if (cleanIdentifier.contains('delivery')) {
-            rawRole = 'delivery';
-            fullName = 'Delivery Partner';
-          } else if (cleanIdentifier.contains('admin')) {
-            rawRole = 'admin';
-            fullName = 'System Administrator';
-          } else {
-            rawRole = 'customer';
+      // 1b. Try AgriLink Backend -> Citizen Identity Service (M2) SSO
+      Map<String, dynamic>? citizenUser;
+      try {
+        final dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 4)));
+        final cisRes = await dio.post(
+          '${AppConfig.baseUrl}/auth/login',
+          data: {'identifier': cleanIdentifier, 'password': pwd},
+        );
+        if (cisRes.statusCode == 200 && cisRes.data is Map && cisRes.data['auth_source'] == 'CITIZEN_M2') {
+          final u = cisRes.data['user'];
+          if (u is Map) {
+            citizenUser = Map<String, dynamic>.from(u);
           }
-          userId = 'usr-${DateTime.now().millisecondsSinceEpoch}';
-          customerType = _defaultCustomerType(rawRole);
+        }
+      } catch (e) {
+        debugPrint('[Citizen M2 Login Note]: $e');
+      }
+
+      if (citizenUser != null) {
+        userId = citizenUser['citizen_id']?.toString() ?? citizenUser['id']?.toString() ?? 'usr-${cleanIdentifier.hashCode.abs()}';
+        fullName = citizenUser['full_name']?.toString() ?? fullName;
+        phone = citizenUser['phone']?.toString() ?? '';
+        rawRole = normalizeRole(citizenUser['role']?.toString() ?? 'customer');
+        customerType = _defaultCustomerType(rawRole);
+      } else {
+        // 2. Query AWS RDS PostgreSQL directly for existing profile
+        Map<String, dynamic>? rdsProfile = await fetchProfileFromAwsRds(cleanIdentifier);
+        if (rdsProfile != null) {
+          userId = rdsProfile['id']?.toString() ?? rdsProfile['user_id']?.toString() ?? 'usr-${cleanIdentifier.hashCode.abs()}';
+          fullName = rdsProfile['full_name']?.toString() ?? fullName;
+          phone = rdsProfile['phone']?.toString() ?? '';
+          rawRole = normalizeRole(rdsProfile['role']?.toString() ?? 'customer');
+          region = rdsProfile['location']?.toString() ?? region;
+          customerType = rdsProfile['customer_type']?.toString() ?? _defaultCustomerType(rawRole);
+        } else {
+          // 3. Fallback to seed accounts in UserRegistry
+          final seed = UserRegistry.findByEmail(cleanIdentifier);
+          if (seed != null) {
+            userId = seed.id;
+            fullName = seed.fullName;
+            phone = seed.phone;
+            rawRole = normalizeRole(seed.role);
+            region = seed.region;
+            customerType = seed.customerType;
+          } else {
+            // Infer role from email pattern or default
+            if (cleanIdentifier.contains('farmer')) {
+              rawRole = 'farmer';
+              fullName = 'Farmer Member';
+            } else if (cleanIdentifier.contains('aggregator')) {
+              rawRole = 'aggregator';
+              fullName = 'Aggregator Hub';
+            } else if (cleanIdentifier.contains('delivery')) {
+              rawRole = 'delivery';
+              fullName = 'Delivery Partner';
+            } else if (cleanIdentifier.contains('admin')) {
+              rawRole = 'admin';
+              fullName = 'System Administrator';
+            } else {
+              rawRole = 'customer';
+            }
+            userId = 'usr-${DateTime.now().millisecondsSinceEpoch}';
+            customerType = _defaultCustomerType(rawRole);
+          }
         }
       }
     }

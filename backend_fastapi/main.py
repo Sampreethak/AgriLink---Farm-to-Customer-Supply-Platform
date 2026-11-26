@@ -2045,6 +2045,73 @@ def ecosystem_rto_outbox(published_filter: Optional[bool] = False):
     return _get_isc().get_rto_outbox_events(published_filter=published_filter)
 
 
+@app.get("/api/v1/ecosystem/report")
+def ecosystem_live_report(citizen_id: Optional[str] = None):
+    """
+    Generate a live Tri-Service Integration Report by fetching real-time data
+    from AgriLink (M1), Citizen Identity & Wallet (M2), and RTO Fleet (M3).
+    """
+    import datetime as dt
+
+    isc = _get_isc()
+    health = isc.check_ecosystem_health()
+    rto_catalog = isc.get_rto_catalog()
+    rto_outbox = isc.get_rto_outbox_events(published_filter=None)
+    rto_listings = isc.get_rto_listings()
+    citizen_sample = isc.get_citizen_status(citizen_id) if citizen_id else None
+
+    return {
+        "report_title": "AgriLink Tri-Service Live Ecosystem Integration Report",
+        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "services_health": health,
+        "architecture_links": {
+            "M1_AgriLink_to_M2_Citizen": {
+                "status": "ACTIVE" if health["citizen_m2"]["status"] == "UP" else "OFFLINE",
+                "flows": [
+                    "POST /api/v1/auth/login (SSO + profile fetch)",
+                    "POST /api/v1/auth/citizen-token-login (JWT introspection)",
+                    "POST /internal/wallets/{id}/hold & /release (Escrow)",
+                    "POST /internal/wallets/{id}/credit (68-10-14-8 Fair-Share Settlement)",
+                ],
+            },
+            "M1_AgriLink_to_M3_RTO": {
+                "status": "ACTIVE" if health["rto_vehicle_m3"]["status"] == "UP" else "OFFLINE",
+                "flows": [
+                    "POST /v1/vehicle-requests (Delivery fleet dispatch)",
+                    "GET /v1/inter-service/outbox (VehicleRegistered / VehicleAssigned events)",
+                    "GET /v1/inter-service/catalog & /v1/listings",
+                ],
+            },
+            "M3_RTO_to_M2_Citizen": {
+                "status": "ACTIVE" if (health["citizen_m2"]["status"] == "UP" and health["rto_vehicle_m3"]["status"] == "UP") else "DEGRADED",
+                "flows": [
+                    "GET /internal/citizens/{id}/status (KYC & Wallet lookup)",
+                    "POST /internal/wallets/{id}/hold & /credit (Rental deposit & payout)",
+                ],
+            },
+        },
+        "live_data": {
+            "m1_agrilink": {
+                "active_listings_count": len(MOCK_LISTINGS),
+                "active_orders_count": len(ACTIVE_ORDERS),
+                "registered_users_count": len(REGISTERED_USERS),
+            },
+            "m2_citizen": {
+                "service_status": health["citizen_m2"]["status"],
+                "sample_citizen_profile": citizen_sample,
+            },
+            "m3_rto_vehicle": {
+                "service_status": health["rto_vehicle_m3"]["status"],
+                "catalog": rto_catalog.get("catalog"),
+                "available_listings_count": rto_listings.get("count", 0),
+                "available_listings_sample": rto_listings.get("listings", []),
+                "outbox_events_count": len(rto_outbox.get("events", [])),
+                "outbox_events": rto_outbox.get("events", []),
+            },
+        },
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

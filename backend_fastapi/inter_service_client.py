@@ -309,3 +309,31 @@ def get_rto_outbox_events(published_filter: Optional[bool] = False) -> Dict[str,
     except Exception as exc:
         logger.debug(f"RTO outbox fallback (offline): {exc}")
         return {"connected": False, "fallback": True, "events": [], "error": str(exc)}
+
+
+def get_rto_catalog() -> Dict[str, Any]:
+    """Fetch Microservice 3 (RTO) inter-service catalog metadata."""
+    url = f"{RTO_SERVICE_URL}/inter-service/catalog"
+    try:
+        with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+            res = client.get(url)
+            if res.status_code == 200:
+                return {"connected": True, "catalog": res.json()}
+            return {"connected": True, "status_code": res.status_code}
+    except Exception as exc:
+        return {"connected": False, "fallback": True, "error": str(exc)}
+
+
+def get_rto_listings() -> Dict[str, Any]:
+    """Fetch available commercial vehicle rental listings from Microservice 3 (RTO)."""
+    url = f"{RTO_SERVICE_URL}/listings"
+    try:
+        with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
+            res = client.get(url)
+            if res.status_code == 200:
+                data = res.json()
+                items = data if isinstance(data, list) else data.get("items", data.get("listings", []))
+                return {"connected": True, "count": len(items), "listings": items[:10]}
+            return {"connected": True, "count": 0, "listings": [], "status_code": res.status_code}
+    except Exception as exc:
+        return {"connected": False, "fallback": True, "count": 0, "listings": [], "error": str(exc)}
