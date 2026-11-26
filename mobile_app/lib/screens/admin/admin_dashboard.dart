@@ -24,6 +24,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       const OrderMonitoringTab(),
       const DisputeResolutionTab(),
       const ProductApprovalTab(),
+      const AdminReportsTab(),
     ];
 
     return Scaffold(
@@ -72,6 +73,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: "Orders"),
           NavigationDestination(icon: Icon(Icons.report_problem_outlined), selectedIcon: Icon(Icons.report_problem), label: "Disputes"),
           NavigationDestination(icon: Icon(Icons.assignment_turned_in_outlined), selectedIcon: Icon(Icons.assignment_turned_in), label: "Approvals"),
+          NavigationDestination(icon: Icon(Icons.summarize_outlined), selectedIcon: Icon(Icons.summarize), label: "Reports"),
         ],
         onDestinationSelected: (index) {
           setState(() {
@@ -530,5 +532,156 @@ class _ProductApprovalTabState extends State<ProductApprovalTab> {
               );
             },
           );
+  }
+}
+
+// ----------------------------------------------------
+// Tab 6: Dedicated Tri-Service Reports Section
+// ----------------------------------------------------
+class AdminReportsTab extends StatefulWidget {
+  const AdminReportsTab({super.key});
+
+  @override
+  State<AdminReportsTab> createState() => _AdminReportsTabState();
+}
+
+class _AdminReportsTabState extends State<AdminReportsTab> {
+  final TextEditingController _userController = TextEditingController();
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Tri-Service Reports & Governance",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            "Generate live reports combining AgriLink (M1), Citizen Identity & Wallet (M2), and RTO Vehicle Fleet (M3).",
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+
+          // Section 1: Full Ecosystem Report
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.hub, color: AppColors.primaryGreen),
+                      SizedBox(width: 10),
+                      Text(
+                        "Full Tri-Service Ecosystem Report",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Includes live health of M1, M2, and M3, RTO vehicle listings, transactional outbox events, and architecture link status.",
+                    style: TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.download),
+                      label: const Text("Download Full Ecosystem Report"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryGreen,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () => ReportDownloadService.downloadTriServiceReport(context),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          // Section 2: Per-User Report
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.person_search, color: AppColors.primaryGreen),
+                      SizedBox(width: 10),
+                      Text(
+                        "Generate Report for a Particular User",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Fetches that user's AgriLink orders/listings (M1), Citizen KYC & Wallet status (M2), and RTO vehicles/bookings (M3).",
+                    style: TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 14),
+                  TextField(
+                    controller: _userController,
+                    decoration: InputDecoration(
+                      labelText: "Citizen UUID, Email, or Phone",
+                      hintText: "e.g. f72d2b33-18ff-4bcf-9fe0-677639e5422a or user@email.com",
+                      prefixIcon: const Icon(Icons.badge_outlined),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.file_download),
+                      label: const Text("Download User Tri-Service Report"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1B5E20),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        final ident = _userController.text.trim();
+                        if (ident.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Please enter a Citizen UUID, email, or phone")),
+                          );
+                          return;
+                        }
+                        ReportDownloadService.downloadUserReport(context, userIdentifier: ident);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
