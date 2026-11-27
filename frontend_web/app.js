@@ -70,6 +70,33 @@ async function translateCardText(btn, originalText) {
     titleEl.textContent = originalText;
 }
 
+const SPEECH_BCP47 = {
+    en: "en-IN",
+    kn: "kn-IN",
+    hi: "hi-IN",
+    te: "te-IN",
+    ta: "ta-IN",
+    ml: "ml-IN"
+};
+
+function speakText(text, langCode = preferredLanguage) {
+    if (!("speechSynthesis" in window)) return;
+    const clean = (text || "").replace(/<[^>]*>/g, " ").replace(/[*_#`•🌾🧪🌿⚠️⏱️🛡️]/g, " ").replace(/\s+/g, " ").trim();
+    if (!clean) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.lang = SPEECH_BCP47[langCode] || "en-IN";
+    utterance.rate = 0.95;
+    window.speechSynthesis.speak(utterance);
+}
+
+function speakCardText(btn) {
+    const cardBody = btn.closest(".card-body");
+    const title = cardBody ? (cardBody.querySelector(".listing-title")?.textContent || "") : "";
+    const seller = cardBody ? (cardBody.querySelector(".seller-info")?.textContent || "") : "";
+    speakText(`${title}. ${seller}`, preferredLanguage);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const langSel = document.getElementById("persona-lang-select");
     if (langSel) langSel.value = preferredLanguage;
@@ -314,6 +341,9 @@ async function renderAllListings(searchQuery = "") {
                         </button>
                         <button class="btn-action btn-secondary" style="width:auto; padding:0 10px;" title="Translate to preferred language" onclick="translateCardText(this, '${title.replace(/'/g, "\\'")}')">
                             <i class="fa-solid fa-language"></i>
+                        </button>
+                        <button class="btn-action btn-secondary" style="width:auto; padding:0 10px;" title="Listen (Speaker)" onclick="speakCardText(this)">
+                            <i class="fa-solid fa-volume-high"></i>
                         </button>
                     </div>
                 </div>
@@ -1229,9 +1259,12 @@ async function askAgriTalkInline(query, cardId) {
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
                     <span style="font-weight: bold; color: var(--primary);"><i class="fa-solid fa-robot"></i> AgriTalk AI Advisory:</span>
-                    <button onclick="document.getElementById('inline-response-${cardId}').style.display='none'" style="background: none; border: none; color: var(--text-muted); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <button onclick="speakText(document.getElementById('inline-reply-${cardId}').innerText, preferredLanguage)" title="Listen" style="background: rgba(34,197,94,0.15); border: 1px solid var(--primary); color: var(--primary); padding: 2px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;"><i class="fa-solid fa-volume-high"></i> Listen</button>
+                        <button onclick="document.getElementById('inline-response-${cardId}').style.display='none'" style="background: none; border: none; color: var(--text-muted); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
-                <div>${reply}</div>
+                <div id="inline-reply-${cardId}">${reply}</div>
             `;
             return;
         }
@@ -1288,6 +1321,33 @@ async function translateCardText(btn, originalText) {
         console.warn("Translation note:", e);
     }
     titleEl.textContent = originalText;
+}
+
+const SPEECH_BCP47 = {
+    en: "en-IN",
+    kn: "kn-IN",
+    hi: "hi-IN",
+    te: "te-IN",
+    ta: "ta-IN",
+    ml: "ml-IN"
+};
+
+function speakText(text, langCode = preferredLanguage) {
+    if (!("speechSynthesis" in window)) return;
+    const clean = (text || "").replace(/<[^>]*>/g, " ").replace(/[*_#`•🌾🧪🌿⚠️⏱️🛡️]/g, " ").replace(/\s+/g, " ").trim();
+    if (!clean) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.lang = SPEECH_BCP47[langCode] || "en-IN";
+    utterance.rate = 0.95;
+    window.speechSynthesis.speak(utterance);
+}
+
+function speakCardText(btn) {
+    const cardBody = btn.closest(".card-body");
+    const title = cardBody ? (cardBody.querySelector(".listing-title")?.textContent || "") : "";
+    const seller = cardBody ? (cardBody.querySelector(".seller-info")?.textContent || "") : "";
+    speakText(`${title}. ${seller}`, preferredLanguage);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

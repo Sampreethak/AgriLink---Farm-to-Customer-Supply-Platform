@@ -7,6 +7,7 @@ import '../../services/product_service.dart';
 import '../../services/customer_state.dart';
 import '../../services/platform_state.dart';
 import '../../services/translation_service.dart';
+import '../../services/tts_helper.dart';
 import 'products/product_details_screen.dart';
 import 'bulk_order_screen.dart';
 import 'recurring_order_screen.dart';
@@ -1258,9 +1259,27 @@ class ProductCard extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.text),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      "Farmer: $farmerName",
-                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Farmer: $farmerName",
+                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            final lang = Provider.of<LanguageProvider>(context, listen: false).getPersonaLanguage('CUSTOMER');
+                            TtsHelper.speak("$productName by Farmer $farmerName, $price", languageCode: lang);
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            child: Icon(Icons.volume_up_rounded, size: 15, color: AppColors.lightGreenPrimary),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Row(

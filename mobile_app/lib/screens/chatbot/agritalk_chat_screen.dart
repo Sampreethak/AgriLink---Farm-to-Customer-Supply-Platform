@@ -6,6 +6,7 @@ import '../../core/config.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
 import '../../services/platform_state.dart';
+import '../../services/tts_helper.dart';
 
 class ChatMessage {
   final String text;
@@ -178,6 +179,11 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.stop_circle_outlined),
+            tooltip: "Stop Audio",
+            onPressed: () => TtsHelper.stop(),
+          ),
+          IconButton(
             icon: const Icon(Icons.language),
             tooltip: "Change Language",
             onPressed: () {
@@ -313,12 +319,45 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              "${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}",
-              style: TextStyle(
-                fontSize: 10,
-                color: msg.isUser ? Colors.white70 : Colors.grey[500],
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: msg.isUser ? Colors.white70 : Colors.grey[500],
+                  ),
+                ),
+                if (!msg.isUser) ...[
+                  const SizedBox(width: 10),
+                  InkWell(
+                    onTap: () {
+                      final lang = Provider.of<LanguageProvider>(context, listen: false).currentLanguage;
+                      TtsHelper.speak(msg.text, languageCode: lang);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryGreen.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.volume_up_rounded, size: 14, color: AppColors.primaryGreen),
+                          SizedBox(width: 3),
+                          Text(
+                            "Listen",
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryGreen),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
