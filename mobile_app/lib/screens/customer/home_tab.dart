@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/colors.dart';
+import '../../core/localization.dart';
 import '../../services/product_service.dart';
 import '../../services/customer_state.dart';
 import '../../services/platform_state.dart';
+import '../../services/translation_service.dart';
 import 'products/product_details_screen.dart';
 import 'bulk_order_screen.dart';
 import 'recurring_order_screen.dart';
@@ -306,6 +309,29 @@ class _HomeTabState extends State<HomeTab> {
     }
   }
 
+  Future<void> _translateVisibleProducts(String targetLang) async {
+    if (targetLang == 'en') {
+      await _loadProducts();
+      return;
+    }
+    final svc = TranslationService();
+    final updated = <Map<String, dynamic>>[];
+    for (final prod in _allProducts) {
+      final origName = (prod['original_name'] ?? prod['name'] ?? '').toString();
+      final translatedName = await svc.translateText(origName, targetLanguage: targetLang);
+      updated.add({
+        ...prod,
+        'original_name': origName,
+        'name': translatedName,
+      });
+    }
+    if (mounted) {
+      setState(() {
+        _allProducts = updated;
+      });
+    }
+  }
+
   void _updateCartItem(Map<String, dynamic> item, int delta) {
     final name = item['name'].toString();
     final priceStr = item['price'].toString();
@@ -417,28 +443,37 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ],
                 ),
-                Stack(
+                Row(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: AppColors.mintLight,
-                      child: const Icon(Icons.shopping_basket_outlined, color: AppColors.lightGreenPrimary),
+                    PersonaLanguageSelector(
+                      persona: 'CUSTOMER',
+                      onChanged: (langCode) => _translateVisibleProducts(langCode),
                     ),
-                    if (totalCartCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: AppColors.accentOrange,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            "$totalCartCount",
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
+                    const SizedBox(width: 4),
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: AppColors.mintLight,
+                          child: const Icon(Icons.shopping_basket_outlined, color: AppColors.lightGreenPrimary),
                         ),
-                      ),
+                        if (totalCartCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: AppColors.accentOrange,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                "$totalCartCount",
+                                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ],

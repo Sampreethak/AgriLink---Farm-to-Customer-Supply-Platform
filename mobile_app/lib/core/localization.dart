@@ -3,8 +3,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguageProvider extends ChangeNotifier {
   String _currentLanguage = 'en';
+  final Map<String, String> _personaLanguages = {
+    'FARMER': 'kn',
+    'CUSTOMER': 'en',
+    'AGGREGATOR': 'kn',
+    'DELIVERY': 'kn',
+    'ADMIN': 'en',
+  };
 
   String get currentLanguage => _currentLanguage;
+
+  String getPersonaLanguage(String persona) {
+    return _personaLanguages[persona.toUpperCase()] ?? _currentLanguage;
+  }
 
   static const Map<String, String> languages = {
     'en': 'English',
@@ -22,6 +33,12 @@ class LanguageProvider extends ChangeNotifier {
   Future<void> _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     _currentLanguage = prefs.getString('language_pref') ?? 'en';
+    for (final persona in _personaLanguages.keys.toList()) {
+      final saved = prefs.getString('language_pref_$persona');
+      if (saved != null && languages.containsKey(saved)) {
+        _personaLanguages[persona] = saved;
+      }
+    }
     notifyListeners();
   }
 
@@ -29,6 +46,18 @@ class LanguageProvider extends ChangeNotifier {
     if (languages.containsKey(langCode)) {
       _currentLanguage = langCode;
       final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('language_pref', langCode);
+      notifyListeners();
+    }
+  }
+
+  Future<void> setPersonaLanguage(String persona, String langCode) async {
+    final key = persona.toUpperCase();
+    if (languages.containsKey(langCode)) {
+      _personaLanguages[key] = langCode;
+      _currentLanguage = langCode;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('language_pref_$key', langCode);
       await prefs.setString('language_pref', langCode);
       notifyListeners();
     }

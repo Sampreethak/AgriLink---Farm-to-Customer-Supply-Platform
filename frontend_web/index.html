@@ -35,6 +35,17 @@
             <button class="nav-btn" onclick="switchTab('delivery-tab', this)">
                 <i class="fa-solid fa-truck-fast"></i> Delivery Tracker
             </button>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-left:0.5rem;">
+                <i class="fa-solid fa-language" style="color: var(--primary);"></i>
+                <select id="persona-lang-select" onchange="onPersonaLanguageChange(this.value)" style="padding: 5px 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-card); color: white; font-size: 0.8rem;">
+                    <option value="en">English (EN)</option>
+                    <option value="kn">ಕನ್ನಡ (KN)</option>
+                    <option value="hi">हिन्दी (HI)</option>
+                    <option value="te">తెలుగు (TE)</option>
+                    <option value="ta">தமிழ் (TA)</option>
+                    <option value="ml">മലയാളം (ML)</option>
+                </select>
+            </div>
         </div>
     </nav>
 

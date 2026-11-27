@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import List, Optional
+from typing import Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -2072,6 +2072,93 @@ class CropDoctorRequest(BaseModel):
     query: str
     crop: Optional[str] = None
     language: Optional[str] = "en"
+
+
+class TranslateRequest(BaseModel):
+    text: str
+    target_language: str = "en"
+    source_language: Optional[str] = "auto"
+
+
+class PersonaLanguageRequest(BaseModel):
+    persona: str = "CUSTOMER"  # FARMER, CUSTOMER, AGGREGATOR, DELIVERY, ADMIN
+    user_id: Optional[str] = None
+    language: str = "en"
+
+
+PERSONA_LANGUAGE_PREFS: Dict[str, str] = {
+    "FARMER": "kn",
+    "CUSTOMER": "en",
+    "AGGREGATOR": "kn",
+    "DELIVERY": "kn",
+    "ADMIN": "en",
+}
+
+_translation_service = None
+
+
+def _get_translation_service():
+    global _translation_service
+    if _translation_service is None:
+        try:
+            from nlp_engine.translation_service import MultilingualTranslationService
+            _translation_service = MultilingualTranslationService()
+        except ImportError:
+            from translation_service import MultilingualTranslationService
+            _translation_service = MultilingualTranslationService()
+    return _translation_service
+
+
+@app.post("/api/v1/ai/translate")
+def translate_message(req: TranslateRequest):
+    """Translates farmer/customer/aggregator/delivery messages into the recipient's preferred language."""
+    svc = _get_translation_service()
+    return svc.translate(req.text, target_language=req.target_language, source_language=req.source_language or "auto")
+
+
+@app.get("/api/v1/users/language")
+def get_persona_languages(persona: Optional[str] = None, user_id: Optional[str] = None):
+    """Returns preferred language per persona (or specific persona/user)."""
+    if user_id and user_id in PERSONA_LANGUAGE_PREFS:
+        return {"user_id": user_id, "language": PERSONA_LANGUAGE_PREFS[user_id], "all": PERSONA_LANGUAGE_PREFS}
+    if persona:
+        p_key = persona.strip().upper()
+        return {"persona": p_key, "language": PERSONA_LANGUAGE_PREFS.get(p_key, "en"), "all": PERSONA_LANGUAGE_PREFS}
+    return {"preferences": PERSONA_LANGUAGE_PREFS}
+
+
+@app.post("/api/v1/users/language")
+def set_persona_language(req: PersonaLanguageRequest):
+    """Saves preferred language for a persona/user in memory and AWS RDS PostgreSQL."""
+    p_key = req.persona.strip().upper()
+    lang = req.language.strip().lower()
+    PERSONA_LANGUAGE_PREFS[p_key] = lang
+    if req.user_id:
+        PERSONA_LANGUAGE_PREFS[req.user_id] = lang
+
+    conn = get_rds_connection()
+    if conn:
+        try:
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS public.persona_language_prefs (
+                    persona_key VARCHAR(120) PRIMARY KEY,
+                    language_code VARCHAR(16) NOT NULL,
+                    updated_at TIMESTAMPTZ DEFAULT NOW()
+                );
+            """)
+            cur.execute("""
+                INSERT INTO public.persona_language_prefs (persona_key, language_code, updated_at)
+                VALUES (%s, %s, NOW())
+                ON CONFLICT (persona_key) DO UPDATE SET language_code = EXCLUDED.language_code, updated_at = NOW();
+            """, (req.user_id or p_key, lang))
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            print(f"[RDS] Language preference sync note: {e}")
+
+    return {"status": "success", "persona": p_key, "user_id": req.user_id, "language": lang}
 
 @app.post("/api/v1/ai/crop-doctor")
 def ai_crop_doctor(req: CropDoctorRequest):

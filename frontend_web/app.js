@@ -30,7 +30,49 @@ const CROP_IMAGES = {
     "Wheat": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&auto=format&fit=crop&q=80"
 };
 
+let preferredLanguage = localStorage.getItem("agrilink_pref_lang") || "en";
+
+async function onPersonaLanguageChange(langCode) {
+    preferredLanguage = langCode;
+    localStorage.setItem("agrilink_pref_lang", langCode);
+    const activeTab = document.querySelector(".tab-content.active")?.id || "marketplace-tab";
+    const persona = activeTab.includes("farmer") ? "FARMER" : (activeTab.includes("delivery") ? "DELIVERY" : "CUSTOMER");
+    try {
+        await fetch(`${API_ML_URL}/api/v1/users/language`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ persona: persona, language: langCode })
+        });
+    } catch (e) {
+        console.warn("Language preference sync note:", e);
+    }
+}
+
+async function translateCardText(btn, originalText) {
+    const cardBody = btn.closest(".card-body");
+    const titleEl = cardBody ? cardBody.querySelector(".listing-title") : null;
+    if (!titleEl) return;
+    titleEl.textContent = "Translating...";
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/ai/translate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: originalText, target_language: preferredLanguage })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            titleEl.textContent = data.translated_text || originalText;
+            return;
+        }
+    } catch (e) {
+        console.warn("Translation note:", e);
+    }
+    titleEl.textContent = originalText;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    const langSel = document.getElementById("persona-lang-select");
+    if (langSel) langSel.value = preferredLanguage;
     loadAllRecommendations(currentCustomerId);
     renderAllListings();
     loadFarmerListings();
@@ -266,9 +308,12 @@ async function renderAllListings(searchQuery = "") {
                             <div class="val">${grade}</div>
                         </div>
                     </div>
-                    <div class="card-actions">
+                    <div class="card-actions" style="display:flex; gap:0.4rem;">
                         <button class="btn-action btn-primary" ${inStock ? "" : "disabled style='background:#64748b;cursor:not-allowed;'"} onclick="addToCart('${crop}', '${item.id || ''}')">
                             <i class="fa-solid fa-cart-plus"></i> ${inStock ? "Add to Cart" : "Out of Stock"}
+                        </button>
+                        <button class="btn-action btn-secondary" style="width:auto; padding:0 10px;" title="Translate to preferred language" onclick="translateCardText(this, '${title.replace(/'/g, "\\'")}')">
+                            <i class="fa-solid fa-language"></i>
                         </button>
                     </div>
                 </div>
@@ -1205,7 +1250,49 @@ async function askAgriTalkInline(query, cardId) {
 }
 
 // Auto-initialize when page loads if on farmer tab
+let preferredLanguage = localStorage.getItem("agrilink_pref_lang") || "en";
+
+async function onPersonaLanguageChange(langCode) {
+    preferredLanguage = langCode;
+    localStorage.setItem("agrilink_pref_lang", langCode);
+    const activeTab = document.querySelector(".tab-content.active")?.id || "marketplace-tab";
+    const persona = activeTab.includes("farmer") ? "FARMER" : (activeTab.includes("delivery") ? "DELIVERY" : "CUSTOMER");
+    try {
+        await fetch(`${API_ML_URL}/api/v1/users/language`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ persona: persona, language: langCode })
+        });
+    } catch (e) {
+        console.warn("Language preference sync note:", e);
+    }
+}
+
+async function translateCardText(btn, originalText) {
+    const cardBody = btn.closest(".card-body");
+    const titleEl = cardBody ? cardBody.querySelector(".listing-title") : null;
+    if (!titleEl) return;
+    titleEl.textContent = "Translating...";
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/ai/translate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: originalText, target_language: preferredLanguage })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            titleEl.textContent = data.translated_text || originalText;
+            return;
+        }
+    } catch (e) {
+        console.warn("Translation note:", e);
+    }
+    titleEl.textContent = originalText;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    const langSel = document.getElementById("persona-lang-select");
+    if (langSel) langSel.value = preferredLanguage;
     const farmerTab = document.getElementById('farmer-tab');
     if (farmerTab && farmerTab.classList.contains('active')) {
         initNlpDashboard();

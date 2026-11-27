@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/product_service.dart';
 import '../../services/platform_state.dart';
+import '../../services/translation_service.dart';
 import 'products/add_product_screen.dart';
 import 'products/edit_product_screen.dart';
 import 'products/product_details_screen.dart';
@@ -169,6 +170,7 @@ class _ProductsTabState extends State<ProductsTab> {
         title: Text(_isLoading ? "My Products" : "My Products (${_products.length})"),
         centerTitle: true,
         actions: [
+          const PersonaLanguageSelector(persona: 'FARMER'),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadProducts,
