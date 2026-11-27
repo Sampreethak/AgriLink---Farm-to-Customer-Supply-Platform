@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/colors.dart';
 import '../chatbot/agritalk_chat_screen.dart';
+import '../common/persona_chat_screen.dart';
+import '../../services/platform_state.dart';
 import 'home_tab.dart';
 import 'orders_tab.dart';
 import 'products_tab.dart';
@@ -34,17 +36,41 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
 
     return Scaffold(
 
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: "farmer_agritalk_fab",
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AgriTalkChatScreen()),
-          );
-        },
-        backgroundColor: AppColors.primaryGreen,
-        icon: const Icon(Icons.smart_toy, color: Colors.white),
-        label: const Text("AgriTalk AI", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.small(
+            heroTag: "farmer_connect_fab",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PersonaChatScreen(
+                    currentPersona: 'FARMER',
+                    currentUserName: PlatformState().currentUser.fullName,
+                  ),
+                ),
+              );
+            },
+            backgroundColor: Colors.teal,
+            tooltip: 'Chat with Delivery / Aggregator',
+            child: const Icon(Icons.forum_outlined, color: Colors.white),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton.extended(
+            heroTag: "farmer_agritalk_fab",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AgriTalkChatScreen()),
+              );
+            },
+            backgroundColor: AppColors.primaryGreen,
+            icon: const Icon(Icons.smart_toy, color: Colors.white),
+            label: const Text("AgriTalk AI", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
 
       body: IndexedStack(

@@ -8,6 +8,7 @@ import '../../services/customer_state.dart';
 import '../../services/platform_state.dart';
 import '../../services/translation_service.dart';
 import '../../services/tts_helper.dart';
+import '../common/persona_chat_screen.dart';
 import 'products/product_details_screen.dart';
 import 'bulk_order_screen.dart';
 import 'recurring_order_screen.dart';
@@ -446,6 +447,21 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 Row(
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.forum_outlined, color: AppColors.lightGreenPrimary),
+                      tooltip: 'Chat with Delivery Partner',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PersonaChatScreen(
+                              currentPersona: 'CUSTOMER',
+                              currentUserName: _customerState.name,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     PersonaLanguageSelector(
                       persona: 'CUSTOMER',
                       onChanged: (langCode) => _translateVisibleProducts(langCode),

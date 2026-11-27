@@ -6,6 +6,8 @@ import '../../core/colors.dart';
 import '../../services/platform_state.dart';
 import '../customer/fair_pricing_screen.dart';
 import '../auth/role_selection_screen.dart';
+import '../common/persona_chat_screen.dart';
+import '../../services/translation_service.dart';
 
 class AggregatorDashboard extends StatefulWidget {
   const AggregatorDashboard({super.key});
@@ -44,6 +46,22 @@ class _AggregatorDashboardState extends State<AggregatorDashboard> {
         backgroundColor: AppColors.primaryGreen,
         foregroundColor: Colors.white,
         actions: [
+          const PersonaLanguageSelector(persona: 'AGGREGATOR'),
+          IconButton(
+            icon: const Icon(Icons.forum_outlined),
+            tooltip: 'Multilingual Chat (Farmer / Delivery)',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PersonaChatScreen(
+                    currentPersona: 'AGGREGATOR',
+                    currentUserName: user.fullName,
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Download My Tri-Service Report',

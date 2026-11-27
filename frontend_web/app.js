@@ -46,6 +46,95 @@ async function onPersonaLanguageChange(langCode) {
     } catch (e) {
         console.warn("Language preference sync note:", e);
     }
+    if (activeTab === "connect-tab") {
+        loadPersonaMessages();
+    }
+}
+
+async function loadPersonaMessages() {
+    const box = document.getElementById("persona-chat-messages");
+    if (!box) return;
+    const channel = document.getElementById("chat-channel-select")?.value || "farmer-delivery";
+    box.innerHTML = `<div style="color:var(--text-muted);">Loading &amp; translating messages into ${preferredLanguage.toUpperCase()}...</div>`;
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/messages?channel=${encodeURIComponent(channel)}&viewer_language=${encodeURIComponent(preferredLanguage)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const msgs = data.messages || [];
+        if (msgs.length === 0) {
+            box.innerHTML = `<div style="color:var(--text-muted);">No messages in this channel yet.</div>`;
+            return;
+        }
+        box.innerHTML = msgs.map(m => {
+            const translated = m.translated_text || m.text;
+            const original = m.original_text || m.text;
+            const showOrig = translated !== original;
+            const safeSpeak = translated.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+            return `
+                <div style="margin-bottom:0.85rem; padding:0.75rem 1rem; border-radius:10px; background:var(--dark-bg); border:1px solid var(--dark-border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">
+                        <span style="font-size:0.78rem; font-weight:bold; color:var(--primary);">${m.sender_name || m.sender_persona} (${m.sender_persona}) &bull; ${(m.sender_language || 'en').toUpperCase()}</span>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <button onclick="speakText('${safeSpeak}', '${preferredLanguage}')" style="background:rgba(34,197,94,0.15); border:1px solid var(--primary); color:var(--primary); padding:2px 8px; border-radius:6px; cursor:pointer; font-size:0.75rem;">
+                                <i class="fa-solid fa-volume-high"></i> Listen
+                            </button>
+                            <span style="font-size:0.72rem; color:var(--text-muted);">${m.created_at || ''}</span>
+                        </div>
+                    </div>
+                    <div style="color:#f8fafc; font-size:0.95rem;">${translated}</div>
+                    ${showOrig ? `<div style="color:var(--text-muted); font-size:0.78rem; font-style:italic; margin-top:0.25rem;">Original (${(m.sender_language || 'en').toUpperCase()}): ${original}</div>` : ''}
+                </div>
+            `;
+        }).join("");
+        box.scrollTop = box.scrollHeight;
+    } catch (e) {
+        box.innerHTML = `<div style="color:#ef4444;">Failed to load messages: ${e}</div>`;
+    }
+}
+
+async function sendPersonaMessage() {
+    const input = document.getElementById("persona-chat-input");
+    const text = (input?.value || "").trim();
+    if (!text) return;
+    const channel = document.getElementById("chat-channel-select")?.value || "farmer-delivery";
+    const senderPersona = document.getElementById("chat-sender-persona")?.value || "FARMER";
+    const parts = channel.split("-");
+    const recipient = parts.find(p => p.toUpperCase() !== senderPersona) || parts[parts.length - 1];
+    input.value = "";
+    try {
+        await fetch(`${API_ML_URL}/api/v1/messages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                channel: channel,
+                sender_persona: senderPersona,
+                sender_name: senderPersona.charAt(0) + senderPersona.slice(1).toLowerCase(),
+                recipient_persona: recipient.toUpperCase(),
+                text: text,
+                sender_language: preferredLanguage
+            })
+        });
+        await loadPersonaMessages();
+    } catch (e) {
+        console.error("Send message failed:", e);
+    }
+}
+
+function startMicForPersonaChat() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+        alert("Voice microphone is supported in Chrome/Edge browsers.");
+        return;
+    }
+    const rec = new SpeechRec();
+    rec.lang = SPEECH_BCP47[preferredLanguage] || "en-IN";
+    rec.interimResults = false;
+    rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById("persona-chat-input");
+        if (input) input.value = transcript;
+    };
+    rec.start();
 }
 
 async function translateCardText(btn, originalText) {
@@ -1299,6 +1388,95 @@ async function onPersonaLanguageChange(langCode) {
     } catch (e) {
         console.warn("Language preference sync note:", e);
     }
+    if (activeTab === "connect-tab") {
+        loadPersonaMessages();
+    }
+}
+
+async function loadPersonaMessages() {
+    const box = document.getElementById("persona-chat-messages");
+    if (!box) return;
+    const channel = document.getElementById("chat-channel-select")?.value || "farmer-delivery";
+    box.innerHTML = `<div style="color:var(--text-muted);">Loading &amp; translating messages into ${preferredLanguage.toUpperCase()}...</div>`;
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/messages?channel=${encodeURIComponent(channel)}&viewer_language=${encodeURIComponent(preferredLanguage)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const msgs = data.messages || [];
+        if (msgs.length === 0) {
+            box.innerHTML = `<div style="color:var(--text-muted);">No messages in this channel yet.</div>`;
+            return;
+        }
+        box.innerHTML = msgs.map(m => {
+            const translated = m.translated_text || m.text;
+            const original = m.original_text || m.text;
+            const showOrig = translated !== original;
+            const safeSpeak = translated.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+            return `
+                <div style="margin-bottom:0.85rem; padding:0.75rem 1rem; border-radius:10px; background:var(--dark-bg); border:1px solid var(--dark-border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">
+                        <span style="font-size:0.78rem; font-weight:bold; color:var(--primary);">${m.sender_name || m.sender_persona} (${m.sender_persona}) &bull; ${(m.sender_language || 'en').toUpperCase()}</span>
+                        <div style="display:flex; gap:0.5rem; align-items:center;">
+                            <button onclick="speakText('${safeSpeak}', '${preferredLanguage}')" style="background:rgba(34,197,94,0.15); border:1px solid var(--primary); color:var(--primary); padding:2px 8px; border-radius:6px; cursor:pointer; font-size:0.75rem;">
+                                <i class="fa-solid fa-volume-high"></i> Listen
+                            </button>
+                            <span style="font-size:0.72rem; color:var(--text-muted);">${m.created_at || ''}</span>
+                        </div>
+                    </div>
+                    <div style="color:#f8fafc; font-size:0.95rem;">${translated}</div>
+                    ${showOrig ? `<div style="color:var(--text-muted); font-size:0.78rem; font-style:italic; margin-top:0.25rem;">Original (${(m.sender_language || 'en').toUpperCase()}): ${original}</div>` : ''}
+                </div>
+            `;
+        }).join("");
+        box.scrollTop = box.scrollHeight;
+    } catch (e) {
+        box.innerHTML = `<div style="color:#ef4444;">Failed to load messages: ${e}</div>`;
+    }
+}
+
+async function sendPersonaMessage() {
+    const input = document.getElementById("persona-chat-input");
+    const text = (input?.value || "").trim();
+    if (!text) return;
+    const channel = document.getElementById("chat-channel-select")?.value || "farmer-delivery";
+    const senderPersona = document.getElementById("chat-sender-persona")?.value || "FARMER";
+    const parts = channel.split("-");
+    const recipient = parts.find(p => p.toUpperCase() !== senderPersona) || parts[parts.length - 1];
+    input.value = "";
+    try {
+        await fetch(`${API_ML_URL}/api/v1/messages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                channel: channel,
+                sender_persona: senderPersona,
+                sender_name: senderPersona.charAt(0) + senderPersona.slice(1).toLowerCase(),
+                recipient_persona: recipient.toUpperCase(),
+                text: text,
+                sender_language: preferredLanguage
+            })
+        });
+        await loadPersonaMessages();
+    } catch (e) {
+        console.error("Send message failed:", e);
+    }
+}
+
+function startMicForPersonaChat() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+        alert("Voice microphone is supported in Chrome/Edge browsers.");
+        return;
+    }
+    const rec = new SpeechRec();
+    rec.lang = SPEECH_BCP47[preferredLanguage] || "en-IN";
+    rec.interimResults = false;
+    rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById("persona-chat-input");
+        if (input) input.value = transcript;
+    };
+    rec.start();
 }
 
 async function translateCardText(btn, originalText) {

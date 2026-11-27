@@ -35,6 +35,9 @@
             <button class="nav-btn" onclick="switchTab('delivery-tab', this)">
                 <i class="fa-solid fa-truck-fast"></i> Delivery Tracker
             </button>
+            <button class="nav-btn" onclick="switchTab('connect-tab', this); loadPersonaMessages();">
+                <i class="fa-solid fa-comments"></i> Connect (Chat)
+            </button>
             <div style="display:flex; align-items:center; gap:0.4rem; margin-left:0.5rem;">
                 <i class="fa-solid fa-language" style="color: var(--primary);"></i>
                 <select id="persona-lang-select" onchange="onPersonaLanguageChange(this.value)" style="padding: 5px 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-card); color: white; font-size: 0.8rem;">
@@ -661,6 +664,43 @@
                         <!-- Populated by JavaScript -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB: MULTILINGUAL PERSONA-TO-PERSONA CONNECT ================= -->
+        <div id="connect-tab" class="tab-content">
+            <div class="section-title">
+                <i class="fa-solid fa-comments" style="color: var(--primary);"></i> Multilingual Persona Communication Hub
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                Farmer, Delivery Partner, Customer, and Aggregator can speak or type in their own language — messages auto-translate into your selected preferred language with Voice Mic &amp; Speaker playback.
+            </p>
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center;">
+                <select id="chat-channel-select" onchange="loadPersonaMessages()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+                    <option value="farmer-delivery">Farmer ↔ Delivery Partner</option>
+                    <option value="customer-delivery">Customer ↔ Delivery Partner</option>
+                    <option value="farmer-aggregator">Farmer ↔ Aggregator</option>
+                    <option value="aggregator-delivery">Aggregator ↔ Delivery Partner</option>
+                </select>
+                <select id="chat-sender-persona" style="padding:8px 12px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+                    <option value="FARMER">Speaking as: Farmer</option>
+                    <option value="DELIVERY">Speaking as: Delivery Partner</option>
+                    <option value="CUSTOMER">Speaking as: Customer</option>
+                    <option value="AGGREGATOR">Speaking as: Aggregator</option>
+                </select>
+                <button onclick="loadPersonaMessages()" class="btn-action btn-secondary" style="width:auto; padding:8px 14px;">
+                    <i class="fa-solid fa-rotate"></i> Refresh &amp; Translate
+                </button>
+            </div>
+            <div id="persona-chat-messages" style="background:var(--dark-card); border:1px solid var(--dark-border); border-radius:12px; padding:1rem; min-height:240px; max-height:420px; overflow-y:auto; margin-bottom:1rem;"></div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input id="persona-chat-input" type="text" placeholder="Type or click Mic to speak in your preferred language..." style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+                <button onclick="startMicForPersonaChat()" class="btn-action btn-secondary" style="width:auto; padding:10px 14px;" title="Speak with Microphone">
+                    <i class="fa-solid fa-microphone"></i> Mic
+                </button>
+                <button onclick="sendPersonaMessage()" class="btn-action btn-primary" style="width:auto; padding:10px 18px;">
+                    <i class="fa-solid fa-paper-plane"></i> Send
+                </button>
             </div>
         </div>
 

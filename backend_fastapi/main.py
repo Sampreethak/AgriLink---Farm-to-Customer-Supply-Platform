@@ -355,6 +355,7 @@ def init_rds_seeds():
         for s in seeds:
             rds_upsert_user_profile(s)
         rds_load_listings()
+        rds_load_messages()
     except Exception as e:
         print(f"[Startup RDS Seed Warning]: {e}")
 
@@ -2159,6 +2160,200 @@ def set_persona_language(req: PersonaLanguageRequest):
             print(f"[RDS] Language preference sync note: {e}")
 
     return {"status": "success", "persona": p_key, "user_id": req.user_id, "language": lang}
+
+
+# ==============================================================================
+# MULTILINGUAL PERSONA-TO-PERSONA COMMUNICATION HUB
+# (Farmer <-> Delivery <-> Customer <-> Aggregator)
+# ==============================================================================
+class PersonaMessageCreate(BaseModel):
+    channel: str  # e.g. "farmer-delivery", "customer-delivery", "farmer-aggregator", "aggregator-delivery"
+    sender_persona: str  # FARMER, CUSTOMER, DELIVERY, AGGREGATOR
+    sender_name: Optional[str] = None
+    recipient_persona: str
+    text: str
+    sender_language: str = "en"
+    order_id: Optional[str] = None
+
+
+PERSONA_MESSAGES: List[dict] = [
+    {
+        "id": 1,
+        "channel": "farmer-delivery",
+        "sender_persona": "FARMER",
+        "sender_name": "Ramesh Kumar",
+        "recipient_persona": "DELIVERY",
+        "text": "ಟೊಮ್ಯಾಟೊ 50 ಕ್ರೇಟ್ ಪ್ಯಾಕ್ ಆಗಿದೆ, ಬೆಳಿಗ್ಗೆ 7 ಗಂಟೆಗೆ ಪಿಕ್ಅಪ್‌ಗೆ ಸಿದ್ಧವಾಗಿದೆ.",
+        "sender_language": "kn",
+        "order_id": "ORD-101",
+        "created_at": "08:30",
+    },
+    {
+        "id": 2,
+        "channel": "customer-delivery",
+        "sender_persona": "DELIVERY",
+        "sender_name": "Raju Express Delivery",
+        "recipient_persona": "CUSTOMER",
+        "text": "ನಾನು ನಿಮ್ಮ ತಾಜಾ ತರಕಾರಿಗಳೊಂದಿಗೆ ಮಂಡ್ಯದಿಂದ ಹೊರಟಿದ್ದೇನೆ, 30 ನಿಮಿಷದಲ್ಲಿ ತಲುಪುತ್ತೇನೆ.",
+        "sender_language": "kn",
+        "order_id": "ORD-101",
+        "created_at": "09:15",
+    },
+    {
+        "id": 3,
+        "channel": "farmer-aggregator",
+        "sender_persona": "AGGREGATOR",
+        "sender_name": "Kolar Market Yard Hub",
+        "recipient_persona": "FARMER",
+        "text": "Grade A+ Tomatoes cleared assaying at Mandya Hub. Dispatch vehicle assigned.",
+        "sender_language": "en",
+        "order_id": "BATCH-24",
+        "created_at": "09:45",
+    },
+    {
+        "id": 4,
+        "channel": "aggregator-delivery",
+        "sender_persona": "AGGREGATOR",
+        "sender_name": "Kolar Market Yard Hub",
+        "recipient_persona": "DELIVERY",
+        "text": "Gate 2 पर 500 kg ताज़ा प्याज और टमाटर लोड के लिए तैयार हैं।",
+        "sender_language": "hi",
+        "order_id": "TRIP-88",
+        "created_at": "10:05",
+    },
+]
+
+
+def rds_load_messages():
+    conn = get_rds_connection()
+    if not conn:
+        return
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.persona_messages (
+                id SERIAL PRIMARY KEY,
+                channel VARCHAR(64) NOT NULL,
+                sender_persona VARCHAR(32) NOT NULL,
+                sender_name VARCHAR(120),
+                recipient_persona VARCHAR(32) NOT NULL,
+                text TEXT NOT NULL,
+                sender_language VARCHAR(16) DEFAULT 'en',
+                order_id VARCHAR(64),
+                created_at VARCHAR(32)
+            );
+        """)
+        conn.commit()
+        cur.execute("""
+            SELECT id, channel, sender_persona, sender_name, recipient_persona, text, sender_language, order_id, created_at
+            FROM public.persona_messages
+            ORDER BY id ASC;
+        """)
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        if rows:
+            existing_ids = {m["id"] for m in PERSONA_MESSAGES}
+            for r in rows:
+                msg_id = 1000 + int(r[0])
+                if msg_id not in existing_ids:
+                    PERSONA_MESSAGES.append({
+                        "id": msg_id,
+                        "channel": r[1],
+                        "sender_persona": r[2],
+                        "sender_name": r[3] or r[2],
+                        "recipient_persona": r[4],
+                        "text": r[5],
+                        "sender_language": r[6] or "en",
+                        "order_id": r[7],
+                        "created_at": r[8] or "Now",
+                    })
+    except Exception as e:
+        print(f"[RDS] Error loading persona messages: {e}")
+
+
+def rds_save_message(msg: dict) -> bool:
+    conn = get_rds_connection()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO public.persona_messages
+            (channel, sender_persona, sender_name, recipient_persona, text, sender_language, order_id, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        """, (
+            msg["channel"],
+            msg["sender_persona"],
+            msg["sender_name"],
+            msg["recipient_persona"],
+            msg["text"],
+            msg["sender_language"],
+            msg.get("order_id"),
+            msg["created_at"],
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[RDS] Error saving persona message: {e}")
+        return False
+
+
+@app.get("/api/v1/messages")
+def get_persona_messages(
+    channel: Optional[str] = None,
+    viewer_language: str = "en",
+):
+    """Returns persona-to-persona messages, automatically translated into viewer_language."""
+    target_lang = (viewer_language or "en").strip().lower()
+    items = PERSONA_MESSAGES
+    if channel and channel != "all":
+        ch = channel.strip().lower()
+        items = [m for m in items if m["channel"].lower() == ch]
+
+    svc = _get_translation_service()
+    enriched = []
+    for m in items:
+        src_lang = (m.get("sender_language") or "en").lower()
+        orig_text = m["text"]
+        if target_lang != src_lang:
+            t_res = svc.translate(orig_text, target_language=target_lang, source_language=src_lang)
+            translated_text = t_res.get("translated_text", orig_text)
+            provider = t_res.get("provider", "gemini")
+        else:
+            translated_text = orig_text
+            provider = "native"
+        enriched.append({
+            **m,
+            "original_text": orig_text,
+            "translated_text": translated_text,
+            "viewer_language": target_lang,
+            "translation_provider": provider,
+        })
+    return {"messages": enriched, "total": len(enriched), "viewer_language": target_lang}
+
+
+@app.post("/api/v1/messages")
+def send_persona_message(req: PersonaMessageCreate):
+    """Sends a message between Farmer, Delivery Partner, Customer, and Aggregator."""
+    from datetime import datetime
+    new_id = max([m["id"] for m in PERSONA_MESSAGES], default=0) + 1
+    msg = {
+        "id": new_id,
+        "channel": req.channel.strip().lower(),
+        "sender_persona": req.sender_persona.strip().upper(),
+        "sender_name": req.sender_name or req.sender_persona.title(),
+        "recipient_persona": req.recipient_persona.strip().upper(),
+        "text": req.text.strip(),
+        "sender_language": (req.sender_language or "en").strip().lower(),
+        "order_id": req.order_id,
+        "created_at": datetime.now().strftime("%H:%M"),
+    }
+    PERSONA_MESSAGES.append(msg)
+    rds_saved = rds_save_message(msg)
+    return {"status": "success", "message": msg, "rds_persisted": rds_saved}
 
 @app.post("/api/v1/ai/crop-doctor")
 def ai_crop_doctor(req: CropDoctorRequest):
