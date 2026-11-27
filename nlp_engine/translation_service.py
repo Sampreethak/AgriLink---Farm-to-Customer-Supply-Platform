@@ -128,6 +128,99 @@ class MultilingualTranslationService:
             "provider": provider,
         }
 
+    def transliterate(self, text: str, target_language: str = "kn") -> Dict[str, Any]:
+        """Converts phonetic Romanized typing (e.g. 'namaskara') into native script (e.g. 'ನಮಸ್ಕಾರ')."""
+        clean_text = (text or "").strip()
+        target_code = (target_language or "en").strip().lower()
+        target_name = SUPPORTED_LANGUAGES.get(target_code, "English")
+        if not clean_text or target_code == "en":
+            return {
+                "status": "success",
+                "original_text": clean_text,
+                "transliterated_text": clean_text,
+                "target_language": target_code,
+            }
+
+        if self.gemini_api_key:
+            import requests
+            prompt = (
+                f"Transliterate (convert phonetic Roman/English letters into {target_name} script, "
+                f"preserving the spoken words rather than translating meaning if already in {target_name}, "
+                f"or translating smoothly if typed in English). "
+                f"Return ONLY the {target_name} script text with no quotes or notes.\n\nText: {clean_text}"
+            )
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 256, "temperature": 0.1},
+            }
+            for model_name in [os.getenv("GEMINI_AGRI_MODEL", "gemini-3.5-flash-lite"), "gemini-3.1-flash-lite", "gemini-2.5-flash-lite"]:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={self.gemini_api_key}"
+                try:
+                    res = requests.post(url, json=payload, timeout=10)
+                    if res.status_code == 200:
+                        candidates = res.json().get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            out = "\n".join(
+                                p.get("text", "").strip()
+                                for p in parts
+                                if not p.get("thought", False) and p.get("text", "").strip()
+                            ).strip()
+                            if out:
+                                return {
+                                    "status": "success",
+                                    "original_text": clean_text,
+                                    "transliterated_text": out,
+                                    "target_language": target_code,
+                                }
+                except Exception:
+                    continue
+
+        return {
+            "status": "success",
+            "original_text": clean_text,
+            "transliterated_text": clean_text,
+            "target_language": target_code,
+        }
+
+    def synthesize_tts_audio(self, text: str, lang_code: str = "en") -> bytes:
+        """Synthesizes native MP3 speech audio for en, kn, hi, te, ta, ml via Google TTS."""
+        import re
+        import urllib.request
+        import urllib.parse
+
+        clean = re.sub(r"[*_#`•🌾🧪🌿⚠️⏱️🛡️]", " ", text or "")
+        clean = re.sub(r"\s+", " ", clean).strip()
+        if not clean:
+            return b""
+
+        tl = (lang_code or "en").strip().lower()
+        if tl not in SUPPORTED_LANGUAGES:
+            tl = "en"
+
+        # Split into <=180 char chunks so Google TTS handles long prescriptions cleanly
+        chunks = []
+        words = clean.split(" ")
+        current = ""
+        for w in words:
+            if len(current) + len(w) + 1 <= 180:
+                current = f"{current} {w}".strip()
+            else:
+                if current:
+                    chunks.append(current)
+                current = w[:180]
+        if current:
+            chunks.append(current)
+
+        audio_parts = []
+        for chunk in chunks[:10]:
+            q = urllib.parse.quote(chunk)
+            url = f"https://translate.google.com/translate_tts?ie=UTF-8&tl={tl}&client=tw-ob&q={q}"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=10) as res:
+                audio_parts.append(res.read())
+        return b"".join(audio_parts)
+
     def _translate_via_gemini(self, text: str, target_name: str, source_language: str) -> tuple[Optional[str], str]:
         if not self.gemini_api_key:
             return None, ""

@@ -693,8 +693,14 @@
                 </button>
             </div>
             <div id="persona-chat-messages" style="background:var(--dark-card); border:1px solid var(--dark-border); border-radius:12px; padding:1rem; min-height:240px; max-height:420px; overflow-y:auto; margin-bottom:1rem;"></div>
-            <div style="display:flex; gap:0.5rem; align-items:center;">
-                <input id="persona-chat-input" type="text" placeholder="Type or click Mic to speak in your preferred language..." style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                <input id="persona-chat-input" type="text" placeholder="Type (or type in English &amp; click Convert) or click Mic..." style="flex:1; min-width:220px; padding:10px 14px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+                <button onclick="convertWebPhonetic()" class="btn-action btn-secondary" style="width:auto; padding:10px 12px;" title="Convert English letters to selected language script">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Aa &rarr; Script
+                </button>
+                <button onclick="toggleWebKeyboard()" class="btn-action btn-secondary" style="width:auto; padding:10px 12px;" title="Toggle On-Screen Language Keyboard">
+                    <i class="fa-solid fa-keyboard"></i> Keyboard
+                </button>
                 <button onclick="startMicForPersonaChat()" class="btn-action btn-secondary" style="width:auto; padding:10px 14px;" title="Speak with Microphone">
                     <i class="fa-solid fa-microphone"></i> Mic
                 </button>
@@ -702,6 +708,7 @@
                     <i class="fa-solid fa-paper-plane"></i> Send
                 </button>
             </div>
+            <div id="web-multilingual-keyboard" style="display:none; margin-top:0.75rem; padding:0.75rem; background:var(--dark-card); border:1px solid var(--dark-border); border-radius:10px;"></div>
         </div>
 
     </div>

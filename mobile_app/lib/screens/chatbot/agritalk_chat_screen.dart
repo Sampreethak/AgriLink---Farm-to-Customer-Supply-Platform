@@ -5,6 +5,7 @@ import '../../core/colors.dart';
 import '../../core/config.dart';
 import '../../core/localization.dart';
 import '../../widgets/voice_input_field.dart';
+import '../../widgets/multilingual_keyboard.dart';
 import '../../services/platform_state.dart';
 import '../../services/tts_helper.dart';
 
@@ -35,6 +36,7 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
+  bool _showKeyboard = false;
 
   final Dio _dio = Dio(BaseOptions(
     baseUrl: AppConfig.baseUrl,
@@ -259,6 +261,14 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
             child: SafeArea(
               child: Row(
                 children: [
+                  IconButton(
+                    icon: Icon(
+                      _showKeyboard ? Icons.keyboard_hide : Icons.keyboard_alt_outlined,
+                      color: AppColors.primaryGreen,
+                    ),
+                    tooltip: 'Multilingual Keyboard (${langProvider.currentLanguage.toUpperCase()})',
+                    onPressed: () => setState(() => _showKeyboard = !_showKeyboard),
+                  ),
                   Expanded(
                     child: VoiceInputField(
                       controller: _textController,
@@ -283,6 +293,12 @@ class _AgriTalkChatScreenState extends State<AgriTalkChatScreen> {
               ),
             ),
           ),
+          if (_showKeyboard)
+            MultilingualKeyboard(
+              controller: _textController,
+              languageCode: langProvider.currentLanguage,
+              onClose: () => setState(() => _showKeyboard = false),
+            ),
         ],
       ),
     );

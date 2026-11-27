@@ -42,6 +42,24 @@ class TranslationService {
     return clean;
   }
 
+  Future<String> transliterateText(
+    String text, {
+    required String targetLanguage,
+  }) async {
+    final clean = text.trim();
+    if (clean.isEmpty || targetLanguage == 'en') return clean;
+    try {
+      final res = await _dio.post('/ai/transliterate', data: {
+        'text': clean,
+        'target_language': targetLanguage,
+      });
+      if (res.statusCode == 200 && res.data != null) {
+        return (res.data['transliterated_text'] ?? clean).toString();
+      }
+    } catch (_) {}
+    return clean;
+  }
+
   Future<void> savePersonaLanguage(String persona, String languageCode) async {
     try {
       await _dio.post('/users/language', data: {

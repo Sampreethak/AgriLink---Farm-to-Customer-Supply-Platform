@@ -7,6 +7,7 @@ import '../../core/localization.dart';
 import '../../services/translation_service.dart';
 import '../../services/tts_helper.dart';
 import '../../widgets/voice_input_field.dart';
+import '../../widgets/multilingual_keyboard.dart';
 
 class PersonaChatScreen extends StatefulWidget {
   final String currentPersona; // FARMER, CUSTOMER, DELIVERY, AGGREGATOR
@@ -34,6 +35,7 @@ class _PersonaChatScreenState extends State<PersonaChatScreen> {
   List<Map<String, dynamic>> _messages = [];
   bool _isLoading = true;
   bool _isSending = false;
+  bool _showKeyboard = false;
 
   static const List<Map<String, String>> _channels = [
     {'id': 'farmer-delivery', 'label': 'Farmer ↔ Delivery'},
@@ -320,6 +322,14 @@ class _PersonaChatScreenState extends State<PersonaChatScreen> {
             child: SafeArea(
               child: Row(
                 children: [
+                  IconButton(
+                    icon: Icon(
+                      _showKeyboard ? Icons.keyboard_hide : Icons.keyboard_alt_outlined,
+                      color: AppColors.primaryGreen,
+                    ),
+                    tooltip: 'Multilingual Keyboard (${viewerLang.toUpperCase()})',
+                    onPressed: () => setState(() => _showKeyboard = !_showKeyboard),
+                  ),
                   Expanded(
                     child: VoiceInputField(
                       controller: _msgController,
@@ -346,6 +356,12 @@ class _PersonaChatScreenState extends State<PersonaChatScreen> {
               ),
             ),
           ),
+          if (_showKeyboard)
+            MultilingualKeyboard(
+              controller: _msgController,
+              languageCode: viewerLang,
+              onClose: () => setState(() => _showKeyboard = false),
+            ),
         ],
       ),
     );

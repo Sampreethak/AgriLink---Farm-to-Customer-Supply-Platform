@@ -137,6 +137,73 @@ function startMicForPersonaChat() {
     rec.start();
 }
 
+const WEB_KEYBOARD_KEYS = {
+    kn: ["ನಮಸ್ಕಾರ", "ಟೊಮ್ಯಾಟೊ", "ಈರುಳ್ಳಿ", "ಸಿದ್ಧವಾಗಿದೆ", "ಬರುತ್ತಿದ್ದೇನೆ", "ಅ", "ಆ", "ಇ", "ಈ", "ಉ", "ಎ", "ಏ", "ಒ", "ಓ", "ಕ", "ಗ", "ಚ", "ಜ", "ಟ", "ಡ", "ತ", "ದ", "ನ", "ಪ", "ಬ", "ಮ", "ಯ", "ರ", "ಲ", "ವ", "ಶ", "ಸ", "ಹ", "ಳ", "ಾ", "ಿ", "ೀ", "ು", "ೂ", "ೆ", "ೇ", "ೊ", "ೋ", "್"],
+    hi: ["नमस्ते", "टमाटर", "प्याज", "तैयार है", "आ रहा हूँ", "अ", "आ", "इ", "ई", "उ", "ए", "ऐ", "ओ", "औ", "क", "ग", "च", "ज", "ट", "ड", "त", "द", "न", "प", "ब", "म", "य", "र", "ल", "व", "श", "स", "ह", "ा", "ि", "ी", "ु", "ू", "े", "ै", "ो", "ौ", "्"],
+    te: ["నమస్కారం", "టమోటా", "ఉల్లిపాయ", "సిద్ధంగా ఉంది", "అ", "ఆ", "ఇ", "ఈ", "ఉ", "ఎ", "ఏ", "ఒ", "ఓ", "క", "గ", "చ", "జ", "ట", "డ", "త", "ద", "న", "ప", "బ", "మ", "య", "ర", "ల", "వ", "స", "హ", "ా", "ి", "ీ", "ు", "ూ", "ె", "ే", "ొ", "ో", "్"],
+    ta: ["வணக்கம்", "தக்காளி", "வெங்காயம்", "தயாராக உள்ளது", "அ", "ஆ", "இ", "ஈ", "உ", "எ", "ஏ", "ஒ", "ஓ", "க", "ச", "ட", "த", "ந", "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ா", "ி", "ீ", "ு", "ூ", "ெ", "ே", "ொ", "ோ", "்"],
+    ml: ["നമസ്കാരം", "തക്കാളി", "ഉള്ളി", "തയ്യാറാണ്", "അ", "ആ", "ഇ", "ഈ", "ഉ", "എ", "ഏ", "ഒ", "ഓ", "ക", "ഗ", "ച", "ജ", "ട", "ഡ", "ത", "ദ", "ന", "പ", "ബ", "മ", "യ", "ര", "ല", "വ", "സ", "ഹ", "ാ", "ി", "ീ", "ു", "ൂ", "െ", "േ", "ൊ", "ോ", "്"],
+    en: ["Hello", "Ready for pickup", "On my way", "In stock", "Thank you"]
+};
+
+function toggleWebKeyboard() {
+    const kb = document.getElementById("web-multilingual-keyboard");
+    if (!kb) return;
+    if (kb.style.display === "none") {
+        kb.style.display = "block";
+        renderWebKeyboard();
+    } else {
+        kb.style.display = "none";
+    }
+}
+
+function renderWebKeyboard() {
+    const kb = document.getElementById("web-multilingual-keyboard");
+    if (!kb) return;
+    const keys = WEB_KEYBOARD_KEYS[preferredLanguage] || WEB_KEYBOARD_KEYS.en;
+    kb.innerHTML = `
+        <div style="font-size:0.78rem; color:var(--primary); font-weight:bold; margin-bottom:0.5rem;">${preferredLanguage.toUpperCase()} Virtual Keyboard &amp; Quick Farm Phrases</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;">
+            ${keys.map(k => `<button type="button" onclick="insertWebKey('${k}')" style="padding:5px 9px; border-radius:6px; border:1px solid var(--dark-border); background:var(--dark-bg); color:white; cursor:pointer; font-size:0.88rem;">${k}</button>`).join("")}
+            <button type="button" onclick="insertWebKey(' ')" style="padding:5px 12px; border-radius:6px; border:1px solid var(--dark-border); background:var(--dark-bg); color:white; cursor:pointer; font-size:0.8rem;">Space</button>
+            <button type="button" onclick="backspaceWebKey()" style="padding:5px 10px; border-radius:6px; border:1px solid #ef4444; background:rgba(239,68,68,0.15); color:#fca5a5; cursor:pointer; font-size:0.8rem;">&#9003;</button>
+        </div>
+    `;
+}
+
+function insertWebKey(val) {
+    const input = document.getElementById("persona-chat-input");
+    if (!input) return;
+    input.value += val + (val.length > 1 ? " " : "");
+    input.focus();
+}
+
+function backspaceWebKey() {
+    const input = document.getElementById("persona-chat-input");
+    if (!input) return;
+    input.value = input.value.slice(0, -1);
+    input.focus();
+}
+
+async function convertWebPhonetic() {
+    const input = document.getElementById("persona-chat-input");
+    const raw = (input?.value || "").trim();
+    if (!raw || preferredLanguage === "en") return;
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/ai/transliterate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: raw, target_language: preferredLanguage })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.transliterated_text) input.value = data.transliterated_text;
+        }
+    } catch (e) {
+        console.warn("Transliterate error:", e);
+    }
+}
+
 async function translateCardText(btn, originalText) {
     const cardBody = btn.closest(".card-body");
     const titleEl = cardBody ? cardBody.querySelector(".listing-title") : null;
@@ -168,15 +235,28 @@ const SPEECH_BCP47 = {
     ml: "ml-IN"
 };
 
+let activeTtsAudio = null;
+
 function speakText(text, langCode = preferredLanguage) {
-    if (!("speechSynthesis" in window)) return;
     const clean = (text || "").replace(/<[^>]*>/g, " ").replace(/[*_#`•🌾🧪🌿⚠️⏱️🛡️]/g, " ").replace(/\s+/g, " ").trim();
     if (!clean) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(clean);
-    utterance.lang = SPEECH_BCP47[langCode] || "en-IN";
-    utterance.rate = 0.95;
-    window.speechSynthesis.speak(utterance);
+    if (activeTtsAudio) {
+        activeTtsAudio.pause();
+        activeTtsAudio = null;
+    }
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+    const ttsUrl = `${API_ML_URL}/api/v1/ai/tts?text=${encodeURIComponent(clean)}&lang=${encodeURIComponent(langCode || "en")}`;
+    const audio = new Audio(ttsUrl);
+    activeTtsAudio = audio;
+    audio.play().catch(() => {
+        if (!("speechSynthesis" in window)) return;
+        const utterance = new SpeechSynthesisUtterance(clean);
+        utterance.lang = SPEECH_BCP47[langCode] || "en-IN";
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+    });
 }
 
 function speakCardText(btn) {
@@ -1479,6 +1559,73 @@ function startMicForPersonaChat() {
     rec.start();
 }
 
+const WEB_KEYBOARD_KEYS = {
+    kn: ["ನಮಸ್ಕಾರ", "ಟೊಮ್ಯಾಟೊ", "ಈರುಳ್ಳಿ", "ಸಿದ್ಧವಾಗಿದೆ", "ಬರುತ್ತಿದ್ದೇನೆ", "ಅ", "ಆ", "ಇ", "ಈ", "ಉ", "ಎ", "ಏ", "ಒ", "ಓ", "ಕ", "ಗ", "ಚ", "ಜ", "ಟ", "ಡ", "ತ", "ದ", "ನ", "ಪ", "ಬ", "ಮ", "ಯ", "ರ", "ಲ", "ವ", "ಶ", "ಸ", "ಹ", "ಳ", "ಾ", "ಿ", "ೀ", "ು", "ೂ", "ೆ", "ೇ", "ೊ", "ೋ", "್"],
+    hi: ["नमस्ते", "टमाटर", "प्याज", "तैयार है", "आ रहा हूँ", "अ", "आ", "इ", "ई", "उ", "ए", "ऐ", "ओ", "औ", "क", "ग", "च", "ज", "ट", "ड", "त", "द", "न", "प", "ब", "म", "य", "र", "ल", "व", "श", "स", "ह", "ा", "ि", "ी", "ु", "ू", "े", "ै", "ो", "ौ", "्"],
+    te: ["నమస్కారం", "టమోటా", "ఉల్లిపాయ", "సిద్ధంగా ఉంది", "అ", "ఆ", "ఇ", "ఈ", "ఉ", "ఎ", "ఏ", "ఒ", "ఓ", "క", "గ", "చ", "జ", "ట", "డ", "త", "ద", "న", "ప", "బ", "మ", "య", "ర", "ల", "వ", "స", "హ", "ా", "ి", "ీ", "ు", "ూ", "ె", "ే", "ొ", "ో", "్"],
+    ta: ["வணக்கம்", "தக்காளி", "வெங்காயம்", "தயாராக உள்ளது", "அ", "ஆ", "இ", "ஈ", "உ", "எ", "ஏ", "ஒ", "ஓ", "க", "ச", "ட", "த", "ந", "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ா", "ி", "ீ", "ு", "ூ", "ெ", "ே", "ொ", "ோ", "்"],
+    ml: ["നമസ്കാരം", "തക്കാളി", "ഉള്ളി", "തയ്യാറാണ്", "അ", "ആ", "ഇ", "ഈ", "ഉ", "എ", "ഏ", "ഒ", "ഓ", "ക", "ഗ", "ച", "ജ", "ട", "ഡ", "ത", "ദ", "ന", "പ", "ബ", "മ", "യ", "ര", "ല", "വ", "സ", "ഹ", "ാ", "ി", "ീ", "ു", "ൂ", "െ", "േ", "ൊ", "ോ", "്"],
+    en: ["Hello", "Ready for pickup", "On my way", "In stock", "Thank you"]
+};
+
+function toggleWebKeyboard() {
+    const kb = document.getElementById("web-multilingual-keyboard");
+    if (!kb) return;
+    if (kb.style.display === "none") {
+        kb.style.display = "block";
+        renderWebKeyboard();
+    } else {
+        kb.style.display = "none";
+    }
+}
+
+function renderWebKeyboard() {
+    const kb = document.getElementById("web-multilingual-keyboard");
+    if (!kb) return;
+    const keys = WEB_KEYBOARD_KEYS[preferredLanguage] || WEB_KEYBOARD_KEYS.en;
+    kb.innerHTML = `
+        <div style="font-size:0.78rem; color:var(--primary); font-weight:bold; margin-bottom:0.5rem;">${preferredLanguage.toUpperCase()} Virtual Keyboard &amp; Quick Farm Phrases</div>
+        <div style="display:flex; flex-wrap:wrap; gap:5px;">
+            ${keys.map(k => `<button type="button" onclick="insertWebKey('${k}')" style="padding:5px 9px; border-radius:6px; border:1px solid var(--dark-border); background:var(--dark-bg); color:white; cursor:pointer; font-size:0.88rem;">${k}</button>`).join("")}
+            <button type="button" onclick="insertWebKey(' ')" style="padding:5px 12px; border-radius:6px; border:1px solid var(--dark-border); background:var(--dark-bg); color:white; cursor:pointer; font-size:0.8rem;">Space</button>
+            <button type="button" onclick="backspaceWebKey()" style="padding:5px 10px; border-radius:6px; border:1px solid #ef4444; background:rgba(239,68,68,0.15); color:#fca5a5; cursor:pointer; font-size:0.8rem;">&#9003;</button>
+        </div>
+    `;
+}
+
+function insertWebKey(val) {
+    const input = document.getElementById("persona-chat-input");
+    if (!input) return;
+    input.value += val + (val.length > 1 ? " " : "");
+    input.focus();
+}
+
+function backspaceWebKey() {
+    const input = document.getElementById("persona-chat-input");
+    if (!input) return;
+    input.value = input.value.slice(0, -1);
+    input.focus();
+}
+
+async function convertWebPhonetic() {
+    const input = document.getElementById("persona-chat-input");
+    const raw = (input?.value || "").trim();
+    if (!raw || preferredLanguage === "en") return;
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/ai/transliterate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: raw, target_language: preferredLanguage })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.transliterated_text) input.value = data.transliterated_text;
+        }
+    } catch (e) {
+        console.warn("Transliterate error:", e);
+    }
+}
+
 async function translateCardText(btn, originalText) {
     const cardBody = btn.closest(".card-body");
     const titleEl = cardBody ? cardBody.querySelector(".listing-title") : null;
@@ -1510,15 +1657,28 @@ const SPEECH_BCP47 = {
     ml: "ml-IN"
 };
 
+let activeTtsAudio = null;
+
 function speakText(text, langCode = preferredLanguage) {
-    if (!("speechSynthesis" in window)) return;
     const clean = (text || "").replace(/<[^>]*>/g, " ").replace(/[*_#`•🌾🧪🌿⚠️⏱️🛡️]/g, " ").replace(/\s+/g, " ").trim();
     if (!clean) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(clean);
-    utterance.lang = SPEECH_BCP47[langCode] || "en-IN";
-    utterance.rate = 0.95;
-    window.speechSynthesis.speak(utterance);
+    if (activeTtsAudio) {
+        activeTtsAudio.pause();
+        activeTtsAudio = null;
+    }
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+    const ttsUrl = `${API_ML_URL}/api/v1/ai/tts?text=${encodeURIComponent(clean)}&lang=${encodeURIComponent(langCode || "en")}`;
+    const audio = new Audio(ttsUrl);
+    activeTtsAudio = audio;
+    audio.play().catch(() => {
+        if (!("speechSynthesis" in window)) return;
+        const utterance = new SpeechSynthesisUtterance(clean);
+        utterance.lang = SPEECH_BCP47[langCode] || "en-IN";
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+    });
 }
 
 function speakCardText(btn) {

@@ -2,7 +2,7 @@ import os
 import sys
 from typing import Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -2115,6 +2115,32 @@ def translate_message(req: TranslateRequest):
     """Translates farmer/customer/aggregator/delivery messages into the recipient's preferred language."""
     svc = _get_translation_service()
     return svc.translate(req.text, target_language=req.target_language, source_language=req.source_language or "auto")
+
+
+@app.post("/api/v1/ai/transliterate")
+def transliterate_text(req: TranslateRequest):
+    """Converts phonetic Romanized text (e.g. 'namaskara') into native Indian script."""
+    svc = _get_translation_service()
+    return svc.transliterate(req.text, target_language=req.target_language)
+
+
+@app.get("/api/v1/ai/tts")
+def text_to_speech_audio(text: str, lang: str = "en"):
+    """Streams real native MP3 speech audio for English, Kannada, Hindi, Telugu, Tamil, Malayalam."""
+    svc = _get_translation_service()
+    try:
+        audio_bytes = svc.synthesize_tts_audio(text, lang_code=lang)
+        if not audio_bytes:
+            raise HTTPException(status_code=400, detail="Empty text for TTS")
+        return Response(
+            content=audio_bytes,
+            media_type="audio/mpeg",
+            headers={"Cache-Control": "public, max-age=3600"},
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"TTS synthesis unavailable: {e}")
 
 
 @app.get("/api/v1/users/language")

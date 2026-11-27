@@ -1,4 +1,13 @@
 import 'dart:js_interop';
+import '../core/config.dart';
+
+@JS('Audio')
+extension type _HTMLAudioElement._(JSObject _) implements JSObject {
+  external factory _HTMLAudioElement(JSString src);
+  external void pause();
+  external set currentTime(JSNumber value);
+  external JSPromise<JSAny?> play();
+}
 
 @JS('SpeechSynthesisUtterance')
 extension type _SpeechSynthesisUtterance._(JSObject _) implements JSObject {
@@ -22,22 +31,48 @@ const Map<String, String> _bcp47Map = {
   'ml': 'ml-IN',
 };
 
+_HTMLAudioElement? _activeAudio;
+
 void speakPlatformText(String text, String langCode) {
+  final clean = text
+      .replaceAll(RegExp(r'[*_#`•🌾🧪🌿⚠️⏱️🛡️]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+  if (clean.isEmpty) return;
+
+  stopPlatformSpeech();
+
+  final lang = langCode.toLowerCase();
   try {
-    final clean = text
-        .replaceAll(RegExp(r'[*_#`•🌾🧪🌿⚠️⏱️🛡️]'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
-    if (clean.isEmpty) return;
+    final ttsUrl =
+        '${AppConfig.baseUrl}/ai/tts?text=${Uri.encodeComponent(clean)}&lang=${Uri.encodeComponent(lang)}';
+    final audio = _HTMLAudioElement(ttsUrl.toJS);
+    _activeAudio = audio;
+    audio.play().toDart.catchError((_) {
+      _fallbackWebSpeech(clean, lang);
+      return null;
+    });
+  } catch (_) {
+    _fallbackWebSpeech(clean, lang);
+  }
+}
+
+void _fallbackWebSpeech(String clean, String lang) {
+  try {
     _cancelSpeech();
     final utterance = _SpeechSynthesisUtterance(clean.toJS);
-    utterance.lang = (_bcp47Map[langCode.toLowerCase()] ?? 'en-IN').toJS;
+    utterance.lang = (_bcp47Map[lang] ?? 'en-IN').toJS;
     utterance.rate = 0.95.toJS;
     _speakUtterance(utterance);
   } catch (_) {}
 }
 
 void stopPlatformSpeech() {
+  try {
+    _activeAudio?.pause();
+    _activeAudio?.currentTime = 0.toJS;
+    _activeAudio = null;
+  } catch (_) {}
   try {
     _cancelSpeech();
   } catch (_) {}
