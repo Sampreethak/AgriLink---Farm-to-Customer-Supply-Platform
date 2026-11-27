@@ -354,6 +354,7 @@ def init_rds_seeds():
         ]
         for s in seeds:
             rds_upsert_user_profile(s)
+        rds_load_listings()
     except Exception as e:
         print(f"[Startup RDS Seed Warning]: {e}")
 
@@ -541,7 +542,8 @@ def rds_save_listing(item: dict) -> bool:
             INSERT INTO public.crop_listings (
                 farmer_name, title, crop_name, category_id, description,
                 price_per_unit, unit, available_quantity, is_organic, grade, location, image_url, status
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id;
         """, (
             item.get("farmer_name", "Farmer"),
             item.get("title", "Crop Listing"),
@@ -557,10 +559,11 @@ def rds_save_listing(item: dict) -> bool:
             item.get("image_url", ""),
             item.get("status", "ACTIVE")
         ))
+        row = cur.fetchone()
         conn.commit()
         cur.close()
         conn.close()
-        return True
+        return int(row[0]) if row else True
     except Exception as e:
         print(f"[RDS] Error saving crop listing: {e}")
         try:
@@ -568,6 +571,135 @@ def rds_save_listing(item: dict) -> bool:
             conn.close()
         except Exception:
             pass
+        return False
+
+
+def rds_load_listings():
+    """Loads persisted crop listings from AWS RDS PostgreSQL into memory on startup."""
+    conn = get_rds_connection()
+    if not conn:
+        return
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS public.crop_listings (
+                id SERIAL PRIMARY KEY,
+                farmer_name VARCHAR(255) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                crop_name VARCHAR(100) NOT NULL,
+                category_id INT DEFAULT 1,
+                description TEXT,
+                price_per_unit NUMERIC(10, 2) NOT NULL,
+                unit VARCHAR(20) DEFAULT 'kg',
+                available_quantity NUMERIC(10, 2) NOT NULL,
+                is_organic BOOLEAN DEFAULT FALSE,
+                grade VARCHAR(20) DEFAULT 'A',
+                location VARCHAR(255),
+                image_url TEXT,
+                status VARCHAR(50) DEFAULT 'ACTIVE',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        """)
+        conn.commit()
+        cur.execute("""
+            SELECT id, farmer_name, title, crop_name, category_id, description,
+                   price_per_unit, unit, available_quantity, is_organic, grade, location, image_url, status
+            FROM public.crop_listings
+            ORDER BY id DESC;
+        """)
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        existing_ids = {l["id"] for l in MOCK_LISTINGS}
+        for row in rows:
+            rds_id = int(row[0])
+            listing_id = rds_id if rds_id not in existing_ids else (1000 + rds_id)
+            qty = float(row[8] or 0)
+            status = row[13] or ("ACTIVE" if qty > 0 else "OUT_OF_STOCK")
+            item = {
+                "id": listing_id,
+                "rds_id": rds_id,
+                "farmer_name": row[1],
+                "title": row[2],
+                "crop_name": row[3],
+                "category_id": int(row[4] or 1),
+                "description": row[5] or "",
+                "price_per_unit": float(row[6] or 0),
+                "unit": row[7] or "kg",
+                "available_quantity": qty,
+                "is_organic": bool(row[9]),
+                "grade": row[10] or "A",
+                "location": row[11] or "Mandya, Karnataka",
+                "image_url": row[12] or "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500",
+                "rating_avg": 5.0,
+                "rating_count": 1,
+                "status": status,
+                "in_stock": qty > 0 and status != "OUT_OF_STOCK",
+            }
+            if item["id"] not in existing_ids:
+                MOCK_LISTINGS.insert(0, item)
+                existing_ids.add(item["id"])
+        print(f"[RDS] Loaded {len(rows)} persisted crop listings from PostgreSQL.")
+    except Exception as e:
+        print(f"[RDS] Error loading crop listings: {e}")
+
+
+def rds_update_listing_stock(listing: dict, new_qty: float, status: str) -> bool:
+    """Persists stock quantity and IN_STOCK/OUT_OF_STOCK status to AWS RDS PostgreSQL."""
+    conn = get_rds_connection()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        target_id = listing.get("rds_id") or listing.get("id")
+        cur.execute("""
+            UPDATE public.crop_listings
+            SET available_quantity = %s, status = %s
+            WHERE id = %s OR (LOWER(title) = LOWER(%s) AND LOWER(farmer_name) = LOWER(%s));
+        """, (new_qty, status, target_id, listing.get("title", ""), listing.get("farmer_name", "")))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[RDS] Error updating listing stock: {e}")
+        return False
+
+
+def rds_update_listing_details(listing: dict) -> bool:
+    """Persists full crop listing edits to AWS RDS PostgreSQL."""
+    conn = get_rds_connection()
+    if not conn:
+        return False
+    try:
+        cur = conn.cursor()
+        target_id = listing.get("rds_id") or listing.get("id")
+        cur.execute("""
+            UPDATE public.crop_listings
+            SET title = %s, crop_name = %s, category_id = %s, description = %s,
+                price_per_unit = %s, unit = %s, available_quantity = %s,
+                is_organic = %s, grade = %s, location = %s, status = %s
+            WHERE id = %s;
+        """, (
+            listing.get("title", ""),
+            listing.get("crop_name", ""),
+            listing.get("category_id", 1),
+            listing.get("description", ""),
+            listing.get("price_per_unit", 0),
+            listing.get("unit", "kg"),
+            listing.get("available_quantity", 0),
+            listing.get("is_organic", False),
+            listing.get("grade", "A"),
+            listing.get("location", ""),
+            listing.get("status", "ACTIVE"),
+            target_id,
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[RDS] Error updating listing details: {e}")
         return False
 
 def rds_save_order(order: dict) -> bool:
@@ -891,15 +1023,71 @@ def get_categories():
         {"id": 5, "name": "Dairy & Honey", "icon": "local_drink"}
     ]
 
+CATEGORY_NAMES = {
+    1: "Vegetables",
+    2: "Fruits",
+    3: "Grains",
+    4: "Spices & Herbs",
+    5: "Dairy & Honey",
+}
+
+
+def _normalize_listing(l: dict) -> dict:
+    """Ensures consistent schema across Web, Flutter, and RDS listings."""
+    qty = float(l.get("available_quantity", l.get("stock_quantity", 0)) or 0)
+    status = l.get("status", "ACTIVE" if qty > 0 else "OUT_OF_STOCK")
+    in_stock = qty > 0 and status != "OUT_OF_STOCK"
+    price_val = float(l.get("price_per_unit", l.get("price", 0)) or 0)
+    cat_id = int(l.get("category_id", 1) or 1)
+    return {
+        **l,
+        "name": l.get("name") or l.get("title") or l.get("crop_name", "Produce"),
+        "title": l.get("title") or l.get("name") or l.get("crop_name", "Produce"),
+        "crop_name": l.get("crop_name") or l.get("name") or "Produce",
+        "farmer_name": l.get("farmer_name") or "Direct Farmer",
+        "price": price_val,
+        "price_per_unit": price_val,
+        "available_quantity": qty,
+        "stock_quantity": qty,
+        "in_stock": in_stock,
+        "status": "ACTIVE" if in_stock else "OUT_OF_STOCK",
+        "category": l.get("category") or CATEGORY_NAMES.get(cat_id, "Vegetables"),
+        "rating": l.get("rating", l.get("rating_avg", 4.8)),
+        "reviews": l.get("reviews", l.get("rating_count", 12)),
+    }
+
+
 @app.get("/api/v1/listings")
 @app.get("/api/v1/products")
-def get_listings(category_id: Optional[int] = None, search: Optional[str] = None):
-    results = MOCK_LISTINGS
+def get_listings(
+    category_id: Optional[int] = None,
+    category: Optional[str] = None,
+    search: Optional[str] = None,
+    farmer_name: Optional[str] = None,
+    in_stock_only: bool = False,
+):
+    results = [_normalize_listing(l) for l in MOCK_LISTINGS]
     if category_id:
         results = [l for l in results if l["category_id"] == category_id]
+    if category and category.lower() != "all":
+        c_low = category.lower()
+        results = [l for l in results if c_low in str(l.get("category", "")).lower()]
+    if farmer_name:
+        f_low = farmer_name.strip().lower()
+        results = [l for l in results if f_low in str(l.get("farmer_name", "")).lower()]
     if search:
-        s = search.lower()
-        results = [l for l in results if s in l["title"].lower() or s in l["crop_name"].lower()]
+        s = search.strip().lower()
+        results = [
+            l for l in results
+            if s in str(l.get("crop_name", "")).lower()
+            or s in str(l.get("title", "")).lower()
+            or s in str(l.get("name", "")).lower()
+            or s in str(l.get("farmer_name", "")).lower()
+            or s in str(l.get("description", "")).lower()
+            or s in str(l.get("location", "")).lower()
+        ]
+    if in_stock_only:
+        results = [l for l in results if l["in_stock"]]
     return {"products": results, "total": len(results)}
 
 @app.get("/api/v1/listings/{listing_id}")
@@ -908,7 +1096,7 @@ def get_listing_detail(listing_id: int):
     listing = next((l for l in MOCK_LISTINGS if l["id"] == listing_id), None)
     if not listing:
         raise HTTPException(status_code=404, detail="Crop listing not found")
-    return listing
+    return _normalize_listing(listing)
 
 def sync_to_supabase(table_name: str, payload: dict):
     """Attempts to synchronize records with Supabase PostgREST cloud tables."""
@@ -958,7 +1146,10 @@ def create_listing(item: ListingCreate):
 
     
     # Persist to AWS RDS PostgreSQL
-    rds_saved = rds_save_listing(new_item)
+    rds_res = rds_save_listing(new_item)
+    if isinstance(rds_res, int) and not isinstance(rds_res, bool):
+        new_item["rds_id"] = rds_res
+    rds_saved = bool(rds_res)
 
     # Sync with Supabase cloud database
     supabase_synced = sync_to_supabase("seller_listing", {
@@ -1269,7 +1460,8 @@ class StatusUpdatePayload(BaseModel):
     status: str
 
 class StockUpdatePayload(BaseModel):
-    stock_quantity: float
+    stock_quantity: Optional[float] = None
+    in_stock: Optional[bool] = None
 
 @app.get("/api/v1/orders/cart")
 def get_cart():
@@ -1343,19 +1535,47 @@ def update_order_status(order_id: str, payload: StatusUpdatePayload):
 @app.put("/api/v1/products/{product_id}")
 @app.put("/api/v1/listings/{product_id}")
 def update_product(product_id: int, item: ListingCreate):
-    listing = next((l for l in MOCK_LISTINGS if l["id"] == product_id), None)
+    listing = next((l for l in MOCK_LISTINGS if l["id"] == product_id or l.get("rds_id") == product_id), None)
     if listing:
         listing.update(item.dict())
-        return listing
+        listing["in_stock"] = listing.get("available_quantity", 0) > 0
+        listing["status"] = "ACTIVE" if listing["in_stock"] else "OUT_OF_STOCK"
+        rds_update_listing_details(listing)
+        return _normalize_listing(listing)
     return {"status": "success", "id": product_id}
 
 @app.patch("/api/v1/products/{product_id}/stock")
 @app.patch("/api/v1/listings/{product_id}/stock")
 def update_product_stock(product_id: int, payload: StockUpdatePayload):
-    listing = next((l for l in MOCK_LISTINGS if l["id"] == product_id), None)
-    if listing:
-        listing["available_quantity"] = payload.stock_quantity
-    return {"status": "success", "id": product_id, "available_quantity": payload.stock_quantity}
+    listing = next((l for l in MOCK_LISTINGS if l["id"] == product_id or l.get("rds_id") == product_id), None)
+    if not listing:
+        raise HTTPException(status_code=404, detail="Crop listing not found")
+
+    if payload.in_stock is not None:
+        if payload.in_stock:
+            new_qty = payload.stock_quantity if (payload.stock_quantity is not None and payload.stock_quantity > 0) else (float(listing.get("last_available_quantity") or listing.get("available_quantity") or 100.0) or 100.0)
+            new_status = "ACTIVE"
+        else:
+            if float(listing.get("available_quantity", 0) or 0) > 0:
+                listing["last_available_quantity"] = float(listing["available_quantity"])
+            new_qty = 0.0
+            new_status = "OUT_OF_STOCK"
+    else:
+        new_qty = float(payload.stock_quantity if payload.stock_quantity is not None else listing.get("available_quantity", 0))
+        new_status = "ACTIVE" if new_qty > 0 else "OUT_OF_STOCK"
+
+    listing["available_quantity"] = new_qty
+    listing["status"] = new_status
+    listing["in_stock"] = new_qty > 0 and new_status != "OUT_OF_STOCK"
+    rds_saved = rds_update_listing_stock(listing, new_qty, new_status)
+    return {
+        "status": "success",
+        "id": listing["id"],
+        "available_quantity": new_qty,
+        "in_stock": listing["in_stock"],
+        "listing_status": new_status,
+        "rds_persisted": rds_saved,
+    }
 
 # Dynamic in-memory user registry
 REGISTERED_USERS = [
@@ -1794,7 +2014,7 @@ def get_apmc_benchmarks():
         benchmarks = pricing_predictor.get_live_benchmarks()
         return {
             "status": "success",
-            "source": "Open-Source Mandi Price API (AGMARKNET Karnataka Feed)",
+            "source": "Official data.gov.in AGMARKNET Live API (with APMC Fallback)",
             "count": len(benchmarks),
             "benchmarks_rs_per_kg": benchmarks
         }

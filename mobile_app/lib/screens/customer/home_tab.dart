@@ -175,6 +175,7 @@ class _HomeTabState extends State<HomeTab> {
     try {
       final customList = PlatformState().customFarmerProducts.map((p) => {
         'name': p['name'] ?? 'Produce',
+        'crop_name': p['crop_name'] ?? p['name'] ?? 'Produce',
         'price': p['price'] ?? '₹30/kg',
         'imageUrl': p['image_url'] ?? _resolveProduceImage(p['name']?.toString(), null),
         'category': p['category'] ?? 'Vegetables',
@@ -182,16 +183,20 @@ class _HomeTabState extends State<HomeTab> {
         'reviews': '1',
         'id': p['id']?.toString() ?? '',
         'farmer': p['farmer'] ?? p['farmer_name'] ?? 'Direct Producer',
+        'in_stock': p['in_stock'] ?? true,
       }).toList();
 
-      final data = await _productService.getProducts(limit: 30);
+      final data = await _productService.getProducts(limit: 50);
       final List<dynamic> raw = data['products'] ?? [];
       final apiList = raw.map<Map<String, dynamic>>((p) {
         final category = (p['category'] ?? 'default').toString();
-        final priceNum = (p['price'] ?? 0);
+        final priceNum = (p['price'] ?? p['price_per_unit'] ?? 0);
         final unit = p['unit'] ?? 'kg';
+        final qty = double.tryParse((p['stock_quantity'] ?? p['available_quantity'] ?? 100).toString()) ?? 0.0;
+        final bool inStock = p['in_stock'] ?? (qty > 0 && p['status'] != 'OUT_OF_STOCK');
         return {
-          'name': p['name'] ?? '',
+          'name': p['name'] ?? p['title'] ?? '',
+          'crop_name': p['crop_name'] ?? p['name'] ?? '',
           'price': '₹${priceNum.toString()}/$unit',
           'imageUrl': (p['image_urls'] != null && (p['image_urls'] as List).isNotEmpty)
               ? p['image_urls'][0]
@@ -201,6 +206,7 @@ class _HomeTabState extends State<HomeTab> {
           'reviews': (p['reviews'] ?? 42).toString(),
           'id': p['id']?.toString() ?? '',
           'farmer': p['farmer_name'] ?? 'Ramesh Kumar',
+          'in_stock': inStock,
         };
       }).toList();
 
@@ -367,9 +373,13 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter products based on active Search Query AND Selected Category Icon
+    // Filter products based on active Search Query (crop, title, or farmer) AND Selected Category Icon
+    final q = searchQuery.trim().toLowerCase();
     final filteredProducts = _allProducts.where((product) {
-      final matchesSearch = product['name'].toString().toLowerCase().contains(searchQuery.toLowerCase());
+      final matchesSearch = q.isEmpty ||
+          product['name'].toString().toLowerCase().contains(q) ||
+          (product['crop_name'] ?? '').toString().toLowerCase().contains(q) ||
+          (product['farmer'] ?? '').toString().toLowerCase().contains(q);
       final matchesCategory = selectedCategory == "All" ||
           product['category'].toString().toLowerCase() == selectedCategory.toLowerCase();
       return matchesSearch && matchesCategory;
@@ -751,6 +761,7 @@ class _HomeTabState extends State<HomeTab> {
                 rating: prod['rating'],
                 reviews: prod['reviews'],
                 farmerName: prod['farmer'] ?? 'Ramesh Kumar',
+                inStock: prod['in_stock'] ?? true,
                 quantityInCart: qty,
                 onTap: () => _navigateToDetails(prod),
                 onAdd: () => _updateCartItem(prod, 1),
@@ -1140,6 +1151,7 @@ class ProductCard extends StatelessWidget {
   final String rating;
   final String reviews;
   final String farmerName;
+  final bool inStock;
   final int quantityInCart;
   final VoidCallback onTap;
   final VoidCallback onAdd;
@@ -1153,6 +1165,7 @@ class ProductCard extends StatelessWidget {
     required this.rating,
     required this.reviews,
     required this.farmerName,
+    this.inStock = true,
     required this.quantityInCart,
     required this.onTap,
     required this.onAdd,
@@ -1227,42 +1240,72 @@ class ProductCard extends StatelessWidget {
                           " $rating ($reviews)",
                           style: const TextStyle(color: Colors.grey, fontSize: 11),
                         ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: inStock ? Colors.green.shade50 : Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            inStock ? "In Stock" : "Out of Stock",
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: inStock ? Colors.green.shade700 : Colors.red.shade700,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              // Direct [-] [ Qty ] [+] Quick Cart Controls
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.mintLight,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.lightGreenAccent),
-                ),
-                child: Row(
-                  children: [
-                    if (quantityInCart > 0) ...[
+              // Direct [-] [ Qty ] [+] Quick Cart Controls (disabled when Out of Stock)
+              if (!inStock)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Text(
+                    "Out of Stock",
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red.shade700),
+                  ),
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.mintLight,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.lightGreenAccent),
+                  ),
+                  child: Row(
+                    children: [
+                      if (quantityInCart > 0) ...[
+                        IconButton(
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(Icons.remove, size: 16, color: AppColors.lightGreenPrimary),
+                          onPressed: onMinus,
+                        ),
+                        Text(
+                          "$quantityInCart",
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.lightGreenPrimary),
+                        ),
+                      ],
                       IconButton(
                         constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                         padding: EdgeInsets.zero,
-                        icon: const Icon(Icons.remove, size: 16, color: AppColors.lightGreenPrimary),
-                        onPressed: onMinus,
-                      ),
-                      Text(
-                        "$quantityInCart",
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.lightGreenPrimary),
+                        icon: const Icon(Icons.add, size: 16, color: AppColors.lightGreenPrimary),
+                        onPressed: onAdd,
                       ),
                     ],
-                    IconButton(
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.add, size: 16, color: AppColors.lightGreenPrimary),
-                      onPressed: onAdd,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

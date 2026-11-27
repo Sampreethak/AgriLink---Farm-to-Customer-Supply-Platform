@@ -1,16 +1,18 @@
+import os
 import time
 import json
 import urllib.request
 import urllib.error
+import urllib.parse
 from typing import Dict, Any, Optional
 
 class MandiApiClient:
     """
-    Open-Source Keyless REST API Client for Indian APMC Mandi Prices.
-    Wraps the public AGMARKNET Karnataka data feed from https://mandi-api.onrender.com
-    Documentation: https://mandi-api.vercel.app
+    Official data.gov.in AGMARKNET APMC Mandi Live Price Client (with keyless fallback).
+    Resource: https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070
     """
-    BASE_URL = "https://mandi-api.onrender.com/v1"
+    DATA_GOV_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+    FALLBACK_API_URL = "https://mandi-api.onrender.com/v1"
     
     # Aliases mapping AgriLink standard commodities to Mandi API commodity strings
     COMMODITY_ALIASES = {
@@ -75,14 +77,72 @@ class MandiApiClient:
         self.cache_ttl = cache_ttl_seconds
         self._cached_data = None
         self._cache_timestamp = 0.0
+        self.api_key = os.getenv("DATA_GOV_APMC_API_KEY") or self._load_key_from_dotenv()
+
+    def _load_key_from_dotenv(self) -> str:
+        """Reads DATA_GOV_APMC_API_KEY from backend_fastapi/.env if not already exported."""
+        try:
+            env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "backend_fastapi", ".env")
+            if os.path.exists(env_path):
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("DATA_GOV_APMC_API_KEY="):
+                            return line.split("=", 1)[1].strip().strip('"').strip("'")
+        except Exception:
+            pass
+        return ""
+
+    def _fetch_from_data_gov(self, state_filter: Optional[str] = "Karnataka") -> list:
+        """Fetches live AGMARKNET APMC records from data.gov.in using the registered API key."""
+        if not self.api_key:
+            return []
+        params = {
+            "api-key": self.api_key,
+            "format": "json",
+            "limit": "500",
+        }
+        if state_filter:
+            params["filters[state.keyword]"] = state_filter
+        url = f"{self.DATA_GOV_URL}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "AgriLink-DynamicPricing/2.0", "Accept": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=12) as response:
+            if response.status == 200:
+                payload = json.loads(response.read().decode("utf-8"))
+                return payload.get("records", []) or []
+        return []
 
     def fetch_karnataka_prices(self, force_refresh: bool = False) -> Dict[str, Any]:
-        """Fetches latest Karnataka APMC market prices from the open-source Mandi API with caching."""
+        """Fetches latest APMC market prices from data.gov.in (Karnataka first, then All-India), with keyless fallback."""
         now = time.time()
         if not force_refresh and self._cached_data and (now - self._cache_timestamp < self.cache_ttl):
             return self._cached_data
 
-        url = f"{self.BASE_URL}/prices?state=Karnataka"
+        # 1. Primary: Official data.gov.in AGMARKNET API with API Key
+        if self.api_key:
+            try:
+                records = self._fetch_from_data_gov("Karnataka")
+                if not records:
+                    # Fallback within data.gov.in to All-India live daily batch if Karnataka hasn't reported yet today
+                    records = self._fetch_from_data_gov(None)
+                if records:
+                    normalized = {
+                        "success": True,
+                        "source": "data.gov.in AGMARKNET Live API",
+                        "data": records,
+                    }
+                    self._cached_data = normalized
+                    self._cache_timestamp = now
+                    print(f"[OK] Fetched {len(records)} live APMC records from data.gov.in AGMARKNET API.")
+                    return normalized
+            except Exception as e:
+                print(f"[Warning] data.gov.in APMC API error: {e}. Trying fallback feed.")
+
+        # 2. Secondary: Keyless Mandi Price API fallback
+        url = f"{self.FALLBACK_API_URL}/prices?state=Karnataka"
         req = urllib.request.Request(
             url,
             headers={
@@ -96,9 +156,10 @@ class MandiApiClient:
                 if response.status == 200:
                     payload = json.loads(response.read().decode("utf-8"))
                     if payload.get("success") and "data" in payload:
+                        payload.setdefault("source", "Mandi Price API (AGMARKNET Karnataka Feed)")
                         self._cached_data = payload
                         self._cache_timestamp = now
-                        print(f"[OK] Fetched {len(payload['data'])} live APMC records from Mandi Price API.")
+                        print(f"[OK] Fetched {len(payload['data'])} live APMC records from fallback Mandi API.")
                         return payload
         except Exception as e:
             print(f"[Warning] Mandi Price API live fetch error: {e}. Using cached/fallback APMC data.")
@@ -140,7 +201,7 @@ class MandiApiClient:
                     "max_price_per_kg": round(float(item.get("max_price", modal_per_quintal)) / 100.0, 2),
                     "arrival_date": item.get("arrival_date"),
                     "is_live_api": True,
-                    "source": "Mandi Price API (AGMARKNET Karnataka Feed)"
+                    "source": api_response.get("source", "data.gov.in AGMARKNET Live API")
                 }
 
                 # Check if in Mandya-Bengaluru corridor

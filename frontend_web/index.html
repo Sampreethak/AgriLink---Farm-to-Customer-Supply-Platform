@@ -117,8 +117,14 @@
 
             <!-- SECTION 4: DIRECT FARM HARVEST CATALOGUE -->
             <div style="margin-bottom: 2.5rem;">
-                <div class="section-title">
-                    <i class="fa-solid fa-wheat-awn" style="color: var(--warning);"></i> Direct Farm Harvest Produce
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                    <span><i class="fa-solid fa-wheat-awn" style="color: var(--warning);"></i> Direct Farm Harvest Produce</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input id="marketplace-crop-search" type="text" placeholder="Search crop or vegetable (e.g. Tomato, Onion, Rice)..." oninput="renderAllListings(this.value)" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--dark-border); background: var(--dark-card); color: white; min-width: 260px; font-size: 0.85rem;">
+                        <button onclick="renderAllListings(document.getElementById('marketplace-crop-search').value)" class="btn-action btn-primary" style="padding: 8px 14px; width: auto;">
+                            <i class="fa-solid fa-magnifying-glass"></i> Search
+                        </button>
+                    </div>
                 </div>
                 <div id="all-listings-grid" class="grid-cards">
                     <!-- Dynamic Listing Cards Inserted Here -->
@@ -299,15 +305,31 @@
                 <!-- Farmer Crop Recommendations loaded dynamically -->
             </div>
 
-            <div class="section-title" style="font-size: 1.1rem; margin-top: 1.5rem;">
-                My Published Crop Harvest Listings
+            <div class="section-title" style="font-size: 1.1rem; margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>My Published Crop Harvest Listings (Live DB &amp; Stock Toggle)</span>
+                <button onclick="loadFarmerListings()" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">Refresh Listings</button>
             </div>
+            <form id="farmer-add-listing-form" onsubmit="publishFarmerListing(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; padding: 1rem; background: var(--dark-card); border-radius: 10px; border: 1px solid var(--dark-border);">
+                <input id="f-farmer-name" type="text" placeholder="Farmer Name" value="Ramesh Kumar" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-bg); color: white;">
+                <input id="f-crop-name" type="text" placeholder="Crop (e.g. Tomato)" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-bg); color: white;">
+                <input id="f-price" type="number" step="0.5" placeholder="Price ₹/kg" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-bg); color: white;">
+                <input id="f-qty" type="number" step="1" placeholder="Quantity (kg)" value="100" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-bg); color: white;">
+                <input id="f-location" type="text" placeholder="Origin" value="Mandya, Karnataka" required style="padding: 8px; border-radius: 6px; border: 1px solid var(--dark-border); background: var(--dark-bg); color: white;">
+                <button type="submit" class="btn-action btn-primary" style="padding: 8px 12px;">+ Publish Crop</button>
+            </form>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Crop Name</th>
+                            <th>Farmer</th>
                             <th>Farm Origin</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Stock Status (Click to Toggle)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="farmer-listings-tbody">
                             <th>Available Qty</th>
                             <th>Price / kg</th>
                             <th>Grade</th>

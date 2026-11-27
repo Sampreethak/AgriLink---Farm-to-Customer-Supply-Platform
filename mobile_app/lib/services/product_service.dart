@@ -118,6 +118,21 @@ class ProductService {
     }
   }
 
+  // One-tap toggle In Stock / Out of Stock (Farmer only)
+  Future<Map<String, dynamic>> toggleStock(String id, bool inStock) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await _dio.patch(
+        '/products/$id/stock',
+        data: {'in_stock': inStock},
+        options: Options(headers: headers),
+      );
+      return Map<String, dynamic>.from(response.data ?? {});
+    } catch (e) {
+      throw Exception(_handleError(e));
+    }
+  }
+
   String _handleError(dynamic error) {
     if (error is DioException) {
       if (error.response != null && error.response?.data != null) {

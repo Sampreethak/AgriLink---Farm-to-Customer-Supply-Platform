@@ -33,6 +33,7 @@ const CROP_IMAGES = {
 document.addEventListener("DOMContentLoaded", () => {
     loadAllRecommendations(currentCustomerId);
     renderAllListings();
+    loadFarmerListings();
     calculateFairPrice();
     loadApmcBenchmarks();
 });
@@ -206,55 +207,160 @@ function renderGrid(elementId, items, modelBadge) {
     });
 }
 
-function renderAllListings() {
+async function renderAllListings(searchQuery = "") {
     const grid = document.getElementById("all-listings-grid");
     if (!grid) return;
+
+    let items = [];
+    try {
+        const q = (searchQuery || "").trim();
+        const url = q
+            ? `${API_ML_URL}/api/v1/listings?search=${encodeURIComponent(q)}`
+            : `${API_ML_URL}/api/v1/listings`;
+        const res = await fetch(url);
+        if (res.ok) {
+            const data = await res.json();
+            items = data.products || [];
+        }
+    } catch (e) {
+        console.warn("Live listings fetch note:", e);
+    }
+
     grid.innerHTML = "";
+    if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted);">No matching crop listings found${searchQuery ? ` for "<b>${searchQuery}</b>"` : ""}.</div>`;
+        return;
+    }
 
-    const catalogue = [
-        { crop: "Tomato", price: 38.0, unit: "kg", is_organic: true, grade: "A+" },
-        { crop: "Potato", price: 32.0, unit: "kg", is_organic: false, grade: "A" },
-        { crop: "Onion", price: 42.0, unit: "kg", is_organic: false, grade: "A" },
-        { crop: "Carrot", price: 55.0, unit: "kg", is_organic: true, grade: "A+" },
-        { crop: "Palak", price: 25.0, unit: "bunch", is_organic: true, grade: "A+" },
-        { crop: "Coriander", price: 18.0, unit: "bunch", is_organic: true, grade: "A+" },
-        { crop: "Banana", price: 48.0, unit: "dozen", is_organic: true, grade: "A+" },
-        { crop: "Green Chilli", price: 45.0, unit: "kg", is_organic: true, grade: "A" }
-    ];
+    items.forEach(item => {
+        const crop = item.crop_name || item.name || "Produce";
+        const title = item.title || item.name || crop;
+        const farmer = item.farmer_name || "Direct Farmer";
+        const price = Number(item.price_per_unit ?? item.price ?? 30);
+        const unit = item.unit || "kg";
+        const grade = item.grade || "A";
+        const location = item.location || "Mandya, Karnataka";
+        const inStock = item.in_stock !== undefined ? Boolean(item.in_stock) : (Number(item.available_quantity ?? 1) > 0 && item.status !== "OUT_OF_STOCK");
+        const imgUrl = item.image_url || CROP_IMAGES[crop] || CROP_IMAGES["Tomato"];
 
-    catalogue.forEach(item => {
-        const imgUrl = CROP_IMAGES[item.crop];
         grid.innerHTML += `
-            <div class="listing-card">
+            <div class="listing-card" style="${inStock ? "" : "opacity: 0.72;"}">
                 <div class="card-header-img" style="background-image: url('${imgUrl}');">
                     <span class="organic-badge">${item.is_organic ? "Organic Certified" : "Conventional Fresh"}</span>
+                    <span class="organic-badge" style="top: auto; bottom: 8px; background: ${inStock ? "#16a34a" : "#dc2626"};">${inStock ? "In Stock" : "Out of Stock"}</span>
                 </div>
                 <div class="card-body">
-                    <div class="listing-title">${item.crop}</div>
-                    <div class="seller-info">North Bengaluru Peri-Urban Cluster</div>
+                    <div class="listing-title">${title}</div>
+                    <div class="seller-info"><i class="fa-solid fa-user-tie"></i> Farmer: <b>${farmer}</b> &bull; ${location}</div>
                     <div class="card-metrics-row">
                         <div class="metric-item">
                             <div class="lbl">Price</div>
-                            <div class="val">₹${item.price.toFixed(2)}/${item.unit}</div>
+                            <div class="val">₹${price.toFixed(2)}/${unit}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="lbl">Crop</div>
+                            <div class="val">${crop}</div>
                         </div>
                         <div class="metric-item">
                             <div class="lbl">Grade</div>
-                            <div class="val">${item.grade}</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="lbl">Freshness</div>
-                            <div class="val" style="color: var(--primary);">96%</div>
+                            <div class="val">${grade}</div>
                         </div>
                     </div>
                     <div class="card-actions">
-                        <button class="btn-action btn-primary" onclick="addToCart('${item.crop}', 'cat-${item.crop}')">
-                            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                        <button class="btn-action btn-primary" ${inStock ? "" : "disabled style='background:#64748b;cursor:not-allowed;'"} onclick="addToCart('${crop}', '${item.id || ''}')">
+                            <i class="fa-solid fa-cart-plus"></i> ${inStock ? "Add to Cart" : "Out of Stock"}
                         </button>
                     </div>
                 </div>
             </div>
         `;
     });
+}
+
+async function loadFarmerListings() {
+    const tbody = document.getElementById("farmer-listings-tbody");
+    if (!tbody) return;
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/listings`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const items = data.products || [];
+        tbody.innerHTML = items.map(item => {
+            const inStock = item.in_stock !== undefined ? Boolean(item.in_stock) : (Number(item.available_quantity ?? 0) > 0 && item.status !== "OUT_OF_STOCK");
+            const qty = Number(item.available_quantity ?? item.stock_quantity ?? 0);
+            const price = Number(item.price_per_unit ?? item.price ?? 0);
+            return `
+                <tr>
+                    <td><b>${item.title || item.name}</b> <span style="color:var(--text-muted);font-size:0.8rem;">(${item.crop_name})</span></td>
+                    <td>${item.farmer_name || "Farmer"}</td>
+                    <td>${item.location || "Mandya"}</td>
+                    <td>₹${price.toFixed(2)}/${item.unit || "kg"}</td>
+                    <td>${qty} ${item.unit || "kg"}</td>
+                    <td>
+                        <button onclick="toggleFarmerStock(${item.id}, ${!inStock})" style="padding: 5px 12px; border: none; border-radius: 999px; font-weight: bold; cursor: pointer; color: white; background: ${inStock ? "#16a34a" : "#dc2626"};">
+                            ${inStock ? "✓ In Stock (Click to Mark Out)" : "✕ Out of Stock (Click to Restock)"}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    } catch (e) {
+        console.warn("Farmer listings load error:", e);
+    }
+}
+
+async function toggleFarmerStock(listingId, newInStock) {
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/listings/${listingId}/stock`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ in_stock: newInStock })
+        });
+        if (res.ok) {
+            await loadFarmerListings();
+            const q = document.getElementById("marketplace-crop-search")?.value || "";
+            await renderAllListings(q);
+        }
+    } catch (e) {
+        console.error("Stock toggle failed:", e);
+    }
+}
+
+async function publishFarmerListing(event) {
+    event.preventDefault();
+    const farmerName = document.getElementById("f-farmer-name").value.trim();
+    const cropName = document.getElementById("f-crop-name").value.trim();
+    const price = parseFloat(document.getElementById("f-price").value);
+    const qty = parseFloat(document.getElementById("f-qty").value);
+    const location = document.getElementById("f-location").value.trim();
+
+    try {
+        const res = await fetch(`${API_ML_URL}/api/v1/listings`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                farmer_name: farmerName,
+                title: `Fresh ${cropName} (${farmerName})`,
+                crop_name: cropName,
+                category_id: 1,
+                description: `Freshly harvested ${cropName} listed by ${farmerName}.`,
+                price_per_unit: price,
+                unit: "kg",
+                available_quantity: qty,
+                is_organic: true,
+                grade: "A",
+                location: location
+            })
+        });
+        if (res.ok) {
+            document.getElementById("f-crop-name").value = "";
+            document.getElementById("f-price").value = "";
+            await loadFarmerListings();
+            await renderAllListings(document.getElementById("marketplace-crop-search")?.value || "");
+        }
+    } catch (e) {
+        console.error("Publish listing failed:", e);
+    }
 }
 
 // ==========================================
