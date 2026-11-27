@@ -676,17 +676,16 @@
                 Farmer, Delivery Partner, Customer, and Aggregator can speak or type in their own language — messages auto-translate into your selected preferred language with Voice Mic &amp; Speaker playback.
             </p>
             <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center;">
-                <select id="chat-channel-select" onchange="loadPersonaMessages()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
-                    <option value="farmer-delivery">Farmer ↔ Delivery Partner</option>
-                    <option value="customer-delivery">Customer ↔ Delivery Partner</option>
-                    <option value="farmer-aggregator">Farmer ↔ Aggregator</option>
-                    <option value="aggregator-delivery">Aggregator ↔ Delivery Partner</option>
-                </select>
-                <select id="chat-sender-persona" style="padding:8px 12px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+                <select id="chat-sender-persona" onchange="updateWebChatChannels()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
                     <option value="FARMER">Speaking as: Farmer</option>
                     <option value="DELIVERY">Speaking as: Delivery Partner</option>
                     <option value="CUSTOMER">Speaking as: Customer</option>
                     <option value="AGGREGATOR">Speaking as: Aggregator</option>
+                </select>
+                <select id="chat-channel-select" onchange="loadPersonaMessages()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--dark-border); background:var(--dark-card); color:white;">
+                    <option value="farmer-aggregator">Contact: Aggregator Hub</option>
+                    <option value="farmer-delivery">Contact: Delivery Partner</option>
+                    <option value="farmer-customer">Contact: Customer</option>
                 </select>
                 <button onclick="loadPersonaMessages()" class="btn-action btn-secondary" style="width:auto; padding:8px 14px;">
                     <i class="fa-solid fa-rotate"></i> Refresh &amp; Translate

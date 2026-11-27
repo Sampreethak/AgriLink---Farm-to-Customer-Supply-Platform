@@ -49,11 +49,15 @@ void speakPlatformText(String text, String langCode) {
     final audio = _HTMLAudioElement(ttsUrl.toJS);
     _activeAudio = audio;
     audio.play().toDart.catchError((_) {
-      _fallbackWebSpeech(clean, lang);
+      if (lang == 'en') {
+        _fallbackWebSpeech(clean, lang);
+      }
       return null;
     });
   } catch (_) {
-    _fallbackWebSpeech(clean, lang);
+    if (lang == 'en') {
+      _fallbackWebSpeech(clean, lang);
+    }
   }
 }
 

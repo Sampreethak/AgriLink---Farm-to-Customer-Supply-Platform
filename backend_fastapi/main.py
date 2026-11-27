@@ -2247,6 +2247,17 @@ PERSONA_MESSAGES: List[dict] = [
         "order_id": "TRIP-88",
         "created_at": "10:05",
     },
+    {
+        "id": 5,
+        "channel": "farmer-customer",
+        "sender_persona": "FARMER",
+        "sender_name": "Ramesh Kumar",
+        "recipient_persona": "CUSTOMER",
+        "text": "ಇಂದು ಬೆಳಿಗ್ಗೆ ಕಟಾವು ಮಾಡಿದ ತಾಜಾ ಸಾವಯವ ಟೊಮ್ಯಾಟೊ ಲಭ್ಯವಿದೆ.",
+        "sender_language": "kn",
+        "order_id": "LIST-101",
+        "created_at": "10:20",
+    },
 ]
 
 

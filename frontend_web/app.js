@@ -51,6 +51,36 @@ async function onPersonaLanguageChange(langCode) {
     }
 }
 
+const WEB_PERSONA_CHANNELS = {
+    FARMER: [
+        { id: "farmer-aggregator", label: "Contact: Aggregator Hub" },
+        { id: "farmer-delivery", label: "Contact: Delivery Partner" },
+        { id: "farmer-customer", label: "Contact: Customer" }
+    ],
+    AGGREGATOR: [
+        { id: "farmer-aggregator", label: "Contact: Farmer" },
+        { id: "aggregator-delivery", label: "Contact: Delivery Partner" }
+    ],
+    DELIVERY: [
+        { id: "farmer-delivery", label: "Contact: Farmer (Pickup)" },
+        { id: "aggregator-delivery", label: "Contact: Aggregator Hub" },
+        { id: "customer-delivery", label: "Contact: Customer (Drop-off)" }
+    ],
+    CUSTOMER: [
+        { id: "customer-delivery", label: "Contact: Delivery Partner" },
+        { id: "farmer-customer", label: "Contact: Farmer" }
+    ]
+};
+
+function updateWebChatChannels() {
+    const persona = document.getElementById("chat-sender-persona")?.value || "FARMER";
+    const chSel = document.getElementById("chat-channel-select");
+    if (!chSel) return;
+    const allowed = WEB_PERSONA_CHANNELS[persona] || WEB_PERSONA_CHANNELS.CUSTOMER;
+    chSel.innerHTML = allowed.map(c => `<option value="${c.id}">${c.label}</option>`).join("");
+    loadPersonaMessages();
+}
+
 async function loadPersonaMessages() {
     const box = document.getElementById("persona-chat-messages");
     if (!box) return;
@@ -1471,6 +1501,36 @@ async function onPersonaLanguageChange(langCode) {
     if (activeTab === "connect-tab") {
         loadPersonaMessages();
     }
+}
+
+const WEB_PERSONA_CHANNELS = {
+    FARMER: [
+        { id: "farmer-aggregator", label: "Contact: Aggregator Hub" },
+        { id: "farmer-delivery", label: "Contact: Delivery Partner" },
+        { id: "farmer-customer", label: "Contact: Customer" }
+    ],
+    AGGREGATOR: [
+        { id: "farmer-aggregator", label: "Contact: Farmer" },
+        { id: "aggregator-delivery", label: "Contact: Delivery Partner" }
+    ],
+    DELIVERY: [
+        { id: "farmer-delivery", label: "Contact: Farmer (Pickup)" },
+        { id: "aggregator-delivery", label: "Contact: Aggregator Hub" },
+        { id: "customer-delivery", label: "Contact: Customer (Drop-off)" }
+    ],
+    CUSTOMER: [
+        { id: "customer-delivery", label: "Contact: Delivery Partner" },
+        { id: "farmer-customer", label: "Contact: Farmer" }
+    ]
+};
+
+function updateWebChatChannels() {
+    const persona = document.getElementById("chat-sender-persona")?.value || "FARMER";
+    const chSel = document.getElementById("chat-channel-select");
+    if (!chSel) return;
+    const allowed = WEB_PERSONA_CHANNELS[persona] || WEB_PERSONA_CHANNELS.CUSTOMER;
+    chSel.innerHTML = allowed.map(c => `<option value="${c.id}">${c.label}</option>`).join("");
+    loadPersonaMessages();
 }
 
 async function loadPersonaMessages() {

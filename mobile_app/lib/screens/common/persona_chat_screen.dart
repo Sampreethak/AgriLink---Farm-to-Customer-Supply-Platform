@@ -37,24 +37,36 @@ class _PersonaChatScreenState extends State<PersonaChatScreen> {
   bool _isSending = false;
   bool _showKeyboard = false;
 
-  static const List<Map<String, String>> _channels = [
-    {'id': 'farmer-delivery', 'label': 'Farmer ↔ Delivery'},
-    {'id': 'customer-delivery', 'label': 'Customer ↔ Delivery'},
-    {'id': 'farmer-aggregator', 'label': 'Farmer ↔ Aggregator'},
-    {'id': 'aggregator-delivery', 'label': 'Aggregator ↔ Delivery'},
-  ];
+  static const Map<String, List<Map<String, String>>> _personaChannels = {
+    'FARMER': [
+      {'id': 'farmer-aggregator', 'label': 'Aggregator Hub'},
+      {'id': 'farmer-delivery', 'label': 'Delivery Partner'},
+      {'id': 'farmer-customer', 'label': 'Customer'},
+    ],
+    'AGGREGATOR': [
+      {'id': 'farmer-aggregator', 'label': 'Farmer'},
+      {'id': 'aggregator-delivery', 'label': 'Delivery Partner'},
+    ],
+    'DELIVERY': [
+      {'id': 'farmer-delivery', 'label': 'Farmer (Pickup)'},
+      {'id': 'aggregator-delivery', 'label': 'Aggregator Hub'},
+      {'id': 'customer-delivery', 'label': 'Customer (Drop-off)'},
+    ],
+    'CUSTOMER': [
+      {'id': 'customer-delivery', 'label': 'Delivery Partner'},
+      {'id': 'farmer-customer', 'label': 'Farmer'},
+    ],
+  };
+
+  List<Map<String, String>> get _allowedChannels {
+    return _personaChannels[widget.currentPersona.toUpperCase()] ??
+        _personaChannels['CUSTOMER']!;
+  }
 
   @override
   void initState() {
     super.initState();
-    final p = widget.currentPersona.toUpperCase();
-    if (p == 'CUSTOMER') {
-      _selectedChannel = 'customer-delivery';
-    } else if (p == 'AGGREGATOR') {
-      _selectedChannel = 'farmer-aggregator';
-    } else {
-      _selectedChannel = 'farmer-delivery';
-    }
+    _selectedChannel = _allowedChannels.first['id']!;
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadMessages());
   }
 
@@ -172,10 +184,10 @@ class _PersonaChatScreenState extends State<PersonaChatScreen> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: _channels.length,
+              itemCount: _allowedChannels.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (ctx, i) {
-                final ch = _channels[i];
+                final ch = _allowedChannels[i];
                 final active = ch['id'] == _selectedChannel;
                 return ChoiceChip(
                   label: Text(ch['label']!, style: TextStyle(fontSize: 12, color: active ? Colors.white : Colors.black87)),
